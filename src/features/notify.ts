@@ -1,9 +1,9 @@
 
-import { Feature } from './featureTypes';
+import { Feature } from './featureTypes'
 import { ServiceManager } from '../index'
 
 export interface NotifyOptions {
-  level: String
+  level: string
 }
 
 export const NotifyOptionsDefault = {
@@ -11,23 +11,33 @@ export const NotifyOptionsDefault = {
 }
 
 export class NotifyFeature implements Feature {
-  
-  private options: NotifyOptions = NotifyOptionsDefault;
-  private transport;
 
-  async init (manager: ServiceManager, options?: NotifyOptions): Promise<Object> {
+  private options: NotifyOptions = NotifyOptionsDefault
+  private transport
+  private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+
+  async init (options?: NotifyOptions): Promise<Object> {
     if (options) {
-      this.options = options;
+      this.options = options
     }
 
-    this.transport = manager.get('transport');
+    this.transport = ServiceManager.get('transport')
 
     return {
       notify: this.notify
     }
   }
 
-  notify (err: Error) {
-    return this.transport.send(err)
+  notify (err: Error, level?: string) {
+
+    if (!level || this.levels.indexOf(level) === -1) {
+      return this.transport.send(err)
+    }
+
+    if (this.levels.indexOf(this.options.level) <= this.levels.indexOf(level)) {
+      return this.transport.send(err)
+    }
+
+    return null
   }
 }

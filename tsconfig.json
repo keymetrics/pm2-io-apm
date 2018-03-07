@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "es6",
     "outDir": "build/main",
-    "rootDir": "src",
+    "rootDirs": ["src", "test"],
     "moduleResolution": "node",
     "module": "commonjs",
     "declaration": true,
@@ -20,11 +20,12 @@
     ],
     "baseUrl": ".", // required for "paths"
     "paths": {
-      "typescript-starter": ["src/index.ts"] // write tests without relative paths
+      "pmx-2": ["src/index.ts"] // write tests without relative paths
     }
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "test/**/*.ts"
   ],
   "exclude": [
     "node_modules/**"
