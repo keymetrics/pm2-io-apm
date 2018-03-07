@@ -2,7 +2,7 @@
 import { Feature } from './featureTypes'
 import { ServiceManager } from '../index'
 
-export interface NotifyOptions {
+export class NotifyOptions {
   level: string
 }
 
@@ -34,7 +34,7 @@ export class NotifyFeature implements Feature {
       return this.transport.send(err)
     }
 
-    if (this.levels.indexOf(this.options.level) <= this.levels.indexOf(level)) {
+    if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level)) {
       return this.transport.send(err)
     }
 
