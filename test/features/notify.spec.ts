@@ -1,10 +1,13 @@
-import { test } from 'ava'
 import { fork } from 'child_process'
+import { expect } from 'chai'
+import 'mocha'
 
-test.cb('[Notify] should send a notification', t => {
-  const child = fork('./build/main/test/fixtures/features/notifyChild.js')
-  child.on('message', msg => {
-    t.deepEqual(msg, 'test')
-    t.end()
+describe('Notify', () => {
+  it('should send a notification', (done) => {
+    const child = fork('./build/main/test/fixtures/features/notifyChild.js')
+    child.on('message', msg => {
+      expect(msg).to.equal('test')
+      done()
+    })
   })
 })
