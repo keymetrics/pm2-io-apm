@@ -1,8 +1,7 @@
 
-import { NotifyFeature, NotifyOptions } from './notify'
-import { ServiceManager } from '../index'
+import { NotifyFeature } from './notify'
 
-export const features =  [
+export const features = [
   {
     name: 'notify',
     module: NotifyFeature
@@ -10,5 +9,5 @@ export const features =  [
 ]
 
 export interface Feature {
-  init(service: ServiceManager): Object;
+  init (): Object
 }

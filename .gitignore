@@ -1,9 +1,8 @@
+.idea
 node_modules
 build
-test
 src/**.js
 package-lock.json
-
 coverage
 .nyc_output
 *.log

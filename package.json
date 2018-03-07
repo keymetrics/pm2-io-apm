@@ -1,26 +1,20 @@
 {
-  "name": "typescript-starter",
-  "version": "1.4.1",
-  "description": "A typescript starter for building javascript libraries and projects",
+  "name": "pmx-2",
+  "version": "1.0.0",
+  "description": "",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "browser": "build/browser/index.js",
-  "repository": "https://github.com/bitjson/typescript-starter",
-  "author": "Jason Dreyzehner <jason@dreyzehner.com>",
+  "repository": "https://github.com/keymetrics/pmx-2",
+  "author": "",
   "license": "MIT",
   "scripts": {
     "info": "npm-scripts-info",
-    "build": "trash build && yarn build:main && yarn build:module && yarn build:browser-deps && yarn build:browser && yarn build:browser-cjs && yarn build:resolve-sourcemaps",
+    "build": "trash build && yarn build:main",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
-    "build:browser-deps": "mkdirp build/temp && browserify node_modules/hash.js/lib/hash.js --standalone hash -o build/temp/hash.js",
-    "build:browser": "rollup -c config/exports/rollup.config.js -f es -o build/browser/index.js",
-    "build:browser-cjs": "rollup -c config/exports/rollup.config.js -f cjs -o build/browser/index.cjs.js",
-    "build:resolve-sourcemaps": "sorcery -i build/browser/index.js && sorcery -i build/browser/index.cjs.js",
-    "build:tests": "trash test && node config/exports/build-tests.js",
     "lint": "tslint --project . --type-check src/**/*.ts",
-    "unit": "yarn build && yarn build:tests && nyc ava",
+    "unit": "yarn build && nyc ava ./build/main/**/*.spec.js report --reporter=html",
     "check-coverage": "nyc check-coverage --lines 100 --functions 100 --branches 100",
     "test": "yarn lint && yarn unit && yarn check-coverage",
     "watch": "yarn build && yarn build:tests -- --no-browser && concurrently -r --kill-others \"npm run --silent build:main -- -w\" \"npm run --silent build:tests -- -w --no-browser\" \"sleepms 2000 && ava --watch\"",
@@ -31,8 +25,6 @@
     "docs:html": "typedoc src/index.ts --excludePrivate --mode file --theme minimal --out build/docs",
     "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
     "docs:publish": "yarn docs:html && gh-pages -d build/docs",
-    "changelog": "standard-version",
-    "release": "yarn reset && yarn test && yarn docs:publish && yarn changelog",
     "reset": "git clean -dfx && git reset --hard && yarn"
   },
   "scripts-info": {
@@ -51,63 +43,34 @@
     "release": "Clean, build, test, publish docs, and prepare release (a one-step publish process)"
   },
   "engines": {
-    "node": ">=4.5"
+    "node": ">=4.0"
   },
   "devDependencies": {
     "@types/node": "^8.0.4",
-    "browserify": "^14.1.0",
+    "ava": "^0.25.0",
+    "chai": "^4.1.2",
     "codecov": "^2.2.0",
     "concurrently": "^3.4.0",
-    "cpx": "^1.5.0",
     "gh-pages": "^1.0.0",
-    "hash.js": "^1.0.3",
-    "mkdirp": "^0.5.1",
+    "mocha": "^5.0.2",
     "npm-scripts-info": "^0.3.6",
     "nyc": "^11.0.3",
-    "opn-cli": "^3.1.0",
-    "rollup": "^0.44.0",
-    "rollup-plugin-alias": "^1.2.0",
-    "rollup-plugin-commonjs": "^8.0.2",
-    "rollup-plugin-json": "^2.3.0",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-watch": "^4.0.0",
-    "sleep-ms": "^2.0.1",
-    "sorcery": "^0.10.0",
-    "standard-version": "^4.0.0",
     "trash-cli": "^1.4.0",
+    "ts-node": "^5.0.1",
     "tslint": "^5.4.3",
     "tslint-config-standard": "^6.0.1",
     "typedoc": "^0.8.0",
     "typescript": "^2.4.1"
   },
-  "keywords": [
-    "async",
-    "ava",
-    "await",
-    "boilerplate",
-    "conventional-changelog",
-    "ES6",
-    "ES7",
-    "library",
-    "javascript-modules",
-    "node",
-    "nyc",
-    "rollup",
-    "starter",
-    "template",
-    "tree-shaking",
-    "tslint",
-    "typedoc",
-    "typescript",
-    "typings"
-  ],
+  "keywords": [],
   "nyc": {
     "exclude": [
-      "**/*.spec.js",
-      "build/browser/**"
+      "build/main/test/**/*"
     ]
   },
   "dependencies": {
+    "debug": "^3.1.0",
+    "json-stringify-safe": "^5.0.1",
     "tslib": "^1.6.0"
   }
 }

@@ -1,7 +1,10 @@
+import Transport from './utils/transport'
 
+const services: { transport: Transport; } = { transport: new Transport() }
 
 export class ServiceManager {
-  static get () {
 
+  public static get (type: string) {
+    return services[type]
   }
 }
