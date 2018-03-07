@@ -13,19 +13,18 @@
     "build": "trash build && yarn build:main",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
-    "lint": "tslint --project . --type-check src/**/*.ts",
-    "unit": "yarn build && nyc ava ./build/main/**/*.spec.js report --reporter=html",
+    "lint": "tslint --project . src/**/*.ts",
+    "unit": "yarn build && nyc mocha -r ts-node/register ./test/**/*.spec.ts",
     "check-coverage": "nyc check-coverage --lines 100 --functions 100 --branches 100",
     "test": "yarn lint && yarn unit && yarn check-coverage",
-    "watch": "yarn build && yarn build:tests -- --no-browser && concurrently -r --kill-others \"npm run --silent build:main -- -w\" \"npm run --silent build:tests -- -w --no-browser\" \"sleepms 2000 && ava --watch\"",
+    "watch": "yarn build && concurrently -r --kill-others \"npm run --silent build:main -- -w\" \"npm run --silent build:tests -- -w --no-browser\" \"sleepms 2000 && ava --watch\"",
     "cov": "yarn unit && yarn html-coverage && opn coverage/index.html",
     "html-coverage": "nyc report --reporter=html",
     "send-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "docs": "yarn docs:html && opn build/docs/index.html",
     "docs:html": "typedoc src/index.ts --excludePrivate --mode file --theme minimal --out build/docs",
     "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
-    "docs:publish": "yarn docs:html && gh-pages -d build/docs",
-    "reset": "git clean -dfx && git reset --hard && yarn"
+    "docs:publish": "yarn docs:html && gh-pages -d build/docs"
   },
   "scripts-info": {
     "info": "Display information about the scripts",
@@ -37,17 +36,15 @@
     "cov": "Run tests, generate the HTML coverage report, and open it in a browser",
     "docs": "Generate HTML API documentation and open it in a browser",
     "docs:publish": "Generate HTML API documentation and push it to GitHub Pages",
-    "docs:json": "Generate API documentation in typedoc JSON format",
-    "changelog": "Bump package.json version, update CHANGELOG.md, tag a release",
-    "reset": "Delete all untracked files and reset the repo to the last commit",
-    "release": "Clean, build, test, publish docs, and prepare release (a one-step publish process)"
+    "docs:json": "Generate API documentation in typedoc JSON format"
   },
   "engines": {
     "node": ">=4.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^2.2.48",
     "@types/node": "^8.0.4",
-    "ava": "^0.25.0",
     "chai": "^4.1.2",
     "codecov": "^2.2.0",
     "concurrently": "^3.4.0",
@@ -60,7 +57,8 @@
     "tslint": "^5.4.3",
     "tslint-config-standard": "^6.0.1",
     "typedoc": "^0.8.0",
-    "typescript": "^2.4.1"
+    "typescript": "^2.4.1",
+    "typings": "^2.1.1"
   },
   "keywords": [],
   "nyc": {
