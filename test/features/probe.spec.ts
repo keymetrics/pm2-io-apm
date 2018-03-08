@@ -12,8 +12,6 @@ describe('Probe', () => {
 
       expect(meter.val()).to.equal(0)
 
-      //meter.mark(10)
-
       setTimeout(function () {
         expect(meter.val()).to.equal(0)
         done()

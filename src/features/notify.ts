@@ -2,8 +2,6 @@ import * as util from 'util'
 
 import { Feature } from './featureTypes'
 import { ServiceManager } from '../index'
-import Callsites from '../utils/error-callsites'
-import '../native'
 
 export class NotifyOptions {
   level: string
@@ -26,6 +24,8 @@ export class NotifyFeature implements Feature {
 
     this.transport = ServiceManager.get('transport')
 
+    this.catchAll()
+
     return {
       notify: this.notify
     }
@@ -45,7 +45,6 @@ export class NotifyFeature implements Feature {
   }
 
   catchAll (opts?: any): Boolean | void {
-    Callsites.init()
 
     if (opts === undefined) {
       opts = {errors: true}
@@ -71,7 +70,7 @@ export class NotifyFeature implements Feature {
         }
 
         if (listener === 'unhandledRejection') {
-          error = 'You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:\n' + error
+          console.log('You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:')
         }
 
         console.error(error)
@@ -129,17 +128,6 @@ export class NotifyFeature implements Feature {
 
     if (err instanceof Error) {
       // Error object type processing
-      if (err.__error_callsites) {
-        const stackFrames: Object[] = []
-        err.__error_callsites.forEach(function (callSite) {
-          stackFrames.push({
-            file_name: callSite.getFileName(),
-            line_number: callSite.getLineNumber()
-          })
-        })
-        err.stackframes = stackFrames
-        delete err.__error_callsites
-      }
       sErr = err
     } else {
       // JSON processing
