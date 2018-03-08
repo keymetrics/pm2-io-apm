@@ -4,7 +4,7 @@ import * as stringify from 'json-stringify-safe'
 debug('axm:transport')
 
 export default class Transport {
-  send (args: Error, print?: Boolean): void | number {
+  send (args: Error | any, print?: Boolean): void | number {
 
     if (!print) print = false
 
@@ -19,8 +19,10 @@ export default class Transport {
       return -1
     }
 
+    const msg = args instanceof Error ? args.message : args.data.message
+
     try {
-      process.send(JSON.parse(stringify(args.message)))
+      process.send(JSON.parse(stringify(msg)))
     } catch (e) {
       console.error('Process disconnected from parent !')
       console.error(e.stack || e)
