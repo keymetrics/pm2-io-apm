@@ -1,7 +1,7 @@
 import { Feature } from './featureTypes'
-import Meter from '../probes/meter'
+import Meter from '../metrics/meter'
 
-export default class ProbeFeature implements Feature {
+export default class MetricsFeature implements Feature {
   init (): Object {
     return {
       metric: null,

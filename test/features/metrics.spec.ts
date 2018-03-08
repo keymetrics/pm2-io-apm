@@ -1,14 +1,14 @@
 import { expect, assert } from 'chai'
 import 'mocha'
 
-import Probe from '../../src/features/probe'
+import Metric from '../../src/features/metrics'
 
-describe('Probe', () => {
+describe('Metrics', () => {
   describe('meter', () => {
     it('should calulate a meter', (done) => {
-      const probe = new Probe()
+      const metric = new Metric()
 
-      const meter = probe.meter({tickInterval: 50})
+      const meter = metric.meter({tickInterval: 50})
 
       expect(meter.val()).to.equal(0)
 
@@ -19,9 +19,9 @@ describe('Probe', () => {
     })
 
     it('should calulate a meter after mark', (done) => {
-      const probe = new Probe()
+      const metric = new Metric()
 
-      const meter = probe.meter({tickInterval: 50})
+      const meter = metric.meter({tickInterval: 50})
 
       expect(meter.val()).to.equal(0)
 
