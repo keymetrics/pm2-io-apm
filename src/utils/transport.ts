@@ -4,7 +4,7 @@ import * as stringify from 'json-stringify-safe'
 debug('axm:transport')
 
 export default class Transport {
-  send (args: Error | any, print?: Boolean): void | number {
+  send (args: Error | any, print?: Boolean): number {
 
     if (!print) print = false
 
@@ -28,5 +28,7 @@ export default class Transport {
       console.error(e.stack || e)
       process.exit(1)
     }
+
+    return 0
   }
 }
