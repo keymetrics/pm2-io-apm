@@ -33,6 +33,11 @@ export class NotifyFeature implements Feature {
 
   notify (err: Error, level?: string) {
 
+    if (!(err instanceof Error)) {
+      console.error('You should use notify with an Error !!!')
+      return -1
+    }
+
     if (!level || this.levels.indexOf(level) === -1) {
       return this.transport.send(err)
     }

@@ -2,6 +2,7 @@ import { fork } from 'child_process'
 import { expect, assert } from 'chai'
 import 'mocha'
 import SpecUtils from '../fixtures/utils'
+import { NotifyFeature } from '../../src/features/notify'
 
 describe('Notify', () => {
   describe('notify', () => {
@@ -28,6 +29,15 @@ describe('Notify', () => {
         if (count === 3) {
           done()
         }
+      })
+    })
+
+    it('should return if argument is not an error', () => {
+      const notify = new NotifyFeature()
+      notify.init().then(() => {
+        const msg = 'test' as any
+        const res = notify.notify(msg)
+        expect(res).to.equal(-1)
       })
     })
   })
