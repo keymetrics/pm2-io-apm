@@ -5,7 +5,7 @@ import Metric from '../../src/features/metrics'
 
 describe('Metrics', () => {
   describe('meter', () => {
-    it('should calulate a meter', (done) => {
+    it('should calculate a meter', (done) => {
       const metric = new Metric()
 
       const meter = metric.meter({tickInterval: 50})
@@ -18,7 +18,7 @@ describe('Metrics', () => {
       }, 60)
     })
 
-    it('should calulate a meter after mark', (done) => {
+    it('should calculate a meter after mark', (done) => {
       const metric = new Metric()
 
       const meter = metric.meter({tickInterval: 50})
