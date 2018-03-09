@@ -62,8 +62,12 @@
   },
   "keywords": [],
   "nyc": {
+    "extension": [
+      ".ts"
+    ],
     "exclude": [
-      "build/main/test/**/*"
+      "build/main/test/**/*",
+      "test/**/*"
     ]
   },
   "dependencies": {
