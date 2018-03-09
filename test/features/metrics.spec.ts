@@ -33,4 +33,32 @@ describe('Metrics', () => {
       }, 60)
     })
   })
+
+  describe('counter', () => {
+    it('should calculate a meter', () => {
+      const metric = new Metric()
+
+      const counter = metric.counter()
+
+      expect(counter.val()).to.equal(0)
+
+      counter.inc()
+      expect(counter.val()).to.equal(1)
+
+      counter.dec()
+      expect(counter.val()).to.equal(0)
+
+      counter.inc(2)
+      expect(counter.val()).to.equal(2)
+
+      counter.dec(1)
+      expect(counter.val()).to.equal(1)
+
+      counter.reset()
+      expect(counter.val()).to.equal(0)
+
+      counter.reset(10)
+      expect(counter.val()).to.equal(10)
+    })
+  })
 })
