@@ -15,28 +15,25 @@ describe('Metrics', () => {
       expect(metrics.hasOwnProperty('counter')).to.equal(true)
       expect(metrics.hasOwnProperty('metric')).to.equal(true)
     })
-
-    it('should calculate a meter after mark', (done) => {
-      const metric = new Metric()
-
-      const meter = metric.meter({tickInterval: 50})
-
-      expect(meter.val()).to.equal(0)
-
-      meter.mark(10)
-
-      setTimeout(function () {
-        expect(meter.val()).to.equal(0.17)
-        done()
-      }, 60)
-    })
   })
 
   describe('meter', () => {
-    it('should calculate a meter', (done) => {
+    it('should return undefined if no name provided', () => {
       const metric = new Metric()
 
       const meter = metric.meter({tickInterval: 50})
+      expect(meter).to.equal(undefined)
+    })
+
+    it('should calculate a meter', (done) => {
+      const metric = new Metric()
+
+      const meter = metric.meter({name: 'test', tickInterval: 50})
+
+      if (!meter) {
+        assert.fail()
+        return
+      }
 
       expect(meter.val()).to.equal(0)
 
@@ -49,7 +46,12 @@ describe('Metrics', () => {
     it('should calculate a meter after mark', (done) => {
       const metric = new Metric()
 
-      const meter = metric.meter({tickInterval: 50})
+      const meter = metric.meter({name: 'test', tickInterval: 50})
+
+      if (!meter) {
+        assert.fail()
+        return
+      }
 
       expect(meter.val()).to.equal(0)
 
@@ -63,10 +65,22 @@ describe('Metrics', () => {
   })
 
   describe('counter', () => {
+    it('should return undefined if no name provided', () => {
+      const metric = new Metric()
+
+      const counter = metric.counter({})
+      expect(counter).to.equal(undefined)
+    })
+
     it('should calculate a meter', () => {
       const metric = new Metric()
 
-      const counter = metric.counter()
+      const counter = metric.counter({name: 'test'})
+
+      if (!counter) {
+        assert.fail()
+        return
+      }
 
       expect(counter.val()).to.equal(0)
 
@@ -91,6 +105,13 @@ describe('Metrics', () => {
   })
 
   describe('histogram', () => {
+    it('should return undefined if no name provided', () => {
+      const metric = new Metric()
+
+      const histo = metric.histogram({})
+      expect(histo).to.equal(undefined)
+    })
+
     it('should calculate an histogram', () => {
       const metric = new Metric()
 
@@ -98,6 +119,11 @@ describe('Metrics', () => {
         name        : 'latency',
         measurement : 'mean'
       })
+
+      if (!histo) {
+        assert.fail()
+        return
+      }
 
       expect(histo.val()).to.equal(0)
 
@@ -132,6 +158,11 @@ describe('Metrics', () => {
         measurement : 'max'
       })
 
+      if (!histo) {
+        assert.fail()
+        return
+      }
+
       expect(histo.val()).to.equal(undefined)
 
       histo.update(10)
@@ -143,18 +174,23 @@ describe('Metrics', () => {
       expect(histo.getSum()).to.equal(11)
     })
 
-    it('should calculate an histogram : ema', () => {
+    it('should calculate an histogram : mean', () => {
       const metric = new Metric()
 
       const histo = metric.histogram({
         name        : 'latency',
-        measurement : 'ema'
+        measurement : 'mean'
       })
+
+      if (!histo) {
+        assert.fail()
+        return
+      }
 
       expect(histo.val()).to.equal(0)
 
       histo.update(10)
-      expect(histo.val()).to.equal(0)
+      expect(histo.val()).to.equal(10)
     })
 
     it('should calculate an histogram : median', () => {
@@ -165,6 +201,11 @@ describe('Metrics', () => {
         measurement : 'median'
       })
 
+      if (!histo) {
+        assert.fail()
+        return
+      }
+
       expect(histo.val()).to.equal(null)
 
       histo.update(10)
@@ -173,6 +214,13 @@ describe('Metrics', () => {
   })
 
   describe('metric', () => {
+    it('should return undefined if no name provided', () => {
+      const metrics = new Metric()
+
+      const metric = metrics.metric({})
+      expect(metric).to.equal(undefined)
+    })
+
     it('should create a metric and and fail cause no name', () => {
       const metrics = new Metric()
       let metric = metrics.metric({
@@ -190,7 +238,7 @@ describe('Metrics', () => {
       expect(metric.val()).to.equal(0)
       metric.set(1)
       expect(metric.val()).to.equal(1)
-      let vars = metrics.getVar()
+      let vars = metrics._getVar()
       expect(vars.get('test').unit).to.equal(undefined)
       expect(vars.get('test').agg_type).to.equal('avg')
       expect(vars.get('test').historic).to.equal(true)
@@ -204,7 +252,7 @@ describe('Metrics', () => {
         unit: 'unit'
       })
 
-      vars = metrics.getVar()
+      vars = metrics._getVar()
       expect(vars.get('test').unit).to.equal('unit')
       expect(vars.get('test').agg_type).to.equal('sum')
       expect(vars.get('test').historic).to.equal(false)
@@ -215,7 +263,7 @@ describe('Metrics', () => {
         historic: true
       })
 
-      vars = metrics.getVar()
+      vars = metrics._getVar()
       expect(vars.get('test').historic).to.equal(true)
 
       metric = metrics.metric({
