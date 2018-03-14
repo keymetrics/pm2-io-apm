@@ -1,6 +1,6 @@
 import Transport from './utils/transport'
 
-const services: { transport: Transport; } = { transport: new Transport() }
+const services: { transport: Transport; metricsMap: Map<string, any> } = { transport: new Transport(), metricsMap: new Map() }
 
 export class ServiceManager {
 

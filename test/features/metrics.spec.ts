@@ -2,18 +2,22 @@ import { expect, assert } from 'chai'
 import 'mocha'
 
 import Metric from '../../src/features/metrics'
+import SpecUtils from '../fixtures/utils'
+import { fork } from 'child_process'
 
 describe('Metrics', () => {
 
   describe('init', () => {
     it('should init metrics', () => {
       const metric = new Metric()
-      const metrics = metric.init()
+      let metrics = metric.init()
 
       expect(metrics.hasOwnProperty('meter')).to.equal(true)
       expect(metrics.hasOwnProperty('histogram')).to.equal(true)
       expect(metrics.hasOwnProperty('counter')).to.equal(true)
       expect(metrics.hasOwnProperty('metric')).to.equal(true)
+
+      metric.destroy()
     })
   })
 
@@ -275,6 +279,19 @@ describe('Metrics', () => {
       })
 
       expect(metric.val()).to.equal('test is real !')
+    })
+  })
+
+  describe('metric', function () {
+    this.timeout(5000)
+    it('should not send data until value is higher than 0', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/features/metricsSendChild.js'))
+
+      child.on('message', data => {
+        expect(data.testSend.value).to.equal(1)
+        child.kill('SIGINT');
+        done()
+      })
     })
   })
 })

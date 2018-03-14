@@ -19,7 +19,7 @@ export default class Transport {
       return -1
     }
 
-    const msg = args instanceof Error ? args.message : args.data.message
+    const msg = args instanceof Error ? args.message : (args.data.message ? args.data.message : args.data)
 
     try {
       process.send(JSON.parse(stringify(msg)))

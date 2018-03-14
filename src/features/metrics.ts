@@ -12,6 +12,7 @@ export default class MetricsFeature implements Feature {
   private defaultAggregation: string = 'avg'
   private _started: boolean = false
   private _alreadySentData: Array<string> = []
+  private timer
 
   private AVAILABLE_MEASUREMENTS: Array<string> = [
     'min',
@@ -30,21 +31,22 @@ export default class MetricsFeature implements Feature {
 
   constructor () {
     this.transport = ServiceManager.get('transport')
+    this._var = ServiceManager.get('metricsMap')
   }
 
-  init (): Object {
+  init (): any {
     if (this._started === false) {
       this._started = true
       const self = this
 
-      const timer = setInterval(function () {
+      this.timer = setInterval(function () {
+        console.log('setInterval')
+        console.log(self._getVar())
         self.transport.send({
           type : 'axm:monitor',
-          data : this._cookData(this._var)
+          data : self._cookData(self._getVar())
         })
       }, constants.METRIC_INTERVAL)
-
-      timer.unref()
     }
 
     return {
@@ -158,6 +160,11 @@ export default class MetricsFeature implements Feature {
     this._alreadySentData.splice(this._alreadySentData.indexOf(name), 1)
   }
 
+  destroy () {
+    clearInterval(this.timer)
+    this._getVar().clear()
+    this._started = false
+  }
   /** -----------------------------------------
    * Private Methods
    * ------------------------------------------
@@ -194,21 +201,22 @@ export default class MetricsFeature implements Feature {
    */
   _cookData (data) {
     const cookedData = {}
+    const self = this
 
-    Object.keys(data).forEach(function (probeName) {
+    data.forEach(function (probe, probeName) {
 
-      if (typeof(data[probeName].value) === 'undefined') {
+      if (typeof(data.get(probeName).value) === 'undefined') {
         return false
       }
 
-      const value = this._getValue(data[probeName].value)
+      const value = self._getValue(data.get(probeName).value)
 
       // do not send data if this is always equal to 0
       // probably an initialized metric which is not "active"
-      if ((this._alreadySentData.indexOf(probeName) === -1 && value !== 0) ||
-        this._alreadySentData.indexOf(probeName) > -1) {
-        if (this._alreadySentData.indexOf(probeName) === -1) {
-          this._alreadySentData.push(probeName)
+      if ((self._alreadySentData.indexOf(probeName) === -1 && value !== 0) ||
+        self._alreadySentData.indexOf(probeName) > -1) {
+        if (self._alreadySentData.indexOf(probeName) === -1) {
+          self._alreadySentData.push(probeName)
         }
 
         cookedData[probeName] = {
@@ -218,15 +226,15 @@ export default class MetricsFeature implements Feature {
         /**
          * Attach aggregation mode
          */
-        if (data[probeName].agg_type &&
-          data[probeName].agg_type !== 'none') {
-          cookedData[probeName].agg_type = data[probeName].agg_type
+        if (data.get(probeName).agg_type &&
+          data.get(probeName).agg_type !== 'none') {
+          cookedData[probeName].agg_type = data.get(probeName).agg_type
         }
 
-        cookedData[probeName].historic = data[probeName].historic
-        cookedData[probeName].type = data[probeName].type
+        cookedData[probeName].historic = data.get(probeName).historic
+        cookedData[probeName].type = data.get(probeName).type
 
-        cookedData[probeName].unit = data[probeName].unit
+        cookedData[probeName].unit = data.get(probeName).unit
       }
     })
     return cookedData
