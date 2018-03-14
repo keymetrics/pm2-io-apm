@@ -40,8 +40,6 @@ export default class MetricsFeature implements Feature {
       const self = this
 
       this.timer = setInterval(function () {
-        console.log('setInterval')
-        console.log(self._getVar())
         self.transport.send({
           type : 'axm:monitor',
           data : self._cookData(self._getVar())
