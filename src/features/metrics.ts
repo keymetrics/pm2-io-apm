@@ -12,8 +12,7 @@ export default class MetricsFeature implements Feature {
       histogram: this.histogram,
       meter: this.meter,
       counter: this.counter,
-      metric: this.metric,
-      transpose: this.transpose
+      metric: this.metric
     }
   }
 
@@ -27,32 +26,6 @@ export default class MetricsFeature implements Feature {
 
   histogram (opts?: Object) {
     return new Histogram(opts)
-  }
-
-  /**
-   * This reflect data to keymetrics
-   * pmx.transpose('prop name', fn)
-   *
-   * or
-   *
-   * pmx.transpose({
-   *   name : 'variable name',
-   *   data : function() { return value }
-   * });
-   */
-  transpose (variableName, reporter?) {
-    if (typeof variableName === 'object') {
-      reporter = variableName.data
-      variableName = variableName.name
-    }
-
-    if (typeof reporter !== 'function') {
-      return console.error('[PMX] reporter is not a function')
-    }
-
-    this._var[variableName] = {
-      value: reporter
-    }
   }
 
   metric (opts): any {
