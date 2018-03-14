@@ -172,33 +172,6 @@ describe('Metrics', () => {
     })
   })
 
-  describe('transpose', () => {
-    it('should use transpose method and fail', () => {
-      const metric = new Metric()
-      const transpose = metric.transpose('test', 'not a function')
-
-      expect(transpose).to.equal(undefined)
-    })
-
-    it('should use transpose method', () => {
-      const metric = new Metric()
-      const transpose = metric.transpose('test', function () {
-        return 'Hello world !'
-      })
-
-      expect(metric.getVar()['test'].value()).to.equal('Hello world !')
-    })
-
-    it('should use transpose method with object', () => {
-      const metric = new Metric()
-      const transpose = metric.transpose({name: 'test', data: function () {
-        return 'Hello world !'
-      }})
-
-      expect(metric.getVar()['test'].value()).to.equal('Hello world !')
-    })
-  })
-
   describe('metric', () => {
     it('should create a metric and and fail cause no name', () => {
       const metrics = new Metric()
