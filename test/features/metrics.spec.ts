@@ -171,4 +171,89 @@ describe('Metrics', () => {
       expect(histo.val()).to.equal(10)
     })
   })
+
+  describe('transpose', () => {
+    it('should use transpose method and fail', () => {
+      const metric = new Metric()
+      const transpose = metric.transpose('test', 'not a function')
+
+      expect(transpose).to.equal(undefined)
+    })
+
+    it('should use transpose method', () => {
+      const metric = new Metric()
+      const transpose = metric.transpose('test', function () {
+        return 'Hello world !'
+      })
+
+      expect(metric.getVar()['test'].value()).to.equal('Hello world !')
+    })
+
+    it('should use transpose method with object', () => {
+      const metric = new Metric()
+      const transpose = metric.transpose({name: 'test', data: function () {
+        return 'Hello world !'
+      }})
+
+      expect(metric.getVar()['test'].value()).to.equal('Hello world !')
+    })
+  })
+
+  describe('metric', () => {
+    it('should create a metric and and fail cause no name', () => {
+      const metrics = new Metric()
+      let metric = metrics.metric({
+      })
+
+      expect(metric).to.equal(undefined)
+    })
+
+    it('should create a metric and use it', () => {
+      const metrics = new Metric()
+      let metric = metrics.metric({
+        name: 'test'
+      })
+
+      expect(metric.val()).to.equal(0)
+      metric.set(1)
+      expect(metric.val()).to.equal(1)
+      let vars = metrics.getVar()
+      expect(vars['test'].unit).to.equal(undefined)
+      expect(vars['test'].agg_type).to.equal('avg')
+      expect(vars['test'].historic).to.equal(true)
+      expect(vars['test'].type).to.equal('test')
+
+      metric = metrics.metric({
+        name: 'test',
+        type: 'type',
+        agg_type: 'sum',
+        historic: false,
+        unit: 'unit'
+      })
+
+      vars = metrics.getVar()
+      expect(vars['test'].unit).to.equal('unit')
+      expect(vars['test'].agg_type).to.equal('sum')
+      expect(vars['test'].historic).to.equal(false)
+      expect(vars['test'].type).to.equal('type')
+
+      metric = metrics.metric({
+        name: 'test',
+        historic: true
+      })
+
+      vars = metrics.getVar()
+      expect(vars['test'].historic).to.equal(true)
+
+      metric = metrics.metric({
+        name: 'test',
+        historic: true,
+        value: function () {
+          return 'test is real !'
+        }
+      })
+
+      expect(metric.val()).to.equal('test is real !')
+    })
+  })
 })
