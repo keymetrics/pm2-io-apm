@@ -191,10 +191,10 @@ describe('Metrics', () => {
       metric.set(1)
       expect(metric.val()).to.equal(1)
       let vars = metrics.getVar()
-      expect(vars['test'].unit).to.equal(undefined)
-      expect(vars['test'].agg_type).to.equal('avg')
-      expect(vars['test'].historic).to.equal(true)
-      expect(vars['test'].type).to.equal('test')
+      expect(vars.get('test').unit).to.equal(undefined)
+      expect(vars.get('test').agg_type).to.equal('avg')
+      expect(vars.get('test').historic).to.equal(true)
+      expect(vars.get('test').type).to.equal('test')
 
       metric = metrics.metric({
         name: 'test',
@@ -205,10 +205,10 @@ describe('Metrics', () => {
       })
 
       vars = metrics.getVar()
-      expect(vars['test'].unit).to.equal('unit')
-      expect(vars['test'].agg_type).to.equal('sum')
-      expect(vars['test'].historic).to.equal(false)
-      expect(vars['test'].type).to.equal('type')
+      expect(vars.get('test').unit).to.equal('unit')
+      expect(vars.get('test').agg_type).to.equal('sum')
+      expect(vars.get('test').historic).to.equal(false)
+      expect(vars.get('test').type).to.equal('type')
 
       metric = metrics.metric({
         name: 'test',
@@ -216,7 +216,7 @@ describe('Metrics', () => {
       })
 
       vars = metrics.getVar()
-      expect(vars['test'].historic).to.equal(true)
+      expect(vars.get('test').historic).to.equal(true)
 
       metric = metrics.metric({
         name: 'test',

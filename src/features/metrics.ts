@@ -4,7 +4,7 @@ import Counter from '../metrics/counter'
 import Histogram from '../metrics/histogram'
 
 export default class MetricsFeature implements Feature {
-  private _var: Object = {}
+  private _var: Map<string, any> = new Map()
   private defaultAggregation: string = 'avg'
 
   init (): Object {
@@ -33,19 +33,19 @@ export default class MetricsFeature implements Feature {
       return console.error('[Probe][Metric] Name not defined')
     }
 
-    this._var[opts.name] = {
+    this._var.set(opts.name, {
       value   : opts.value || 0,
       type    : opts.type || opts.name,
       historic: this._historicEnabled(opts.historic),
       agg_type: opts.agg_type || this.defaultAggregation,
       unit : opts.unit
-    }
+    })
 
     const self = this
 
     return {
       val : function () {
-        let value = self._var[opts.name].value
+        let value = self._var.get(opts.name).value
 
         if (typeof(value) === 'function') {
           value = value()
@@ -54,7 +54,7 @@ export default class MetricsFeature implements Feature {
         return value
       },
       set : function (dt) {
-        self._var[opts.name].value = dt
+        self._var.get(opts.name).value = dt
       }
     }
   }
