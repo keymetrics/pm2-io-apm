@@ -1,0 +1,28 @@
+pipeline:
+  build:
+    image: node:8
+    environment:
+      - NODE_ENV=test
+    commands:
+      - node -v
+      - yarn -v
+      - uname -r
+      - yarn install 2> /dev/null
+      - export PATH=$PATH:./node_modules/.bin/
+      - npm run test
+      - npm run send-coverage
+    secrets: [ codecov_token ]
+    when:
+      event: push
+  slack:
+    image: plugins/slack
+    channel: ci
+    status: [ success, failure ]
+    template: |
+      {{#success build.status}}
+        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" done by {{build.author}} succeeded in {{since build.started}}
+      {{else}}
+        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" done by {{build.author}} failed in {{since build.started}}
+      {{/success}}
+      see {{ build.link }}
+    secrets: [ slack_webhook ]
