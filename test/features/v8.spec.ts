@@ -1,0 +1,73 @@
+import { expect, assert } from 'chai'
+import 'mocha'
+
+import SpecUtils from '../fixtures/utils'
+import { fork, exec } from 'child_process'
+
+describe('V8', function () {
+  this.timeout(5000)
+  it('should send data with v8 heap info', (done) => {
+    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8Child.js'))
+
+    child.on('message', pck => {
+
+      if (pck.type === 'axm:monitor') {
+
+        expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Old space used size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Map space used size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Code space used size')).to.equal(true)
+
+        expect(pck.data.hasOwnProperty('Heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Heap size executable')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Used heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Heap size limit')).to.equal(true)
+
+        expect(Number.isInteger(pck.data['New space used size'].value)).to.equal(true)
+        expect(Number.isInteger(pck.data['Old space used size'].value)).to.equal(true)
+        expect(Number.isInteger(pck.data['Map space used size'].value)).to.equal(true)
+        expect(Number.isInteger(pck.data['Code space used size'].value)).to.equal(true)
+
+        expect(Number.isInteger(pck.data['Heap size'].value)).to.equal(true)
+        expect(Number.isInteger(pck.data['Heap size executable'].value)).to.equal(true)
+        expect(Number.isInteger(pck.data['Used heap size'].value)).to.equal(true)
+        expect(Number.isInteger(pck.data['Heap size limit'].value)).to.equal(true)
+
+        child.kill('SIGINT')
+        done()
+      }
+    })
+  })
+})
+
+xdescribe('GC', function () {
+  this.timeout(60000)
+
+  before(function (done) {
+    exec('npm install gc-stats', function (err) {
+      expect(err).to.equal(null)
+      done()
+    })
+  })
+
+  after(function (done) {
+    exec('npm uninstall gc-stats', function (err) {
+      expect(err).to.equal(null)
+      done()
+    })
+  })
+
+  it('should get GC stats', (done) => {
+    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8Child.js'))
+
+    child.on('message', pck => {
+
+      if (pck.type === 'axm:monitor' && pck.data.type === 'v8/gc/heap/size') {
+        console.log(pck)
+
+        child.kill('SIGINT')
+        done()
+      }
+    })
+  })
+})

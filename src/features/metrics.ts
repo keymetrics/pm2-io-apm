@@ -1,7 +1,7 @@
 import { Feature } from './featureTypes'
-import Meter from '../metrics/meter'
-import Counter from '../metrics/counter'
-import Histogram from '../metrics/histogram'
+import Meter from '../utils/metrics/meter'
+import Counter from '../utils/metrics/counter'
+import Histogram from '../utils/metrics/histogram'
 import { ServiceManager } from '../index'
 import Transport from '../utils/transport'
 import constants from '../constants'
@@ -40,10 +40,15 @@ export default class MetricsFeature implements Feature {
       const self = this
 
       this.timer = setInterval(function () {
-        self.transport.send({
-          type : 'axm:monitor',
-          data : self._cookData(self._getVar())
-        })
+        const data = self._cookData(self._getVar())
+
+        // don't send empty data
+        if (Object.keys(data).length !== 0) {
+          self.transport.send({
+            type: 'axm:monitor',
+            data: data
+          })
+        }
       }, constants.METRIC_INTERVAL)
     }
 

@@ -1,5 +1,5 @@
-import EWMA from '../utils/EWMA'
-import units from '../utils/units'
+import EWMA from '../EWMA'
+import units from '../units'
 
 export default class Meter {
 
