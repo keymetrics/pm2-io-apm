@@ -19,11 +19,11 @@ describe('Transport', () => {
     })
   })
 
-  it('should throw exception', (done) => {
+  it('should receive data', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/features/transportChild.js'))
 
-    child.on('exit', status => {
-      expect(status).to.equal(1)
+    child.on('message', msg => {
+      expect(msg).to.equal('')
       done()
     })
   })
