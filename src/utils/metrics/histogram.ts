@@ -1,4 +1,4 @@
-import EDS from '../utils/EDS'
+import EDS from '../EDS'
 
 export default class Histogram {
   private _measurement

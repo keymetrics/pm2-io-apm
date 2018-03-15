@@ -21,6 +21,23 @@ describe('Metrics', () => {
     })
   })
 
+  describe('deleteMetric', () => {
+    it('should delete a single metric', () => {
+      const metric = new Metric()
+      metric.meter({name: 'test', unit: 'mb'})
+      metric.histogram({name: 'test2'})
+
+      expect(metric._getVar().get('test2').value()).to.equal('0')
+      expect(metric._getVar().get('test').value()).to.equal('0mb')
+      expect(metric._getVar().size).to.equal(2)
+
+      metric.deleteMetric('test2')
+      expect(metric._getVar().get('test').value()).to.equal('0mb')
+      expect(metric._getVar().get('test2')).to.equal(undefined)
+      expect(metric._getVar().size).to.equal(1)
+    })
+  })
+
   describe('meter', () => {
     it('should return undefined if no name provided', () => {
       const metric = new Metric()
@@ -113,6 +130,13 @@ describe('Metrics', () => {
       const metric = new Metric()
 
       const histo = metric.histogram({})
+      expect(histo).to.equal(undefined)
+    })
+
+    it('should return undefined if measurement does not exist', () => {
+      const metric = new Metric()
+
+      const histo = metric.histogram({name: 'test', measurement: 'does not exist'})
       expect(histo).to.equal(undefined)
     })
 
@@ -287,9 +311,9 @@ describe('Metrics', () => {
     it('should not send data until value is higher than 0', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/features/metricsSendChild.js'))
 
-      child.on('message', data => {
-        expect(data.testSend.value).to.equal(1)
-        child.kill('SIGINT');
+      child.on('message', pck => {
+        expect(pck.data.testSend.value).to.equal(1)
+        child.kill('SIGINT')
         done()
       })
     })
