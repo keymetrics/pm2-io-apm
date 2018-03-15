@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import * as debug from 'debug'
-debug('axm:profiling')
 import * as path from 'path'
+
+debug('axm:module')
 
 export default class ModuleUtils {
   static detectModule (moduleName, cb) {
