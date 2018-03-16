@@ -1,13 +1,20 @@
 import * as v8 from 'v8'
 import utils from '../utils/module'
 import MetricsFeature from '../features/metrics'
+import MetricsInterface from './metricsInterface'
 
-export default class V8Metric {
+export default class V8Metric implements MetricsInterface {
 
   private timer
+  private metricFeature: MetricsFeature
+  private TIME_INTERVAL: number
 
   constructor (metricFeature: MetricsFeature) {
-    const TIME_INTERVAL = 1000
+    this.TIME_INTERVAL = 1000
+    this.metricFeature = metricFeature
+  }
+
+  init (config?: any) {
     let heapSpaceProbes
     let heapStatsTotal
     let heapStatsExecutable
@@ -16,31 +23,31 @@ export default class V8Metric {
 
     if (v8.hasOwnProperty('getHeapSpaceStatistics')) {
       heapSpaceProbes = {
-        new_space: metricFeature.metric({
+        new_space: this.metricFeature.metric({
           name: 'New space used size',
           type: 'v8/heap/space/new',
           unit: 'kB',
           historic: true
         }),
-        old_space: metricFeature.metric({
+        old_space: this.metricFeature.metric({
           name: 'Old space used size',
           type: 'v8/heap/space/old',
           unit: 'kB',
           historic: true
         }),
-        map_space: metricFeature.metric({
+        map_space: this.metricFeature.metric({
           name: 'Map space used size',
           type: 'v8/heap/space/map',
           unit: 'kB',
           historic: false
         }),
-        code_space: metricFeature.metric({
+        code_space: this.metricFeature.metric({
           name: 'Code space used size',
           type: 'v8/heap/space/code',
           unit: 'kB',
           historic: false
         }),
-        large_object_space: metricFeature.metric({
+        large_object_space: this.metricFeature.metric({
           name: 'Large object space used size',
           type: 'v8/heap/space/large',
           unit: 'kB',
@@ -50,28 +57,28 @@ export default class V8Metric {
     }
 
     if (v8.hasOwnProperty('getHeapStatistics')) {
-      heapStatsTotal = metricFeature.metric({
+      heapStatsTotal = this.metricFeature.metric({
         name: 'Heap size',
         type: 'v8/heap/used',
         unit: 'kB',
         historic: true
       })
 
-      heapStatsExecutable = metricFeature.metric({
+      heapStatsExecutable = this.metricFeature.metric({
         name: 'Heap size executable',
         type: 'v8/heap/executable',
         unit: 'kB',
         historic: false
       })
 
-      heapStatsUsed = metricFeature.metric({
+      heapStatsUsed = this.metricFeature.metric({
         name: 'Used heap size',
         type: 'v8/heap/used',
         unit: 'kB',
         historic: true
       })
 
-      heapStatsLimit = metricFeature.metric({
+      heapStatsLimit = this.metricFeature.metric({
         name: 'Heap size limit',
         type: 'v8/heap/limit',
         unit: 'kB',
@@ -97,13 +104,13 @@ export default class V8Metric {
         heapStatsUsed.set(Math.round(heapStats.used_heap_size / 1000))
         heapStatsLimit.set(Math.round(heapStats.heap_size_limit / 1000))
       }
-    }, TIME_INTERVAL)
+    }, this.TIME_INTERVAL)
 
     utils.detectModule('gc-stats', function (err, gcPath) {
       if (err) {
         return false
       }
-      return this._sendGCStats(metricFeature, gcPath)
+      return this._sendGCStats(this.metricFeature, gcPath)
     }.bind(this))
   }
 

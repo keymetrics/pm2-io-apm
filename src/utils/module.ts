@@ -6,11 +6,15 @@ debug('axm:module')
 
 export default class ModuleUtils {
   static detectModule (moduleName, cb) {
-    const module = require.main || {paths: ['./node_modules', '/node_modules']}
+    const module = this._getModule() || {paths: ['./node_modules', '/node_modules']}
 
     const requirePaths = module.paths.slice()
 
     ModuleUtils._lookForModule(requirePaths, moduleName, cb)
+  }
+
+  static _getModule (): any {
+    return require.main
   }
 
   static _lookForModule (requirePaths, moduleName, cb) {
