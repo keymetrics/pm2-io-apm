@@ -7,7 +7,7 @@ import Transport from '../utils/transport'
 import constants from '../constants'
 import MetricsService from '../services/metrics'
 
-export default class MetricsFeatureMetricsFeature implements Feature {
+export default class MetricsFeature implements Feature {
   private transport: Transport
   private _var: Map<string, any> = new Map()
   private defaultAggregation: string = 'avg'
