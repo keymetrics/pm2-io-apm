@@ -5,14 +5,16 @@ import Histogram from '../utils/metrics/histogram'
 import { ServiceManager } from '../index'
 import Transport from '../utils/transport'
 import constants from '../constants'
+import MetricsService from '../services/metrics'
 
-export default class MetricsFeature implements Feature {
+export default class MetricsFeatureMetricsFeature implements Feature {
   private transport: Transport
   private _var: Map<string, any> = new Map()
   private defaultAggregation: string = 'avg'
   private _started: boolean = false
   private _alreadySentData: Array<string> = []
   private timer
+  private metricService: MetricsService
 
   private AVAILABLE_MEASUREMENTS: Array<string> = [
     'min',
@@ -32,9 +34,11 @@ export default class MetricsFeature implements Feature {
   constructor () {
     this.transport = ServiceManager.get('transport')
     this._var = ServiceManager.get('metricsMap')
+    ServiceManager.set('metricService', new MetricsService(this))
+    this.metricService = ServiceManager.get('metricService')
   }
 
-  init (): any {
+  init (config?): any {
     if (this._started === false) {
       this._started = true
       const self = this
@@ -51,6 +55,8 @@ export default class MetricsFeature implements Feature {
         }
       }, constants.METRIC_INTERVAL)
     }
+
+    this.metricService.init(config)
 
     return {
       histogram: this.histogram,
