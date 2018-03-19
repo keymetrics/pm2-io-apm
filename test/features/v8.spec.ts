@@ -38,10 +38,41 @@ describe('V8', function () {
       }
     })
   })
+
+  it('should send only some data, according to config', (done) => {
+    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8SomeDataChild.js'))
+
+    child.on('message', pck => {
+
+      if (pck.type === 'axm:monitor') {
+
+        expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('Old space used size')).to.equal(false)
+        expect(pck.data.hasOwnProperty('Map space used size')).to.equal(false)
+        expect(pck.data.hasOwnProperty('Code space used size')).to.equal(false)
+
+        expect(pck.data.hasOwnProperty('Heap physical size')).to.equal(true)
+
+        expect(pck.data.hasOwnProperty('Heap size')).to.equal(false)
+        expect(pck.data.hasOwnProperty('Heap size executable')).to.equal(false)
+        expect(pck.data.hasOwnProperty('Used heap size')).to.equal(false)
+        expect(pck.data.hasOwnProperty('Heap size limit')).to.equal(true)
+
+        expect(Number.isInteger(pck.data['New space used size'].value)).to.equal(true)
+
+        expect(Number.isInteger(pck.data['Heap physical size'].value)).to.equal(true)
+
+        expect(Number.isInteger(pck.data['Heap size limit'].value)).to.equal(true)
+
+        child.kill('SIGINT')
+        done()
+      }
+    })
+  })
 })
 
-xdescribe('GC', function () {
-  this.timeout(60000)
+describe('GC', function () {
+  this.timeout(10000)
 
   before(function (done) {
     exec('npm install gc-stats', function (err) {
@@ -62,8 +93,7 @@ xdescribe('GC', function () {
 
     child.on('message', pck => {
 
-      if (pck.type === 'axm:monitor' && pck.data.type === 'v8/gc/heap/size') {
-        console.log(pck)
+      if (pck.type === 'axm:monitor') {
 
         child.kill('SIGINT')
         done()

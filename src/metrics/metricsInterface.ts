@@ -1,5 +1,5 @@
 
 export default interface MetricsInterface {
-  init (config?: Object): void
+  init (config?: Object | boolean): void
   destroy (): void
 }

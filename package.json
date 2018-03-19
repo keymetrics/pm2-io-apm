@@ -71,6 +71,7 @@
   },
   "dependencies": {
     "debug": "^3.1.0",
+    "deepmerge": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "tslib": "^1.6.0"
   }
