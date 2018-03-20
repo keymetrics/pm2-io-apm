@@ -10,35 +10,37 @@ export default class V8Metric implements MetricsInterface {
   private metricFeature: MetricsFeature
   private TIME_INTERVAL: number
 
+  private unitKB = 'kB'
+
   private allPossibleMetrics = {
     new_space: {
       name: 'New space used size',
       type: 'v8/heap/space/new',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: true
     },
     old_space: {
       name: 'Old space used size',
       type: 'v8/heap/space/old',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: true
     },
     map_space: {
       name: 'Map space used size',
       type: 'v8/heap/space/map',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: false
     },
     code_space: {
       name: 'Code space used size',
       type: 'v8/heap/space/code',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: false
     },
     large_object_space: {
       name: 'Large object space used size',
       type: 'v8/heap/space/large',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: false
     },
     total_physical_size: {
@@ -53,23 +55,47 @@ export default class V8Metric implements MetricsInterface {
       unit: 'kB',
       historic: true
     },
+    total_available_size: {
+      name: 'Heap available size',
+      type: 'v8/heap/available',
+      unit: 'kB',
+      historic: true
+    },
     total_heap_size_executable: {
       name: 'Heap size executable',
       type: 'v8/heap/executable',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: false
     },
     used_heap_size: {
       name: 'Used heap size',
       type: 'v8/heap/used',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: true
     },
     heap_size_limit: {
       name: 'Heap size limit',
       type: 'v8/heap/limit',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: true
+    },
+    malloced_memory: {
+      name: 'Malloced memory',
+      type: 'v8/heap/malloced',
+      unit: this.unitKB,
+      historic: false
+    },
+    peak_malloced_memory: {
+      name: 'Peak malloced memory',
+      type: 'v8/heap/peakmalloced',
+      unit: this.unitKB,
+      historic: false
+    },
+    does_zap_garbage: {
+      name: 'Zap garbage',
+      type: 'v8/heap/zapgarbage',
+      unit: '',
+      historic: false
     }
   }
 
@@ -143,11 +169,12 @@ export default class V8Metric implements MetricsInterface {
         const heapStats = v8.getHeapStatistics()
         for (let metricName in heapStats) {
           if (heapStats.hasOwnProperty(metricName) && heapProbes.hasOwnProperty(metricName)) {
-            heapProbes[metricName].set(Math.round(heapStats[metricName] / 1000))
+            const value = ( this.allPossibleMetrics[metricName].unit === this.unitKB ) ? Math.round(heapStats[metricName] / 1000) : heapStats[metricName]
+            heapProbes[metricName].set(value)
           }
         }
       }
-    }, this.TIME_INTERVAL)
+    }.bind(this), this.TIME_INTERVAL)
 
     utils.detectModule('gc-stats', function (err, gcPath) {
       if (err) {
