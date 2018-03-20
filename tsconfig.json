@@ -12,6 +12,9 @@
     "listFiles": false,
     "traceResolution": false,
     "pretty": true,
+    "types": [
+      "node"
+    ],
     "lib" : [
       "es6"
     ],
