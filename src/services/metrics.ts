@@ -17,7 +17,7 @@ export default class MetricsService {
 
     // init metrics only if they are enabled in config
     for (let property in config) {
-      if (config.hasOwnProperty(property) && config[property]) {
+      if (config.hasOwnProperty(property)) {
         if (!this.services.has(property)) {
           console.error(`Metric ${property} does not exist`)
           continue
