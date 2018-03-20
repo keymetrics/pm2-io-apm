@@ -173,6 +173,8 @@ export default class MetricsFeature implements Feature {
     clearInterval(this.timer)
     this._getVar().clear()
     this._started = false
+
+    this.metricService.destroyAll()
   }
   /** -----------------------------------------
    * Private Methods
