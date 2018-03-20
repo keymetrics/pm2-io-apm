@@ -29,6 +29,14 @@ export default class MetricsService {
     }
   }
 
+  destroyAll () {
+    this.services.forEach( (service, serviceName) => {
+      if (service.destroy && typeof service.destroy === 'function') {
+        service.destroy()
+      }
+    })
+  }
+
   get (name: string) {
     if (!this.services.has(name)) {
       debug(`Service ${name} not found !`)
