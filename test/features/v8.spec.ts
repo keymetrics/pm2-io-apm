@@ -97,7 +97,7 @@ describe('V8', function () {
   })
 })
 
-describe('GC', function () {
+xdescribe('GC', function () {
   this.timeout(10000)
 
   before(function (done) {
