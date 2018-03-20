@@ -2,7 +2,7 @@ import * as v8 from 'v8'
 import utils from '../utils/module'
 import MetricsFeature from '../features/metrics'
 import MetricsInterface from './metricsInterface'
-import * as merge from 'deepmerge'
+import MetricConfig from '../utils/metricConfig'
 
 export default class V8Metric implements MetricsInterface {
 
@@ -96,6 +96,67 @@ export default class V8Metric implements MetricsInterface {
       type: 'v8/heap/zapgarbage',
       unit: '',
       historic: false
+    },
+    GC: {
+      totalHeapSize: {
+        name: 'GC Heap size',
+        type: 'v8/gc/heap/size',
+        unit: this.unitKB,
+        historic: true
+      },
+      totalHeapExecutableSize: {
+        name: 'GC Executable heap size',
+        type: 'v8/gc/heap/executable',
+        unit: this.unitKB,
+        historic: false
+      },
+      usedHeapSize: {
+        name: 'GC Used heap size',
+        type: 'v8/gc/heap/used',
+        unit: this.unitKB,
+        historic: true
+      },
+      heapSizeLimit: {
+        name: 'GC heap size limit',
+        type: 'v8/gc/heap/limit',
+        unit: this.unitKB,
+        historic: false
+      },
+      totalPhysicalSize: {
+        name: 'GC physical size',
+        type: 'v8/gc/heap/physical',
+        unit: this.unitKB,
+        historic: false
+      },
+      totalAvailableSize: {
+        name: 'GC available size',
+        type: 'v8/gc/heap/available',
+        unit: this.unitKB,
+        historic: false
+      },
+      mallocedMemory: {
+        name: 'GC malloced memory',
+        type: 'v8/gc/heap/malloced',
+        unit: this.unitKB,
+        historic: false
+      },
+      peakMallocedMemory: {
+        name: 'GC peak malloced memory',
+        type: 'v8/gc/heap/peakmalloced',
+        unit: this.unitKB,
+        historic: false
+      },
+      gcType: {
+        name: 'GC Type',
+        type: 'v8/gc/type',
+        historic: false
+      },
+      gcPause: {
+        name: 'GC Pause',
+        type: 'v8/gc/pause',
+        unit: 'ms',
+        historic: false
+      }
     }
   }
 
@@ -110,11 +171,11 @@ export default class V8Metric implements MetricsInterface {
     used_heap_size: true,
     heap_size_limit: true,
     GC: {
-      heapSize: true,
-      executableSize: true,
-      usedSize: true,
-      type: true,
-      pause: true
+      totalHeapSize: true,
+      totalHeapExecutableSize: true,
+      usedHeapSize: true,
+      gcType: true,
+      gcPause: true
     }
   }
 
@@ -124,32 +185,13 @@ export default class V8Metric implements MetricsInterface {
   }
 
   init (config?: any | boolean) {
-    if (!config) {
-      config = this.defaultConf
-    } else if (config !== true) {
-      config = merge(this.defaultConf, config)
-    }
+    config = MetricConfig.getConfig(config, this.defaultConf)
 
-    let heapSpaceProbes
     let heapProbes
+    const self = this
 
-    if (v8.hasOwnProperty('getHeapSpaceStatistics')) {
-      heapSpaceProbes = {}
-
-      for (let metricName in this.allPossibleMetrics) {
-        if (this.allPossibleMetrics.hasOwnProperty(metricName) && (config === true || config[metricName] === true)) {
-          heapSpaceProbes[metricName] = this.metricFeature.metric(this.allPossibleMetrics[metricName])
-        }
-      }
-    }
-
-    if (v8.hasOwnProperty('getHeapStatistics')) {
-      heapProbes = {}
-      for (let metricName in this.allPossibleMetrics) {
-        if (this.allPossibleMetrics.hasOwnProperty(metricName) && (config === true || config[metricName] === true)) {
-          heapProbes[metricName] = this.metricFeature.metric(this.allPossibleMetrics[metricName])
-        }
-      }
+    if (v8.hasOwnProperty('getHeapSpaceStatistics') && v8.hasOwnProperty('getHeapStatistics')) {
+      heapProbes = MetricConfig.initProbes(this.allPossibleMetrics, config, this.metricFeature)
     }
 
     this.timer = setInterval(function () {
@@ -159,20 +201,15 @@ export default class V8Metric implements MetricsInterface {
         for (let i = 0; i < data.length; i++) {
           const item = data[i]
 
-          if (heapSpaceProbes.hasOwnProperty(item.space_name)) {
-            heapSpaceProbes[item.space_name].set(Math.round(item.space_used_size / 1000))
+          if (heapProbes.hasOwnProperty(item.space_name)) {
+            heapProbes[item.space_name].set(Math.round(item.space_used_size / 1000))
           }
         }
       }
 
       if (v8.hasOwnProperty('getHeapStatistics')) {
         const heapStats = v8.getHeapStatistics()
-        for (let metricName in heapStats) {
-          if (heapStats.hasOwnProperty(metricName) && heapProbes.hasOwnProperty(metricName)) {
-            const value = ( this.allPossibleMetrics[metricName].unit === this.unitKB ) ? Math.round(heapStats[metricName] / 1000) : heapStats[metricName]
-            heapProbes[metricName].set(value)
-          }
-        }
+        MetricConfig.setProbesValue(this.allPossibleMetrics, heapStats, heapProbes, self.unitKB)
       }
     }.bind(this), this.TIME_INTERVAL)
 
@@ -180,7 +217,7 @@ export default class V8Metric implements MetricsInterface {
       if (err) {
         return false
       }
-      return this._sendGCStats(gcPath)
+      return this._sendGCStats(gcPath, config.GC)
     }.bind(this))
   }
 
@@ -188,7 +225,7 @@ export default class V8Metric implements MetricsInterface {
     clearInterval(this.timer)
   }
 
-  _sendGCStats (gcPath) {
+  _sendGCStats (gcPath, config) {
     let gc
     try {
       gc = (require(gcPath))()
@@ -198,46 +235,17 @@ export default class V8Metric implements MetricsInterface {
       return false
     }
 
-    const gcHeapSize = this.metricFeature.metric({
-      name: 'GC Heap size',
-      type: 'v8/gc/heap/size',
-      unit: 'kB',
-      historic: true
-    })
+    config = MetricConfig.getConfig(config, this.defaultConf.GC)
 
-    const gcExecutableSize = this.metricFeature.metric({
-      name: 'GC Executable heap size',
-      type: 'v8/gc/heap/executable',
-      unit: 'kB',
-      historic: false
-    })
-
-    const gcUsedSize = this.metricFeature.metric({
-      name: 'GC Used heap size',
-      type: 'v8/gc/heap/used',
-      unit: 'kB',
-      historic: true
-    })
-
-    const gcType = this.metricFeature.metric({
-      name: 'GC Type',
-      type: 'v8/gc/type',
-      historic: false
-    })
-
-    const gcPause = this.metricFeature.metric({
-      name: 'GC Pause',
-      type: 'v8/gc/pause',
-      unit: 'ms',
-      historic: false
-    })
+    const gcProbes = MetricConfig.initProbes(this.allPossibleMetrics.GC, config, this.metricFeature)
+    const self = this
 
     gc.on('stats', function (stats) {
-      gcHeapSize.set(Math.round(stats.after.totalHeapSize / 1000))
-      gcExecutableSize.set(Math.round(stats.after.totalHeapExecutableSize / 1000))
-      gcUsedSize.set(Math.round(stats.after.usedHeapSize / 1000))
-      gcType.set(stats.gctype)
-      gcPause.set(Math.round(stats.pause / 1000000)) // convert to milliseconds (cause pauseMs seems to use Math.floor)
+
+      MetricConfig.setProbesValue(this.allPossibleMetrics.GC, stats.after, gcProbes, self.unitKB)
+
+      gcProbes['gcType'].set(stats.gctype)
+      gcProbes['gcPause'].set(Math.round(stats.pause / 1000000)) // convert to milliseconds (cause pauseMs seems to use Math.floor)
     })
   }
 }
