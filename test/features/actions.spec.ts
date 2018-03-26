@@ -6,7 +6,7 @@ import ActionsFeature from '../../src/features/actions'
 
 describe('ActionsFeature', () => {
   describe('action', () => {
-    it('should create an action', (done) => {
+    it('should create an action and send basic action', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/features/actionsChild.js'))
       child.on('message', res => {
         if (res.type === 'axm:action') {
@@ -33,6 +33,22 @@ describe('ActionsFeature', () => {
             child.kill('SIGINT')
             done()
           }
+        }
+      })
+    })
+
+    it('should create an action and send object action', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/features/actionsBasicChild.js'))
+      child.on('message', res => {
+        if (res.type === 'axm:action') {
+          expect(res.type).to.equal('axm:action')
+          expect(res.data.action_name).to.equal('myAction')
+          child.send({msg: res.data.action_name})
+        } else if (res.type === 'axm:reply') {
+          expect(res.data.action_name).to.equal('myAction')
+          expect(res.data.return.data).to.equal('myActionReply')
+          child.kill('SIGINT')
+          done()
         }
       })
     })
