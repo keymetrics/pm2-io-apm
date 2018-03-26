@@ -47,10 +47,8 @@ export default class ActionsFeature implements Feature {
       }
     })
 
-    const self = this
-    function reply (data) {
-
-      self.transport.send({
+    const reply = (data) => {
+      this.transport.send({
         type        : 'axm:reply',
         data        : {
           return      : data,
