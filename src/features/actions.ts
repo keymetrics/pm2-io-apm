@@ -95,7 +95,7 @@ export default class ActionsFeature implements Feature {
       }
     })
 
-    process.on('message', function (data) {
+    process.on('message', (data) => {
       if (!data
         || data.uuid === undefined
         || data.action_name === undefined) {
@@ -104,7 +104,7 @@ export default class ActionsFeature implements Feature {
 
       if (data.action_name === actionName) {
         const res = {
-          send : function (dt) {
+          send : (dt) => {
             this.transport.send({
               type        : 'axm:scoped_action:stream',
               data        : {
@@ -114,7 +114,7 @@ export default class ActionsFeature implements Feature {
               }
             })
           },
-          error : function (dt) {
+          error : (dt) => {
             this.transport.send({
               type        : 'axm:scoped_action:error',
               data        : {
@@ -124,7 +124,7 @@ export default class ActionsFeature implements Feature {
               }
             })
           },
-          end : function (dt) {
+          end : (dt) => {
             this.transport.send({
               type        : 'axm:scoped_action:end',
               data        : {
@@ -149,7 +149,7 @@ export default class ActionsFeature implements Feature {
           fn(data.opts || null, res)
         })
       }
-    }.bind(this))
+    })
   }
 
   private check (actionName, fn) {

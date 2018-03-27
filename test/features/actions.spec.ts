@@ -99,4 +99,57 @@ describe('ActionsFeature', () => {
       })
     })
   })
+
+  describe('scopedAction', () => {
+    it('should create an scoped action and send basic action', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/features/actionsScopedBasicChild.js'))
+      child.on('message', res => {
+        if (res.type === 'axm:action') {
+          expect(res.type).to.equal('axm:action')
+          // expect(res.data.action_name).to.equal('myScopedAction')
+          expect(res.data.action_type).to.equal('scoped')
+          child.send({action_name: res.data.action_name, uuid: 1000})
+        } else if (res.type === 'axm:scoped_action:stream') {
+          expect(res.type).to.equal('axm:scoped_action:stream')
+          expect(res.data.uuid).to.equal(1000)
+          expect(res.data.action_name).to.equal('myScopedAction')
+          expect(res.data.data).to.equal('myScopedActionReply')
+        } else if (res.type === 'axm:scoped_action:error') {
+          expect(res.type).to.equal('axm:scoped_action:error')
+          expect(res.data.uuid).to.equal(1000)
+          expect(res.data.action_name).to.equal('myScopedErrorAction')
+          expect(res.data.data).to.equal('myScopedActionReplyError')
+        } else if (res.type === 'axm:scoped_action:end') {
+          expect(res.type).to.equal('axm:scoped_action:end')
+          expect(res.data.uuid).to.equal(1000)
+          expect(res.data.action_name).to.equal('myScopedEndAction')
+          expect(res.data.data).to.equal('myScopedActionReplyEnd')
+
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
+
+    it('should failed cause domain error', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/features/actionsScopedDomainErrorChild.js'))
+      child.on('message', res => {
+        if (res.type === 'axm:action') {
+          expect(res.type).to.equal('axm:action')
+          // expect(res.data.action_name).to.equal('myScopedAction')
+          expect(res.data.action_type).to.equal('scoped')
+          child.send({action_name: res.data.action_name, uuid: 1000})
+        } else if (res.type === 'axm:scoped_action:error') {
+          expect(res.type).to.equal('axm:scoped_action:error')
+          expect(res.data.uuid).to.equal(1000)
+          expect(res.data.action_name).to.equal('myScopedAction')
+
+          child.on('exit', function () {
+            child.kill('SIGINT')
+            done()
+          })
+        }
+      })
+    })
+  })
 })
