@@ -12,14 +12,12 @@
     "listFiles": false,
     "traceResolution": false,
     "pretty": true,
-    "types": [
-      "node"
-    ],
     "lib" : [
       "es6"
     ],
     "types" : [
-      "node"
+      "node",
+      "mocha"
     ],
     "baseUrl": ".", // required for "paths"
     "paths": {
