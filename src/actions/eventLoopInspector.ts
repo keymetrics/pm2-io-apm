@@ -13,23 +13,36 @@ export default class Inspector {
     this.actionFeature = actionFeature
   }
 
-  eventLoopDump () {
-    utils.detectModule(this.MODULE_NAME, (err, inspectorPath) => {
-      if (err) {
-        return false
-      }
+  async eventLoopDump () {
+    return new Promise( (resolve, reject) => {
+      utils.detectModule(this.MODULE_NAME, (err, inspectorPath) => {
 
-      return this.exposeActions(inspectorPath)
+        if (err) {
+          console.error(err)
+          return reject(err)
+        }
+
+        const res = this.exposeActions(inspectorPath)
+
+        if (res instanceof Error) {
+          return reject(res)
+        }
+        return resolve()
+      })
     })
   }
 
   private exposeActions (inspectorPath) {
     let inspector = utils.loadModule(inspectorPath, this.MODULE_NAME)
 
+    if (inspector instanceof Error || !inspector) {
+      return inspector
+    }
+
     /**
      * Heap snapshot
      */
-    this.actionFeature.action('km:event-loop-dump', function (reply) {
+    return this.actionFeature.action('km:event-loop-dump', function (reply) {
       const dump = inspector.dump()
 
       return reply({

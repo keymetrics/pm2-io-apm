@@ -1,19 +1,13 @@
 import SpecUtils from '../fixtures/utils'
 import { expect } from 'chai'
 import { fork, exec } from 'child_process'
+import Inspector from '../../src/actions/eventLoopInspector'
+import Action from '../../src/features/actions'
 
 const MODULE = 'event-loop-inspector'
 
 describe('EventLoopInspector', function () {
   this.timeout(10000)
-
-  before(function (done) {
-    exec('npm uninstall ' + MODULE, done)
-  })
-
-  after(function (done) {
-    exec('npm uninstall ' + MODULE, done)
-  })
 
   describe('Event loop inspector module', function () {
     before(function (done) {
@@ -21,6 +15,10 @@ describe('EventLoopInspector', function () {
         expect(err).to.equal(null)
         setTimeout(done, 1000)
       })
+    })
+
+    after(function (done) {
+      exec('npm uninstall ' + MODULE, done)
     })
 
     it('should get event loop data', (done) => {
@@ -41,6 +39,24 @@ describe('EventLoopInspector', function () {
       setTimeout(function () {
         child.send('km:event-loop-dump')
       }, 2000)
+    })
+  })
+
+  describe('Event loop inspector module not install', function () {
+
+    before(function (done) {
+      exec('npm uninstall ' + MODULE, done)
+    })
+
+    it('should return false cause module is not present', async () => {
+      const action = new Action()
+      action.init()
+
+      const eventLoopInspector = new Inspector(action)
+
+      await eventLoopInspector.eventLoopDump().catch((e) => {
+        expect(e.message).to.equal('event-loop-inspector not found')
+      })
     })
   })
 })

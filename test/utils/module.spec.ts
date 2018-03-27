@@ -7,6 +7,6 @@ describe('Module', () => {
 
   it('should return false if module doesn\'t exist', () => {
     const module = Module.loadModule('./fake/path', 'test')
-    expect(module).to.equal(undefined)
+    expect(module.message).to.equal('Cannot find module \'./fake/path\'')
   })
 })
