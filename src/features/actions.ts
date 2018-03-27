@@ -24,17 +24,9 @@ export default class ActionsFeature implements Feature {
       opts = null
     }
 
-    if (!actionName) {
-      return console.error('[PMX] action.action_name is missing')
-    }
-
-    if (!fn) {
-      return console.error('[PMX] emit.data is mission')
-    }
-
-    if (!process.send) {
-      debug('Process not running within PM2')
-      return false
+    const check = this.check(actionName, fn)
+    if (!check) {
+      return check
     }
 
     // Notify the action
@@ -89,16 +81,9 @@ export default class ActionsFeature implements Feature {
 
   scopedAction (actionName, fn) {
 
-    if (!actionName) {
-      return console.error('[PMX] action.action_name is missing')
-    }
-    if (!fn) {
-      return console.error('[PMX] callback is missing')
-    }
-
-    if (!process.send) {
-      debug('Process not running within PM2')
-      return false
+    const check = this.check(actionName, fn)
+    if (!check) {
+      return check
     }
 
     // Notify the action
@@ -165,5 +150,21 @@ export default class ActionsFeature implements Feature {
         })
       }
     }.bind(this))
+  }
+
+  private check (actionName, fn) {
+    if (!actionName) {
+      return console.error('[PMX] action.action_name is missing')
+    }
+    if (!fn) {
+      return console.error('[PMX] callback is missing')
+    }
+
+    if (!process.send) {
+      debug('Process not running within PM2')
+      return false
+    }
+
+    return true
   }
 }
