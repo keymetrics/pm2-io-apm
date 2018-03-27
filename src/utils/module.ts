@@ -10,9 +10,9 @@ export default class ModuleUtils {
     try {
       module = require(modulePath)(true)
     } catch (e) {
-      console.error(`error when requiring ${moduleName} on path`, modulePath)
+      console.error(`Error when requiring ${moduleName} on path`, modulePath)
       console.error(e)
-      return module
+      return e
     }
 
     debug(`${moduleName} successfully enabled` )
