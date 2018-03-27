@@ -7,7 +7,7 @@ pipeline:
       - node -v
       - yarn -v
       - uname -r
-      - yarn install 2> /dev/null
+      - npm install 2> /dev/null
       - export PATH=$PATH:./node_modules/.bin/
       - npm run test
       - npm run send-coverage
