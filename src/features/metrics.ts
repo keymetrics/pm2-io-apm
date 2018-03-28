@@ -106,7 +106,7 @@ export default class MetricsFeature implements Feature {
     return counter
   }
 
-  histogram (opts?: any) {
+  histogram (opts?: any): Histogram | void {
     if (!opts.name) {
       return console.error('[Probe][Histogram] Name not defined')
     }
