@@ -4,6 +4,7 @@ import MetricsFeature from '../features/metrics'
 import DeepMetrics from '../metrics/deepMetrics'
 import EventLoopDelayMetric from '../metrics/eventLoopDelay'
 import MetricConfig from '../utils/metricConfig'
+import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
 
 debug('axm:metricService')
 
@@ -12,7 +13,8 @@ export default class MetricsService {
   private services: Map<string, any>
 
   private defaultConf = {
-    eventLoopDelay: true
+    eventLoopDelay: true,
+    eventLoopActive: true
   }
 
   constructor (metricsFeature: MetricsFeature) {
@@ -20,11 +22,14 @@ export default class MetricsService {
     this.services.set('v8', new v8(metricsFeature))
     this.services.set('deepMetrics', new DeepMetrics(metricsFeature))
     this.services.set('eventLoopDelay', new EventLoopDelayMetric(metricsFeature))
+    this.services.set('eventLoopActive', new EventLoopHandlesRequestsMetric(metricsFeature))
   }
 
-  init (config?) {
+  init (config?, force?) {
 
-    config = MetricConfig.getConfig(config, this.defaultConf)
+    if (!force) {
+      config = MetricConfig.getConfig(config, this.defaultConf)
+    }
 
     // init metrics only if they are enabled in config
     for (let property in config) {

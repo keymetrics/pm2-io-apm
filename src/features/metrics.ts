@@ -38,7 +38,7 @@ export default class MetricsFeature implements Feature {
     this.metricService = ServiceManager.get('metricService')
   }
 
-  init (config?): any {
+  init (config?, force?): any {
     if (this._started === false) {
       this._started = true
       const self = this
@@ -56,7 +56,7 @@ export default class MetricsFeature implements Feature {
       }, constants.METRIC_INTERVAL)
     }
 
-    this.metricService.init(config)
+    this.metricService.init(config, force)
 
     return {
       histogram: this.histogram,

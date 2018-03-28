@@ -1,8 +1,7 @@
-import V8Metric from '../../../src/metrics/v8'
 import Metric from '../../../src/features/metrics'
 
 const metric = new Metric()
-metric.init({v8: 'all'}, true)
+metric.init({eventLoopActive: true}, true)
 
 process.on('SIGINT', function () {
   metric.destroy()
