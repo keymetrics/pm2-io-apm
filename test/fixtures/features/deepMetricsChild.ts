@@ -2,7 +2,7 @@ import V8Metric from '../../../src/metrics/v8'
 import Metric from '../../../src/features/metrics'
 
 const metric = new Metric()
-metric.init({deepMetrics: 'all', eventLoopDelay: false})
+metric.init({deepMetrics: 'all'}, true)
 
 const httpModule = require('http')
 const httpsModule = require('https')

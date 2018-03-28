@@ -14,9 +14,8 @@ metric.init({
     used_heap_size: false,
     heap_size_limit: true,
     total_physical_size: true // test non default metric
-  },
-  eventLoopDelay: false
-})
+  }
+}, true)
 
 process.on('SIGINT', function () {
   metric.destroy()
