@@ -5,6 +5,21 @@ import * as path from 'path'
 debug('axm:module')
 
 export default class ModuleUtils {
+  static loadModule (modulePath, moduleName) {
+    let module
+    try {
+      module = require(modulePath)(true)
+    } catch (e) {
+      console.error(`Error when requiring ${moduleName} on path`, modulePath)
+      console.error(e)
+      return e
+    }
+
+    debug(`${moduleName} successfully enabled` )
+
+    return module
+  }
+
   static detectModule (moduleName, cb) {
     const module = this._getModule() || {paths: ['./node_modules', '/node_modules']}
 
@@ -36,6 +51,5 @@ export default class ModuleUtils {
       requirePaths.shift()
       return ModuleUtils._lookForModule(requirePaths, moduleName, cb)
     })
-
   }
 }
