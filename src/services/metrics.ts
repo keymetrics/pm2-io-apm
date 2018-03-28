@@ -1,6 +1,7 @@
 import debug from 'debug'
 import v8 from '../metrics/v8'
 import MetricsFeature from '../features/metrics'
+import DeepMetrics from '../metrics/deepMetrics'
 
 debug('axm:metricService')
 
@@ -11,6 +12,7 @@ export default class MetricsService {
   constructor (metricsFeature: MetricsFeature) {
     this.services = new Map()
     this.services.set('v8', new v8(metricsFeature))
+    this.services.set('deepMetrics', new DeepMetrics(metricsFeature))
   }
 
   init (config?) {
