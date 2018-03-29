@@ -6,7 +6,9 @@ import Autocast from './utils/autocast'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as util from 'util'
-const pkg = require(__dirname + '../../../../package.json')
+
+const prefix = __dirname.indexOf('/build/') >= 0 ? '../../../' : '../'
+const pkg = require(prefix + '/package.json')
 
 export default class Configuration {
 
