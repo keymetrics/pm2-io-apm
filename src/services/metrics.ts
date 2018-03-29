@@ -5,6 +5,7 @@ import DeepMetrics from '../metrics/deepMetrics'
 import EventLoopDelayMetric from '../metrics/eventLoopDelay'
 import MetricConfig from '../utils/metricConfig'
 import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
+import Transaction from '../metrics/transaction'
 
 debug('axm:metricService')
 
@@ -14,7 +15,8 @@ export default class MetricsService {
 
   private defaultConf = {
     eventLoopDelay: true,
-    eventLoopActive: true
+    eventLoopActive: true,
+    transaction: { http: true }
   }
 
   constructor (metricsFeature: MetricsFeature) {
@@ -23,6 +25,7 @@ export default class MetricsService {
     this.services.set('deepMetrics', new DeepMetrics(metricsFeature))
     this.services.set('eventLoopDelay', new EventLoopDelayMetric(metricsFeature))
     this.services.set('eventLoopActive', new EventLoopHandlesRequestsMetric(metricsFeature))
+    this.services.set('transaction', new Transaction(metricsFeature))
   }
 
   init (config?, force?) {
