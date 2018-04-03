@@ -1,24 +1,16 @@
 import Metric from '../../../src/features/metrics'
-const metric = new Metric()
-metric.init({transaction: {tracing: {http_latency: 1, ignore_routes: ['/toto']}}}, true)
 
-import * as express from 'express'
-const app = express()
+const metric = new Metric()
+metric.init({network: true}, true)
 
 const httpModule = require('http')
 
-// test http outbound
 let timer
 
-app.get('/', function (req, res) {
-  res.send('home')
-})
-
-app.get('/toto', function (req, res) {
-  res.send('toto')
-})
-
-const server = app.listen(3001, function () {
+const server = httpModule.createServer((req, res) => {
+  res.writeHead(200)
+  res.end('hey')
+}).listen(3002, () => {
   timer = setInterval(function () {
     httpModule.get('http://localhost:' + server.address().port)
     httpModule.get('http://localhost:' + server.address().port + '/toto')

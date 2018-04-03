@@ -6,6 +6,7 @@ import EventLoopDelayMetric from '../metrics/eventLoopDelay'
 import MetricConfig from '../utils/metricConfig'
 import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
 import Transaction from '../metrics/transaction'
+import NetworkMetric from '../metrics/network'
 
 debug('axm:metricService')
 
@@ -26,6 +27,7 @@ export default class MetricsService {
     this.services.set('eventLoopDelay', new EventLoopDelayMetric(metricsFeature))
     this.services.set('eventLoopActive', new EventLoopHandlesRequestsMetric(metricsFeature))
     this.services.set('transaction', new Transaction(metricsFeature))
+    this.services.set('network', new NetworkMetric(metricsFeature))
   }
 
   init (config?, force?) {
