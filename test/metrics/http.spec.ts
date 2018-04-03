@@ -29,4 +29,25 @@ describe('HttpWrapper', function () {
       }
     })
   })
+
+  it('should use tracing system', (done) => {
+    const child = fork(SpecUtils.buildTestPath('fixtures/features/tracingChild.js'))
+
+    child.on('message', pck => {
+
+      if (pck.type === 'axm:trace') {
+        expect(pck.data.hasOwnProperty('projectId')).to.equal(true)
+        expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
+        expect(pck.data.spans[0].name).to.equal('/')
+        expect(pck.data.spans[0].labels['http/method']).to.equal('GET')
+        expect(pck.data.spans[0].labels['http/path']).to.equal('/')
+        expect(pck.data.spans[0].labels['http/url']).to.equal('http://localhost/')
+        expect(pck.data.spans[0].labels['express/request.route.path']).to.equal('/')
+        expect(pck.data.spans[0].labels['http/status_code']).to.equal('200')
+
+        child.kill('SIGINT')
+        done()
+      }
+    })
+  })
 })
