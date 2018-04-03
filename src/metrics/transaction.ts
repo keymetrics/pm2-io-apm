@@ -35,6 +35,11 @@ export default class Transaction implements MetricsInterface {
       const opts = typeof config.http === 'object' ? config.http : {}
       this.http(opts)
     }
+
+    if (config.tracing) {
+      const opts = typeof config.tracing === 'object' ? config.tracing : {}
+      this.tracing(opts)
+    }
   }
 
   destroy () {
@@ -44,7 +49,7 @@ export default class Transaction implements MetricsInterface {
   tracing (opts) {
 
     if (Array.isArray(opts.ignore_routes) && opts.ignore_routes.length > 0) {
-      opts.ignoreFilter.url = opts.ignore_routes
+      opts.ignoreFilter = { url: opts.ignore_routes }
     }
 
     // we should never enable tracing agent two time
