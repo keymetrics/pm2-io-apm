@@ -1,6 +1,6 @@
 import * as domain from 'domain'
 import debug from 'debug'
-debug('axm:events')
+debug('axm:actions')
 import { ServiceManager } from '../index'
 import Transport from '../utils/transport'
 import { Feature } from './featureTypes'
