@@ -35,4 +35,26 @@ describe('Network', function () {
       }
     })
   })
+
+  it('should only send upload data', (done) => {
+    const child = fork(SpecUtils.buildTestPath('fixtures/features/networkWithoutDownloadChild.js'))
+
+    child.on('message', pck => {
+
+      if (pck.type === 'axm:monitor' && pck.data['Network Upload'].value !== '0 B/sec') {
+
+        expect(pck.data.hasOwnProperty('Network Download')).to.equal(false)
+
+        expect(pck.data.hasOwnProperty('Network Upload')).to.equal(true)
+        expect(pck.data['Network Upload'].agg_type).to.equal('sum')
+        expect(pck.data['Network Upload'].historic).to.equal(true)
+        expect(pck.data['Network Upload'].type).to.equal('Network Upload')
+
+        expect(pck.data.hasOwnProperty('Open ports')).to.equal(false)
+
+        child.kill('SIGINT')
+        done()
+      }
+    })
+  })
 })
