@@ -1,7 +1,7 @@
 import Metric from '../../../src/features/metrics'
 
 const metric = new Metric()
-metric.init({network: {ports: true}}, true)
+metric.init({network: {traffic: {upload: true}}}, true)
 
 const httpModule = require('http')
 

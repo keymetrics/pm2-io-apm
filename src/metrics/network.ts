@@ -10,7 +10,7 @@ export default class NetworkMetric implements MetricsInterface {
   private metricFeature: MetricsFeature
 
   private defaultConf = {
-    ports: true,
+    ports: false,
     traffic: true
   }
 
@@ -22,7 +22,7 @@ export default class NetworkMetric implements MetricsInterface {
     config = MetricConfig.getConfig(config, this.defaultConf)
 
     if (config.traffic) {
-      this.catchTraffic()
+      this.catchTraffic(config.traffic)
     }
 
     if (config.ports) {
@@ -64,7 +64,7 @@ export default class NetworkMetric implements MetricsInterface {
     }
   }
 
-  catchTraffic () {
+  catchTraffic (config) {
     let download = 0
     let upload = 0
     let up = '0 B/sec'
@@ -110,42 +110,54 @@ export default class NetworkMetric implements MetricsInterface {
 
     interval.unref()
 
-    this.metricFeature.metric({
-      name     : 'Network Download',
-      agg_type : 'sum',
-      value    : function () { return down }
-    })
-
-    this.metricFeature.metric({
-      name     : 'Network Upload',
-      agg_type : 'sum',
-      value    : function () { return up }
-    })
-
-    const originalWrite = netModule.Socket.prototype.write
-
-    netModule.Socket.prototype.write = function (data) {
-      if (data.length) {
-        upload += data.length
-      }
-      return originalWrite.apply(this, arguments)
+    if (config === true || config.download === true) {
+      this.metricFeature.metric({
+        name: 'Network Download',
+        agg_type: 'sum',
+        value: function () {
+          return down
+        }
+      })
     }
 
-    const originalRead = netModule.Socket.prototype.read
+    if (config === true || config.upload === true) {
+      this.metricFeature.metric({
+        name: 'Network Upload',
+        agg_type: 'sum',
+        value: function () {
+          return up
+        }
+      })
+    }
 
-    netModule.Socket.prototype.read = function () {
+    if (config === true || config.upload === true) {
+      const originalWrite = netModule.Socket.prototype.write
 
-      if (!this.monitored) {
-        this.monitored = true
-
-        this.on('data', function (data) {
-          if (data.length) {
-            download += data.length
-          }
-        })
+      netModule.Socket.prototype.write = function (data) {
+        if (data.length) {
+          upload += data.length
+        }
+        return originalWrite.apply(this, arguments)
       }
+    }
 
-      return originalRead.apply(this, arguments)
+    if (config === true || config.download === true) {
+      const originalRead = netModule.Socket.prototype.read
+
+      netModule.Socket.prototype.read = function () {
+
+        if (!this.monitored) {
+          this.monitored = true
+
+          this.on('data', function (data) {
+            if (data.length) {
+              download += data.length
+            }
+          })
+        }
+
+        return originalRead.apply(this, arguments)
+      }
     }
   }
 }
