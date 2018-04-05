@@ -9,7 +9,7 @@ import * as fs from 'fs'
 const MODULE = 'v8-profiler-node8'
 
 describe('ProfilingFeature', function () {
-  this.timeout(20000)
+  this.timeout(50000)
 
   after(function (done) {
     exec('npm uninstall ' + MODULE, done)
