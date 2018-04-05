@@ -22,8 +22,12 @@ export default class ProfilingCPU implements ProfilingType {
   }
 
   start () {
-    this.session.post('Profiler.start', () => {
-      debug('Cpu profiling started ...')
+    return new Promise( (resolve, reject) => {
+      this.session.post('Profiler.start', (err) => {
+        if (err) return reject(err)
+        debug('Cpu profiling started ...')
+        resolve()
+      })
     })
   }
 
