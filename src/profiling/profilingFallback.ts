@@ -2,14 +2,21 @@ import debug from 'debug'
 debug('axm:profiling')
 import ProfilingFeature from './profilingFeature'
 import FileUtils from '../utils/file'
+import utils from '../utils/module'
 
 export default class ProfilingFallback implements ProfilingFeature {
 
   private nsCpuProfiling: string = 'km-cpu-profiling'
   private profiler
+  private MODULE_NAME = 'v8-profiler-node8'
 
-  init () {
-    this.profiler = require('v8-profiler-node8')
+  async init () {
+    const path = await utils.getModulePath(this.MODULE_NAME)
+    this.profiler = utils.loadModule(path, this.MODULE_NAME)
+
+    if (this.profiler instanceof Error || !this.profiler) {
+      throw new Error('Profiler not loaded !')
+    }
   }
 
   destroy () {

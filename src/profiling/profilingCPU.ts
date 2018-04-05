@@ -8,7 +8,7 @@ export default class ProfilingCPU implements ProfilingFeature {
 
   private session
 
-  init () {
+  async init () {
     this.session = new inspector.Session()
     this.session.connect()
 

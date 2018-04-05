@@ -77,7 +77,6 @@
     "json-stringify-safe": "^5.0.1",
     "semver": "^5.5.0",
     "tslib": "^1.6.0",
-    "v8-profiler-node8": "^5.7.7",
     "vxx": "^1.2.2"
   }
 }
