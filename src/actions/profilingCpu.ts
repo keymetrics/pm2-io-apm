@@ -17,10 +17,17 @@ export default class ProfilingCPUAction {
 
   exposeActions () {
 
-    this.actionFeature.action('km:cpu:profiling:start', (reply) => {
-      this.profilingFeature.cpuProfiling.start()
+    this.actionFeature.action('km:cpu:profiling:start', async (reply) => {
+      try {
+        await this.profilingFeature.cpuProfiling.start()
+        reply({ success : true })
+      } catch (err) {
+        return reply({
+          success: false,
+          err : err
+        })
+      }
 
-      reply({ success : true })
     })
 
     this.actionFeature.action('km:cpu:profiling:stop', async (reply) => {
