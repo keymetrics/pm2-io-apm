@@ -2,7 +2,7 @@ import debug from 'debug'
 debug('axm:profiling')
 import ProfilingFeature from './profilingFeature'
 import * as inspector from 'inspector'
-import * as fs from 'fs'
+import FileUtils from '../utils/file'
 
 export default class ProfilingCPU implements ProfilingFeature {
 
@@ -27,16 +27,21 @@ export default class ProfilingCPU implements ProfilingFeature {
     })
   }
 
-  stop () {
-    this.session.post('Profiler.stop', (err, { profile }) => {
-      // write profile to disk
-      if (!err) {
-        fs.writeFileSync('./profile.cpuprofile', JSON.stringify(profile))
-      } else {
-        console.error(err)
-      }
+  async stop () {
+    return await this.getProfileInfo()
+  }
 
-      debug('Cpu profiling stopped !')
+  private getProfileInfo () {
+    return new Promise( (resolve, reject) => {
+      this.session.post('Profiler.stop', (err, data) => {
+        // write profile to disk
+        if (!err) {
+          return resolve(FileUtils.writeDumpFile(data.profile))
+        } else {
+          debug('Cpu profiling stopped !')
+          return reject(err)
+        }
+      })
     })
   }
 }
