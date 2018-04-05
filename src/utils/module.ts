@@ -5,10 +5,28 @@ import * as path from 'path'
 debug('axm:module')
 
 export default class ModuleUtils {
-  static loadModule (modulePath, moduleName) {
+  static async getModulePath (moduleName) {
+    return new Promise( (resolve, reject) => {
+      ModuleUtils.detectModule(moduleName, (err, path) => {
+
+        if (err) {
+          console.error(err)
+          return reject(err)
+        }
+
+        return resolve(path)
+      })
+    })
+  }
+
+  static loadModule (modulePath, moduleName, args?) {
     let module
     try {
-      module = require(modulePath)(true)
+      if (args) {
+        module = require(modulePath).apply(this, args)
+      } else {
+        module = require(modulePath)
+      }
     } catch (e) {
       console.error(`Error when requiring ${moduleName} on path`, modulePath)
       console.error(e)
