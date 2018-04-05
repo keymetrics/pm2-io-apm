@@ -1,10 +1,10 @@
 import debug from 'debug'
 debug('axm:profiling')
-import ProfilingFeature from './profilingFeature'
+import ProfilingType from './profilingType'
 import FileUtils from '../utils/file'
 import utils from '../utils/module'
 
-export default class ProfilingFallback implements ProfilingFeature {
+export default class ProfilingFallback implements ProfilingType {
 
   private nsCpuProfiling: string = 'km-cpu-profiling'
   private profiler
