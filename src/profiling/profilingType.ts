@@ -1,4 +1,4 @@
-export default interface ProfilingFeature {
+export default interface ProfilingType {
   init (): void
   start (): void
   stop (): void

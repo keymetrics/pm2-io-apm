@@ -1,10 +1,10 @@
 import debug from 'debug'
 debug('axm:profiling')
-import ProfilingFeature from './profilingFeature'
+import ProfilingType from './profilingType'
 import * as inspector from 'inspector'
 import FileUtils from '../utils/file'
 
-export default class ProfilingCPU implements ProfilingFeature {
+export default class ProfilingCPU implements ProfilingType {
 
   private session
 
