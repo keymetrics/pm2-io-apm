@@ -18,7 +18,10 @@ export default class ProfilingCPU implements ProfilingType {
   }
 
   destroy () {
-    this.session.disconnect()
+    this.session.post('Profiler.disable', () => {
+      debug('Profiler enable !')
+      this.session.disconnect()
+    })
   }
 
   start () {
