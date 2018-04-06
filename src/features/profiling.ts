@@ -1,7 +1,8 @@
 import debug from 'debug'
 debug('axm:profiling')
 import { Feature } from './featureTypes'
-import ProfilingFallback from '../profiling/profilingFallback'
+import ProfilingCPUFallback from '../profiling/profilingCPUFallback'
+import ProfilingHeapFallback from '../profiling/profilingHeapFallback'
 import Configuration from '../configuration'
 
 export default class ProfilingFeature implements Feature {
@@ -13,11 +14,13 @@ export default class ProfilingFeature implements Feature {
   }
 
   init (forceFallback?: boolean) {
-    const isProfilerOk = require('semver').satisfies(process.version, '>= 8.0.0') && !forceFallback
+    const isInspectorOk = require('semver').satisfies(process.version, '>= 8.0.0') && !forceFallback
     let ProfilingCPU
+    let ProfilingHeap
 
-    if (isProfilerOk) {
+    if (isInspectorOk) {
       ProfilingCPU = require('../profiling/profilingCPU').default
+      ProfilingHeap = require('../profiling/profilingHeap').default
     }
 
     this.configurationModule.configureModule({
@@ -25,7 +28,8 @@ export default class ProfilingFeature implements Feature {
     })
 
     return {
-      cpuProfiling: isProfilerOk ? new ProfilingCPU() : new ProfilingFallback()
+      cpuProfiling: isInspectorOk ? new ProfilingCPU() : new ProfilingCPUFallback(),
+      heapProfiling: isInspectorOk ? new ProfilingHeap() : new ProfilingHeapFallback()
     }
   }
 }

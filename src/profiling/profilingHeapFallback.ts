@@ -4,10 +4,10 @@ import ProfilingType from './profilingType'
 import FileUtils from '../utils/file'
 import utils from '../utils/module'
 
-export default class ProfilingFallback implements ProfilingType {
+export default class ProfilingHeapFallback implements ProfilingType {
 
-  private nsCpuProfiling: string = 'km-cpu-profiling'
   private profiler
+  private snapshot
   private MODULE_NAME = 'v8-profiler-node8'
 
   async init () {
@@ -24,16 +24,33 @@ export default class ProfilingFallback implements ProfilingType {
   }
 
   start () {
-    this.profiler.startProfiling(this.nsCpuProfiling)
+    this.snapshot = this.profiler.takeSnapshot('km-heap-snapshot')
   }
 
   async stop () {
     return await this.getProfileInfo()
   }
 
-  private getProfileInfo () {
-    const cpu = this.profiler.stopProfiling(this.nsCpuProfiling)
+  async takeSnapshot () {
+    this.start()
+    return await this.stop()
+  }
 
-    return FileUtils.writeDumpFile(cpu)
+  private getProfileInfo () {
+    return new Promise(resolve => {
+      let buffer = ''
+      this.snapshot.serialize(
+        (data, length) => {
+          buffer += data
+        },
+        () => {
+          this.snapshot.delete()
+
+          resolve(buffer)
+        }
+      )
+    }).then((buffer) => {
+      return FileUtils.writeDumpFile(buffer, '.heapprofile')
+    })
   }
 }

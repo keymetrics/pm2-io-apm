@@ -43,7 +43,7 @@ export default class ProfilingCPU implements ProfilingType {
       this.session.post('Profiler.stop', (err, data) => {
         // write profile to disk
         if (!err) {
-          return resolve(FileUtils.writeDumpFile(data.profile))
+          return resolve(FileUtils.writeDumpFile(JSON.stringify(data.profile)))
         } else {
           debug('Cpu profiling stopped !')
           return reject(err)
