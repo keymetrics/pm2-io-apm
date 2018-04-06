@@ -14,7 +14,7 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
     "lint": "tslint --project . src/**/*.ts",
-    "unit": "yarn build && nyc mocha -r ts-node/register ./test/**/*.spec.ts",
+    "unit": "yarn build && nyc mocha -r ts-node/register ./test/features/profiling.spec.ts",
     "test": "yarn lint && yarn unit",
     "watch": "yarn build && concurrently -r --kill-others \"npm run --silent build:main -- -w\" \"npm run --silent build:tests -- -w --no-browser\" \"sleepms 2000 && ava --watch\"",
     "cov": "yarn unit && yarn html-coverage && opn coverage/index.html",

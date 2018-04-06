@@ -120,7 +120,7 @@ describe('ProfilingFeature', function () {
 function setTimeoutCPUProfile (profiling) {
   return new Promise( (resolve, reject) => {
     setTimeout( async () => {
-      const res = await profiling.cpuProfiling.takeSnapshot()
+      const res = await profiling.cpuProfiling.stop()
 
       const content = JSON.parse(fs.readFileSync(res, 'utf8'))
 
