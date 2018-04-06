@@ -15,7 +15,7 @@ describe('ProfilingFeature', function () {
     exec('npm uninstall ' + MODULE, done)
   })
 
-  xdescribe('CPU', () => {
+  describe('CPU', () => {
     before(function (done) {
       exec('npm install ' + MODULE, function (err) {
         expect(err).to.equal(null)
