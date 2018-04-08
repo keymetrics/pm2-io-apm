@@ -1,10 +1,9 @@
 import { NotifyFeature } from '../../../src/features/notify'
 
 const notify = new NotifyFeature()
+
 notify.init().then(() => {
   notify.catchAll()
-
-  throw new Error('test')
-}).catch(() => {
+  const toto = 'yolo'
   throw new Error('test')
 })

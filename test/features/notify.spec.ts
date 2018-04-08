@@ -51,4 +51,18 @@ describe('Notify', () => {
       })
     })
   })
+
+  describe('catchAll with v8 debugger', () => {
+    it('should catch exception', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/features/catchAllChild.js'), [], {
+        env: Object.assign(process.env, {
+          CATCH_CONTEXT_ON_ERROR: 'true'
+        })
+      })
+      child.on('message', msg => {
+        expect(msg).to.equal('test')
+        done()
+      })
+    })
+  })
 })
