@@ -9,10 +9,14 @@ export default class ProfilingHeapAction {
   private actionFeature: ActionsFeature
   private profilingFeature
 
-  constructor (actionFeature: ActionsFeature) {
+  constructor (actionFeature: ActionsFeature, config?) {
+    if (!config) {
+      config = {}
+    }
+
     this.actionFeature = actionFeature
     this.profilingFeature = new ProfilingFeature().init()
-    this.profilingFeature.heapProfiling.init()
+    this.profilingFeature.heapProfiling.init(config.heap)
   }
 
   exposeActions () {
