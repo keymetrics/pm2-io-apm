@@ -5,4 +5,4 @@ const action = new Action()
 action.init()
 
 const profiling = new ProfilingHeap(action)
-profiling.exposeActions()
+profiling.init()
