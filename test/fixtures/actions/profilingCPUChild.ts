@@ -5,4 +5,4 @@ const action = new Action()
 action.init()
 
 const profiling = new ProfilingCPU(action)
-profiling.exposeActions()
+profiling.init()

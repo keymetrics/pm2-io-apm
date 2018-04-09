@@ -8,18 +8,24 @@ export default class ProfilingHeapAction {
 
   private actionFeature: ActionsFeature
   private profilingFeature
+  private config
 
   constructor (actionFeature: ActionsFeature, config?) {
+    this.config = config
     if (!config) {
-      config = {}
+      this.config = {}
     }
 
     this.actionFeature = actionFeature
-    this.profilingFeature = new ProfilingFeature().init()
-    this.profilingFeature.heapProfiling.init(config.heap)
   }
 
-  exposeActions () {
+  async init () {
+    this.profilingFeature = new ProfilingFeature().init()
+    this.profilingFeature.heapProfiling.init(this.config.heap)
+    this.exposeActions()
+  }
+
+  private exposeActions () {
 
     // -------------------------------------
     // Heap sampling
