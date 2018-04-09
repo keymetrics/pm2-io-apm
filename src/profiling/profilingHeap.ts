@@ -3,12 +3,21 @@ debug('axm:profiling')
 import ProfilingType from './profilingType'
 import * as inspector from 'inspector'
 import FileUtils from '../utils/file'
+import MetricConfig from '../utils/metricConfig'
 
 export default class ProfilingHeap implements ProfilingType {
 
   private session
+  private config
 
-  async init () {
+  private defaultConf = {
+    samplingInterval: 32768
+  }
+
+  async init (config?) {
+    config = MetricConfig.getConfig(config, this.defaultConf)
+    this.config = config
+
     this.session = new inspector.Session()
     this.session.connect()
 
@@ -26,7 +35,7 @@ export default class ProfilingHeap implements ProfilingType {
 
   start () {
     return new Promise( (resolve, reject) => {
-      this.session.post('HeapProfiler.startSampling', (err) => {
+      this.session.post('HeapProfiler.startSampling', {samplingInterval: this.config.samplingInterval}, (err) => {
         if (err) return reject(err)
         debug('Heap profiling started ...')
         resolve()
