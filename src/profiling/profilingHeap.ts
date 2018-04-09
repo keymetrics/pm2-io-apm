@@ -14,23 +14,29 @@ export default class ProfilingHeap implements ProfilingType {
     samplingInterval: 32768
   }
 
-  async init (config?) {
-    config = MetricConfig.getConfig(config, this.defaultConf)
-    this.config = config
+  init (config?) {
+    return new Promise(resolve => {
+      config = MetricConfig.getConfig(config, this.defaultConf)
+      this.config = config
 
-    this.session = new inspector.Session()
-    this.session.connect()
+      this.session = new inspector.Session()
+      this.session.connect()
 
-    this.session.post('HeapProfiler.enable', () => {
-      debug('Profiler enable !')
+      this.session.post('HeapProfiler.enable', () => {
+        debug('Profiler enable !')
+        resolve()
+      })
     })
   }
 
   destroy () {
-    this.session.post('HeapProfiler.disable', () => {
-      debug('Profiler enable !')
+    return new Promise(resolve => {
+      this.session.post('Profiler.disable', () => {
+        resolve()
+        debug('Profiler disable !')
+      })
+      this.session.disconnect()
     })
-    this.session.disconnect()
   }
 
   start () {

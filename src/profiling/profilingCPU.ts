@@ -8,20 +8,26 @@ export default class ProfilingCPU implements ProfilingType {
 
   private session
 
-  async init () {
-    this.session = new inspector.Session()
-    this.session.connect()
+  init () {
+    return new Promise(resolve => {
+      this.session = new inspector.Session()
+      this.session.connect()
 
-    this.session.post('Profiler.enable', () => {
-      debug('Profiler enable !')
+      this.session.post('Profiler.enable', () => {
+        debug('Profiler enable !')
+        resolve()
+      })
     })
   }
 
   destroy () {
-    this.session.post('Profiler.disable', () => {
-      debug('Profiler enable !')
+    return new Promise(resolve => {
+      this.session.post('Profiler.disable', () => {
+        resolve()
+        debug('Profiler disable !')
+      })
+      this.session.disconnect()
     })
-    this.session.disconnect()
   }
 
   start () {
