@@ -15,6 +15,28 @@ describe('ProfilingFeature', function () {
     exec('npm uninstall ' + MODULE, done)
   })
 
+  describe('Profiling without module', () => {
+    it('Should fail on heap profiling cause no profiler install', async () => {
+      const profiling = new ProfilingFeature().init(true)
+
+      try {
+        await profiling.heapProfiling.init()
+      } catch (e) {
+        expect(e.message.indexOf('Profiler not loaded !')).to.equal(0)
+      }
+    })
+
+    it('Should fail on CPU profiling cause no profiler install', async () => {
+      const profiling = new ProfilingFeature().init(true)
+
+      try {
+        await profiling.cpuProfiling.init()
+      } catch (e) {
+        expect(e.message.indexOf('Profiler not loaded !')).to.equal(0)
+      }
+    })
+  })
+
   describe('CPU', () => {
     before(function (done) {
       exec('npm install ' + MODULE, function (err) {

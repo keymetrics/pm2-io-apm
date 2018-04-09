@@ -9,14 +9,24 @@ export default class ProfilingCPUFallback implements ProfilingType {
   private nsCpuProfiling: string = 'km-cpu-profiling'
   private profiler
   private MODULE_NAME = 'v8-profiler-node8'
+  private FALLBACK_MODULE_NAME = 'v8-profiler'
 
   async init () {
-    const path = await utils.getModulePath(this.MODULE_NAME)
-    this.profiler = utils.loadModule(path, this.MODULE_NAME)
+    let path
+    let moduleName = this.MODULE_NAME
 
-    if (this.profiler instanceof Error || !this.profiler) {
-      throw new Error('Profiler not loaded !')
+    try {
+      path = await utils.getModulePath(this.MODULE_NAME)
+    } catch (e) {
+      try {
+        moduleName = this.FALLBACK_MODULE_NAME
+        path = await utils.getModulePath(this.FALLBACK_MODULE_NAME)
+      } catch (err) {
+        throw new Error('Profiler not loaded !')
+      }
     }
+
+    this.profiler = utils.loadModule(path, moduleName)
   }
 
   destroy () {
