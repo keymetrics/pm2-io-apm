@@ -102,11 +102,11 @@ export default class Transaction implements MetricsInterface {
         })
 
         if (opts.http === false) {
-          return (file) => {
+          return function (file) {
             return load.__axm_original.apply(this, arguments)
           }
         } else {
-          return (file) => {
+          return function (file) {
             if (file === 'http' || file === 'https') {
               return new SimpleHttpWrap(self.metricFeature).init(opts, load.__axm_original.apply(this, arguments))
             } else {
