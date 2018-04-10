@@ -6,3 +6,7 @@ action.init()
 
 const profiling = new ProfilingHeap(action)
 profiling.init()
+
+if (process && process.send) {
+  process.send('initialized')
+}

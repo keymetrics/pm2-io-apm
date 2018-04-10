@@ -59,7 +59,7 @@ export default class ModuleUtils {
 
     debug('Checking %s in path %s', moduleName, profilerPath)
 
-    fs.access(profilerPath, fs.constants.R_OK, function (err) {
+    fs.access(profilerPath, (fs.constants || fs).R_OK, function (err) {
       if (!err) {
         debug('[+] %s detected in path %s', moduleName, profilerPath)
         return cb(null, profilerPath)

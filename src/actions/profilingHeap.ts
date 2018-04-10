@@ -35,6 +35,7 @@ export default class ProfilingHeapAction {
         await this.profilingFeature.heapProfiling.start()
         reply({ success : true })
       } catch (err) {
+        console.log(err)
         return reply({
           success: false,
           err : err
