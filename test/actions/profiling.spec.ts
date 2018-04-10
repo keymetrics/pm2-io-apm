@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { fork, exec } from 'child_process'
 import Action from '../../src/features/actions'
 
-const MODULE = 'v8-profiler-node8'
+const MODULE = 'v8-profiler'
 
 describe('ProfilingAction', function () {
   this.timeout(50000)
@@ -76,15 +76,17 @@ describe('ProfilingAction', function () {
             done()
           }
         }
+
+        if (res === 'initialized') {
+          setTimeout(function () {
+            child.send('km:heap:sampling:start')
+          }, 100)
+
+          setTimeout(function () {
+            child.send('km:heap:sampling:stop')
+          }, 500)
+        }
       })
-
-      setTimeout(function () {
-        child.send('km:heap:sampling:start')
-      }, 100)
-
-      setTimeout(function () {
-        child.send('km:heap:sampling:stop')
-      }, 1000)
     })
 
     it('should get heap dump data', (done) => {
