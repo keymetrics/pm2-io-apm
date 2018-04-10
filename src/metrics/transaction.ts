@@ -93,7 +93,7 @@ export default class Transaction implements MetricsInterface {
     }, opts)
 
     const self = this
-    Proxy.wrap(Module, '_load',function (load) {
+    Proxy.wrap(Module, '_load', (load) => {
       if (load.__axm_original) {
         debug('HTTP routes have already been wrapped before')
 
@@ -102,7 +102,7 @@ export default class Transaction implements MetricsInterface {
         })
 
         if (opts.http === false) {
-          return function (file) {
+          return (file) => {
             return load.__axm_original.apply(this, arguments)
           }
         } else {
