@@ -20,7 +20,7 @@ describe('ProfilingAction', function () {
     before(function (done) {
       exec('npm install ' + MODULE, function (err) {
         expect(err).to.equal(null)
-        setTimeout(done, 2000)
+        setTimeout(done, 1000)
       })
     })
 
@@ -40,15 +40,15 @@ describe('ProfilingAction', function () {
             done()
           }
         }
+
+        if (res === 'initialized') {
+          child.send('km:cpu:profiling:start')
+
+          setTimeout(function () {
+            child.send('km:cpu:profiling:stop')
+          }, 500)
+        }
       })
-
-      setTimeout(function () {
-        child.send('km:cpu:profiling:start')
-      }, 100)
-
-      setTimeout(function () {
-        child.send('km:cpu:profiling:stop')
-      }, 1000)
     })
   })
 
@@ -78,9 +78,7 @@ describe('ProfilingAction', function () {
         }
 
         if (res === 'initialized') {
-          setTimeout(function () {
-            child.send('km:heap:sampling:start')
-          }, 100)
+          child.send('km:heap:sampling:start')
 
           setTimeout(function () {
             child.send('km:heap:sampling:stop')
