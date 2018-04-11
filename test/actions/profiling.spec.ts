@@ -42,7 +42,9 @@ describe('ProfilingAction', function () {
         }
 
         if (res === 'initialized') {
-          child.send('km:cpu:profiling:start')
+          setTimeout(function () {
+            child.send('km:cpu:profiling:start')
+          }, 100)
 
           setTimeout(function () {
             child.send('km:cpu:profiling:stop')
@@ -78,7 +80,9 @@ describe('ProfilingAction', function () {
         }
 
         if (res === 'initialized') {
-          child.send('km:heap:sampling:start')
+          setTimeout(function () {
+            child.send('km:heap:sampling:start')
+          }, 100)
 
           setTimeout(function () {
             child.send('km:heap:sampling:stop')
@@ -104,11 +108,13 @@ describe('ProfilingAction', function () {
             done()
           }
         }
-      })
 
-      setTimeout(function () {
-        child.send('km:heapdump')
-      }, 500)
+        if (res === 'initialized') {
+          setTimeout(function () {
+            child.send('km:heapdump')
+          }, 500)
+        }
+      })
     })
   })
 })
