@@ -7,3 +7,7 @@ metric.init({v8: 'all'}, true)
 process.on('SIGINT', function () {
   metric.destroy()
 })
+
+setTimeout(function () {
+  global.gc()
+}, 1000)

@@ -1,5 +1,5 @@
 import debug from 'debug'
-debug('axm:profiling')
+debug('axm:eventloopaction')
 
 import utils from '../utils/module'
 import ActionsFeature from '../features/actions'
@@ -33,7 +33,7 @@ export default class Inspector {
   }
 
   private exposeActions (inspectorPath) {
-    let inspector = utils.loadModule(inspectorPath, this.MODULE_NAME)
+    let inspector = utils.loadModule(inspectorPath, this.MODULE_NAME, [true])
 
     if (inspector instanceof Error || !inspector) {
       return inspector
