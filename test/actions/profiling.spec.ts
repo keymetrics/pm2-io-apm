@@ -20,7 +20,7 @@ describe('ProfilingAction', function () {
     before(function (done) {
       exec('npm install ' + MODULE, function (err) {
         expect(err).to.equal(null)
-        setTimeout(done, 1000)
+        setTimeout(done, 2000)
       })
     })
 
