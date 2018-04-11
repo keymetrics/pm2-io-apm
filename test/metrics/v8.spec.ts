@@ -101,12 +101,12 @@ describe('V8', function () {
 })
 
 describe('GC', function () {
-  this.timeout(10000)
+  this.timeout(50000)
 
   before(function (done) {
     exec('npm install gc-stats', function (err) {
       expect(err).to.equal(null)
-      done()
+      setTimeout(done, 1000)
     })
   })
 
@@ -123,6 +123,11 @@ describe('GC', function () {
     child.on('message', pck => {
 
       if (pck.type === 'axm:monitor') {
+        expect(pck.data.hasOwnProperty('GC Heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Executable heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Used heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Type')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Pause')).to.equal(true)
 
         child.kill('SIGINT')
         done()
