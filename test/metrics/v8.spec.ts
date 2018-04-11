@@ -3,6 +3,7 @@ import 'mocha'
 
 import SpecUtils from '../fixtures/utils'
 import { fork, exec } from 'child_process'
+import * as semver from 'semver'
 
 function checkDefaultValue (pck) {
   expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
@@ -38,8 +39,10 @@ describe('V8', function () {
         checkDefaultValue(pck)
 
         expect(pck.data.hasOwnProperty('Heap physical size')).to.equal(true)
-        expect(pck.data.hasOwnProperty('Malloced memory')).to.equal(true)
-        expect(pck.data.hasOwnProperty('Peak malloced memory')).to.equal(true)
+        if (semver.satisfies(process.version, '>= 7.2.0')) {
+          expect(pck.data.hasOwnProperty('Malloced memory')).to.equal(true)
+          expect(pck.data.hasOwnProperty('Peak malloced memory')).to.equal(true)
+        }
         expect(pck.data.hasOwnProperty('Heap available size')).to.equal(true)
 
         child.kill('SIGINT')
@@ -97,13 +100,13 @@ describe('V8', function () {
   })
 })
 
-xdescribe('GC', function () {
-  this.timeout(10000)
+describe('GC', function () {
+  this.timeout(50000)
 
   before(function (done) {
     exec('npm install gc-stats', function (err) {
       expect(err).to.equal(null)
-      done()
+      setTimeout(done, 1000)
     })
   })
 
@@ -120,6 +123,11 @@ xdescribe('GC', function () {
     child.on('message', pck => {
 
       if (pck.type === 'axm:monitor') {
+        expect(pck.data.hasOwnProperty('GC Heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Executable heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Used heap size')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Type')).to.equal(true)
+        expect(pck.data.hasOwnProperty('GC Pause')).to.equal(true)
 
         child.kill('SIGINT')
         done()

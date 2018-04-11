@@ -2,6 +2,8 @@ import Metric from '../../../src/features/metrics'
 
 const metric = new Metric()
 metric.init({transaction: {http: {http_latency: 1, ignore_routes: ['/toto']}}}, true)
+// test cases two not patch 2 times the same function
+metric.init({transaction: {http: {http_latency: 1, ignore_routes: ['/toto']}}}, true)
 
 const httpModule = require('http')
 

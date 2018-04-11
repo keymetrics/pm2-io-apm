@@ -1,6 +1,6 @@
 pipeline:
   build:
-    image: node:8
+    image: node:${NODE_VERSION}
     environment:
       - NODE_ENV=test
     commands:
@@ -14,15 +14,21 @@ pipeline:
     secrets: [ codecov_token ]
     when:
       event: push
-  slack:
-    image: plugins/slack
-    channel: ci
-    status: [ success, failure ]
-    template: |
-      {{#success build.status}}
-        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" done by {{build.author}} succeeded in {{since build.started}}
-      {{else}}
-        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" done by {{build.author}} failed in {{since build.started}}
-      {{/success}}
-      see {{ build.link }}
-    secrets: [ slack_webhook ]
+      slack:
+        image: plugins/slack
+        channel: ci
+        status: [ success, failure ]
+        template: |
+          {{#success build.status}}
+            {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} succeeded in {{since build.started}}
+          {{else}}
+            {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} failed in {{since build.started}}
+          {{/success}}
+          see {{ build.link }}
+        secrets: [ slack_webhook ]
+matrix:
+  NODE_VERSION:
+    - 4
+    - 6
+    - 8
+    - 9

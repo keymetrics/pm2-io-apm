@@ -11,11 +11,15 @@ export default class ProfilingCPUAction {
 
   constructor (actionFeature: ActionsFeature) {
     this.actionFeature = actionFeature
-    this.profilingFeature = new ProfilingFeature().init()
-    this.profilingFeature.cpuProfiling.init()
   }
 
-  exposeActions () {
+  async init () {
+    this.profilingFeature = new ProfilingFeature().init()
+    await this.profilingFeature.cpuProfiling.init()
+    this.exposeActions()
+  }
+
+  private exposeActions () {
 
     this.actionFeature.action('km:cpu:profiling:start', async (reply) => {
       try {

@@ -213,19 +213,19 @@ export default class V8Metric implements MetricsInterface {
       }
     }.bind(this), this.TIME_INTERVAL)
 
-    utils.detectModule('gc-stats', function (err, gcPath) {
+    utils.detectModule('gc-stats', (err, gcPath) => {
       if (err) {
         return false
       }
       return this._sendGCStats(gcPath, config.GC)
-    }.bind(this))
+    })
   }
 
   destroy () {
     clearInterval(this.timer)
   }
 
-  _sendGCStats (gcPath, config) {
+  private _sendGCStats (gcPath, config) {
     let gc
     try {
       gc = (require(gcPath))()
@@ -240,7 +240,7 @@ export default class V8Metric implements MetricsInterface {
     const gcProbes = MetricConfig.initProbes(this.allPossibleMetrics.GC, config, this.metricFeature)
     const self = this
 
-    gc.on('stats', function (stats) {
+    gc.on('stats', (stats) => {
 
       MetricConfig.setProbesValue(this.allPossibleMetrics.GC, stats.after, gcProbes, self.unitKB)
 
