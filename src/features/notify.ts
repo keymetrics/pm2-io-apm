@@ -35,12 +35,12 @@ export class NotifyFeature implements Feature {
 
     this.transport = ServiceManager.get('transport')
 
-    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '<= 8.0.0')) {
+    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '< 8.0.0')) {
       console.warn(`Inspector is not available on node version ${process.version} !`)
     }
 
     if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 8.0.0')) {
-      const NotifyInspector = require('./notifyInspector')
+      const NotifyInspector = require('./notifyInspector').default
       NotifyInspector.catchAllDebugger(this.transport)
     } else {
       this.catchAll()
