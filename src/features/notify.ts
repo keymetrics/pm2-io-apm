@@ -5,7 +5,6 @@ import { ServiceManager } from '../index'
 import * as inspector from 'inspector'
 import async from 'async'
 
-
 export class NotifyOptions {
   level: string
 }
@@ -14,7 +13,7 @@ export const NotifyOptionsDefault = {
   level: 'fatal'
 }
 
-export interface errorMetadata {
+export interface ErrorMetadata {
   type: String,
   subtype: String,
   className: String,
@@ -127,12 +126,12 @@ export class NotifyFeature implements Feature {
     }
   }
 
-  _catchAllDebugger () : Boolean | void {
-    interface trappedException {
-      error: errorMetadata,
+  private _catchAllDebugger (): Boolean | void {
+    interface TrappedException {
+      error: ErrorMetadata,
       scopes: Object
     }
-    const exceptionsTrapped : trappedException[] = []
+    const exceptionsTrapped: TrappedException[] = []
     const session = new inspector.Session()
     session.connect()
 
@@ -145,7 +144,7 @@ export class NotifyFeature implements Feature {
         }
         console.error(error)
         // create object to be send
-        const context = exceptionsTrapped.find((exception: trappedException) => {
+        const context = exceptionsTrapped.find((exception: TrappedException) => {
           return !!exception.error.description.match(error.message)
         })
         error = this._jsonize(error)
@@ -171,7 +170,7 @@ export class NotifyFeature implements Feature {
         return session.post('Debugger.resume')
       }
       if (!params.data) return session.post('Debugger.resume')
-      const error: errorMetadata = params.data as errorMetadata
+      const error: ErrorMetadata = params.data as ErrorMetadata
       // only the current frame is interesting us
       const frame = params.callFrames[0]
       // inspect each scope to retrieve his context
@@ -182,7 +181,7 @@ export class NotifyFeature implements Feature {
           objectId: scope.object.objectId,
           ownProperties: true
         }, (err, data: inspector.Runtime.GetPropertiesReturnType) => {
-          const result : inspector.Runtime.PropertyDescriptor[] = data.result
+          const result: inspector.Runtime.PropertyDescriptor[] = data.result
           return next(err, {
             scope: scope.type,
             name: scope.name,
@@ -218,7 +217,7 @@ export class NotifyFeature implements Feature {
         }, (err, scripts) => {
           if (err) return console.error(err)
           // so now we want only to attach the script source that match each scope
-          
+
           async.map(scopes, (scope: inspector.Debugger.Scope, next) => {
             if (!scope.startLocation || !scope.endLocation) return next()
             // get the script for this scope
@@ -242,7 +241,7 @@ export class NotifyFeature implements Feature {
             })
           }, (err, scopes) => {
             if (err) return console.error(err)
-  
+
             exceptionsTrapped.push({ error, scopes })
             // continue execution
             return session.post('Debugger.resume')
@@ -252,7 +251,7 @@ export class NotifyFeature implements Feature {
     })
   }
 
-  _jsonize (err) {
+  private _jsonize (err) {
     if (typeof(err) !== 'object') {
       return err
     }
@@ -266,7 +265,7 @@ export class NotifyFeature implements Feature {
     return plainObject
   }
 
-  _interpretError (err: Error | string | object) {
+  private _interpretError (err: Error | string | object) {
     let sErr: any = {
       message: null,
       stack: null
