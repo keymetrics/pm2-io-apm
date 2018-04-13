@@ -8,7 +8,7 @@ pmx.init({metrics:  {v8: true}})
 pmx.metric()
 pmx.metric({})
 
-const { metricHistogram } = pmx.metric(
+const allMetrics = pmx.metric(
   [
     {
       name: 'metricHistogram',
@@ -22,4 +22,4 @@ const { metricHistogram } = pmx.metric(
   ]
 )
 
-metricHistogram.update(10)
+allMetrics.metricHistogram.update(10)
