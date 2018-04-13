@@ -1,15 +1,23 @@
 import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/notify'
+import MetricsFeature from './features/metrics'
 
 class PMX {
 
   private notify: NotifyFeature
+  private metricsFeature: MetricsFeature
 
   constructor () {
     this.notify = new NotifyFeature()
+    this.metricsFeature = new MetricsFeature()
   }
 
   async init (config?) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
+    let configMetrics = {}
+
+    if (!config) {
+      config = {}
+    }
 
     if (config) {
       if (config.level) {
@@ -17,8 +25,13 @@ class PMX {
           level: config.level
         }
       }
+
+      if (config.metrics) {
+        configMetrics = config.metrics
+      }
     }
     await this.notify.init(notifyOptions)
+    this.metricsFeature.init(config.metrics)
   }
 
   notifyError (err: Error, context?) {
@@ -28,6 +41,46 @@ class PMX {
     }
 
     this.notify.notifyError(err, level)
+  }
+
+  metric (metrics: Object | Array<any>): Object {
+
+    const res: Object = {}
+
+    let allMetrics: Array<any> = []
+    if (!Array.isArray(metrics)) {
+      allMetrics[0] = metrics
+    } else {
+      allMetrics = metrics
+    }
+
+    for (let i = 0; i < allMetrics.length; i++) {
+      const currentMetric = allMetrics[i]
+      if (!currentMetric || !currentMetric.hasOwnProperty('name') || !currentMetric.hasOwnProperty('type')) {
+        console.warn(`Metric can't be initialized : missing some properties !`)
+        console.warn('name => required')
+        console.warn('type => required')
+        console.warn('id => optional')
+        console.warn('unit => optional')
+        console.warn('value => optional')
+        console.warn('historic => optional')
+        console.warn('agg_type => optional')
+        console.warn('measurement => optional')
+        continue
+      }
+
+      const type = currentMetric.type
+      currentMetric.type = currentMetric.id
+      delete currentMetric.id
+      if (typeof this.metricsFeature[type] !== 'function') {
+        console.warn(`Metric ${currentMetric.name} can't be initialized : unknown type ${type} !`)
+        continue
+      }
+
+      res[currentMetric.name] = this.metricsFeature[type](currentMetric)
+    }
+
+    return res
   }
 }
 
