@@ -1,7 +1,7 @@
 import * as util from 'util'
 
 import { Feature } from './featureTypes'
-import { ServiceManager } from '../index'
+import { ServiceManager } from '../serviceManager'
 import * as semver from 'semver'
 import JsonUtils from '../utils/json'
 
@@ -28,12 +28,14 @@ export class NotifyFeature implements Feature {
   private transport
   private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
 
+  constructor () {
+    this.transport = ServiceManager.get('transport')
+  }
+
   async init (options?: NotifyOptions): Promise<Object> {
     if (options) {
       this.options = options
     }
-
-    this.transport = ServiceManager.get('transport')
 
     if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '< 8.0.0')) {
       console.warn(`Inspector is not available on node version ${process.version} !`)
@@ -47,11 +49,11 @@ export class NotifyFeature implements Feature {
     }
 
     return {
-      notify: this.notify
+      notifyError: this.notifyError
     }
   }
 
-  notify (err: Error, level?: string) {
+  notifyError (err: Error, level?: string) {
 
     if (!(err instanceof Error)) {
       console.error('You should use notify with an Error !!!')

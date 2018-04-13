@@ -36,7 +36,7 @@ describe('Notify', () => {
       const notify = new NotifyFeature()
       notify.init().then(() => {
         const msg = 'test' as any
-        const res = notify.notify(msg)
+        const res = notify.notifyError(msg)
         expect(res).to.equal(-1)
       })
     })

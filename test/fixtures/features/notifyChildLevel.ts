@@ -10,10 +10,10 @@ class Option extends NotifyOptions {
 const option = new Option('warn')
 
 notify.init(option).then(() => {
-  notify.notify(new Error('info'), 'info')
-  notify.notify(new Error('warn'), 'warn')
-  notify.notify(new Error('error'), 'errors')
-  notify.notify(new Error('does not exist'), 'does not exist')
+  notify.notifyError(new Error('info'), 'info')
+  notify.notifyError(new Error('warn'), 'warn')
+  notify.notifyError(new Error('error'), 'errors')
+  notify.notifyError(new Error('does not exist'), 'does not exist')
 }).catch(() => {
   console.log('error')
 })

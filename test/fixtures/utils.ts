@@ -6,4 +6,8 @@ export default class SpecUtils {
   static buildTestPath (path) {
     return this.getTestDirPath() + path
   }
+
+  static buildPath () {
+    return './build/'
+  }
 }
