@@ -1,4 +1,4 @@
-import { ServiceManager } from '../index'
+import { ServiceManager } from '../serviceManager'
 import Transport from '../utils/transport'
 import Proxy from '../utils/proxy'
 import MetricsFeature from '../features/metrics'

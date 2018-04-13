@@ -6,7 +6,7 @@ import SimpleHttpWrap from '../wrapper/httpWrapper'
 import debug from 'debug'
 debug('axm:tracing')
 import Transport from '../utils/transport.js'
-import { ServiceManager } from '../index'
+import { ServiceManager } from '../serviceManager'
 import Configuration from '../configuration'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'

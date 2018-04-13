@@ -1,21 +1,34 @@
-import Transport from './utils/transport'
-import MetricsService from './services/metrics'
+import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/notify'
 
-const services: {
-  transport: Transport;
-  metricsMap: Map<string, any>
-} = {
-  transport: new Transport(),
-  metricsMap: new Map()
-}
+class PMX {
 
-export class ServiceManager {
+  private notify: NotifyFeature
 
-  public static get (type: string) {
-    return services[type]
+  constructor () {
+    this.notify = new NotifyFeature()
   }
 
-  public static set (type: string, service) {
-    services[type] = service
+  async init (config?) {
+    let notifyOptions: NotifyOptions = NotifyOptionsDefault
+
+    if (config) {
+      if (config.level) {
+        notifyOptions = {
+          level: config.level
+        }
+      }
+    }
+    await this.notify.init(notifyOptions)
+  }
+
+  notifyError (err: Error, context?) {
+    let level = 'info'
+    if (context && context.level) {
+      level = context.level
+    }
+
+    this.notify.notifyError(err, level)
   }
 }
+
+module.exports = new PMX()

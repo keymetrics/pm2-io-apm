@@ -2,7 +2,7 @@ import { NotifyFeature } from '../../../src/features/notify'
 
 const notify = new NotifyFeature()
 notify.init().then(() => {
-  notify.notify(new Error('test'))
+  notify.notifyError(new Error('test'))
 }).catch(() => {
   console.log('error')
 })

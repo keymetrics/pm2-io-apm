@@ -1,7 +1,7 @@
 import debug from 'debug'
 debug('axm:events')
 import Transport from '../utils/transport.js'
-import { ServiceManager } from '../index'
+import { ServiceManager } from '../serviceManager'
 
 import * as stringify from 'json-stringify-safe'
 import { Feature } from './featureTypes'
