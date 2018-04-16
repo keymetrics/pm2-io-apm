@@ -99,6 +99,10 @@ class PMX {
   scopedAction (name, fn) {
     this.actionsFeature.scopedAction(name, fn)
   }
+
+  transpose (variableName, reporter) {
+    this.metricsFeature.transpose(variableName, reporter)
+  }
 }
 
 module.exports = new PMX()
