@@ -9,9 +9,11 @@ export default class ActionsFeature implements Feature {
 
   private transport: Transport
 
-  async init (): Promise<Object> {
-
+  constructor () {
     this.transport = ServiceManager.get('transport')
+  }
+
+  async init (): Promise<Object> {
 
     return {
       action: this.action

@@ -1,14 +1,17 @@
 import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/notify'
 import MetricsFeature from './features/metrics'
+import ActionsFeature from './features/actions'
 
 class PMX {
 
   private notify: NotifyFeature
   private metricsFeature: MetricsFeature
+  private actionsFeature: ActionsFeature
 
   constructor () {
     this.notify = new NotifyFeature()
     this.metricsFeature = new MetricsFeature()
+    this.actionsFeature = new ActionsFeature()
   }
 
   async init (config?) {
@@ -81,6 +84,20 @@ class PMX {
     }
 
     return res
+  }
+
+  action (name, opts?, fn?) {
+    if (typeof name === 'object') {
+      opts = name.opts
+      fn = name.action
+      name = name.name
+    }
+
+    this.actionsFeature.action(name, opts, fn)
+  }
+
+  scopedAction (name, fn) {
+    this.actionsFeature.scopedAction(name, fn)
   }
 }
 
