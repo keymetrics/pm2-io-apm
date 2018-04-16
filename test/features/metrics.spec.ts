@@ -318,4 +318,16 @@ describe('Metrics', () => {
       })
     })
   })
+
+  describe('transpose', () => {
+    it('should return undefined if no name provided', () => {
+      const metric = new Metric()
+
+      const transpose = metric.transpose({
+        name: 'toto',
+        data: null
+      })
+      expect(transpose).to.equal(undefined)
+    })
+  })
 })
