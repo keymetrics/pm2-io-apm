@@ -66,7 +66,7 @@ export default class MetricsFeature implements Feature {
     }
   }
 
-  transpose (variableName, reporter) {
+  transpose (variableName, reporter?) {
     if (typeof variableName === 'object') {
       reporter = variableName.data
       variableName = variableName.name
