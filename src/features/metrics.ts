@@ -66,6 +66,21 @@ export default class MetricsFeature implements Feature {
     }
   }
 
+  transpose (variableName, reporter) {
+    if (typeof variableName === 'object') {
+      reporter = variableName.data
+      variableName = variableName.name
+    }
+
+    if (typeof reporter !== 'function') {
+      return console.error('[PMX] reporter is not a function')
+    }
+
+    this._var.set(variableName, {
+      value: reporter
+    })
+  }
+
   meter (opts: any) {
     if (!opts.name) {
       return console.error('[Probe][Meter] Name not defined')

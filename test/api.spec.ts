@@ -99,4 +99,22 @@ describe('API', function () {
       })
     })
   })
+
+  describe('Transpose', () => {
+    it('should receive data from transpose', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiTransposeChild.js'))
+
+      child.on('message', res => {
+        if (res.type === 'axm:monitor') {
+          expect(res.data.hasOwnProperty('transpose')).to.equal(true)
+          expect(res.data.transpose.value).to.equal('transposeResponse')
+          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
+          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
+
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
+  })
 })
