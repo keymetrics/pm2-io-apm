@@ -138,36 +138,4 @@ export default class NotifyInspector {
       })
     })
   }
-
-  private _jsonize (err) {
-    if (typeof(err) !== 'object') {
-      return err
-    }
-
-    const plainObject = {}
-
-    Object.getOwnPropertyNames(err).forEach(function (key) {
-      plainObject[key] = err[key]
-    })
-
-    return plainObject
-  }
-
-  private _interpretError (err: Error | string | object) {
-    let sErr: any = {
-      message: null,
-      stack: null
-    }
-
-    if (err instanceof Error) {
-      // Error object type processing
-      sErr = err
-    } else {
-      // JSON processing
-      sErr.message = err
-      sErr.stack = err
-    }
-
-    return this._jsonize(sErr)
-  }
 }
