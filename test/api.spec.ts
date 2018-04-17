@@ -136,7 +136,7 @@ describe('API', function () {
     it('should return null cause no callback provided', () => {
       const pmx = require(__dirname + '/../build/main/src/index.js')
       const fn = pmx.onExit()
-      expect(fn).to.equal(null)
+      expect(fn).to.equal(undefined)
     })
 
     it('should catch uncaught exception and launch callback', (done) => {

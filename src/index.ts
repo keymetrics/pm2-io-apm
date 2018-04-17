@@ -108,12 +108,8 @@ class PMX {
     if (callback && typeof callback === 'function') {
       const onExit = require('signal-exit')
 
-      return onExit(function (code, signal) {
-        callback()
-      })
+      return onExit(callback())
     }
-
-    return null
   }
 }
 
