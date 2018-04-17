@@ -129,7 +129,7 @@ describe('API', function () {
 
       setTimeout(function () {
         child.kill('SIGINT')
-      }, 200)
+      }, 500)
 
     })
 
@@ -137,6 +137,15 @@ describe('API', function () {
       const pmx = require(__dirname + '/../build/main/src/index.js')
       const fn = pmx.onExit()
       expect(fn).to.equal(null)
+    })
+
+    it('should catch uncaught exception and launch callback', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitExceptionChild.js'))
+
+      child.on('message', res => {
+        expect(res).to.equal('callback')
+        done()
+      })
     })
   })
 })
