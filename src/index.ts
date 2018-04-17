@@ -111,6 +111,40 @@ class PMX {
       return onExit(callback())
     }
   }
+
+  // -----------------------------------------------------------
+  // Retro compatibility
+  // -----------------------------------------------------------
+
+  probe () {
+    console.warn('Deprecated : you should use pmx instead of pmx.probe() !')
+
+    return {
+      histogram: (histogram) => {
+        return this.genericBackwardConvertion(histogram, 'histogram')
+      },
+      meter: (meter) => {
+        return this.genericBackwardConvertion(meter, 'meter')
+      },
+      metric: (metric) => {
+        return this.genericBackwardConvertion(metric, 'metric')
+      },
+      counter: (counter) => {
+        return this.genericBackwardConvertion(counter, 'counter')
+      }
+    }
+  }
+
+  genericBackwardConvertion (object, type) {
+    if (typeof object !== 'object') {
+      console.error('Parameter should be an object')
+      return null
+    }
+
+    object.type = type
+
+    return this.metric(object)[object.name]
+  }
 }
 
 module.exports = new PMX()

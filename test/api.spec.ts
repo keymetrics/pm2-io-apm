@@ -148,4 +148,24 @@ describe('API', function () {
       })
     })
   })
+
+  describe('Compatibility', () => {
+    it('should receive data', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
+
+      child.on('message', res => {
+        console.log(res)
+        if (res.type === 'axm:monitor') {
+          expect(res.data.hasOwnProperty('metricBackward')).to.equal(true)
+          expect(res.data.metricBackward.value).to.equal(10)
+
+          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
+          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
+
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
+  })
 })
