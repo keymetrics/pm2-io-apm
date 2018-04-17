@@ -117,4 +117,26 @@ describe('API', function () {
       })
     })
   })
+
+  describe('Onexit', () => {
+    it('should catch signals and launch callback', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitChild.js'))
+
+      child.on('message', res => {
+        expect(res).to.equal('callback')
+        done()
+      })
+
+      setTimeout(function () {
+        child.kill('SIGINT')
+      }, 200)
+
+    })
+
+    it('should return null cause no callback provided', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+      const fn = pmx.onExit()
+      expect(fn).to.equal(null)
+    })
+  })
 })
