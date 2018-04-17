@@ -103,6 +103,18 @@ class PMX {
   transpose (variableName, reporter) {
     this.metricsFeature.transpose(variableName, reporter)
   }
+
+  onExit (callback: Function) {
+    if (callback && typeof callback === 'function') {
+      const onExit = require('signal-exit')
+
+      return onExit(function (code, signal) {
+        callback()
+      })
+    }
+
+    return null
+  }
 }
 
 module.exports = new PMX()
