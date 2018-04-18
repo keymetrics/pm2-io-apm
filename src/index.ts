@@ -5,13 +5,13 @@ import EventFeature from './features/events'
 
 class PMX {
 
-  private notify: NotifyFeature
+  private notifyFeature: NotifyFeature
   private metricsFeature: MetricsFeature
   private actionsFeature: ActionsFeature
   private eventsFeature: EventFeature
 
   constructor () {
-    this.notify = new NotifyFeature()
+    this.notifyFeature = new NotifyFeature()
     this.metricsFeature = new MetricsFeature()
     this.actionsFeature = new ActionsFeature()
     this.eventsFeature = new EventFeature()
@@ -36,7 +36,7 @@ class PMX {
         configMetrics = config.metrics
       }
     }
-    await this.notify.init(notifyOptions)
+    await this.notifyFeature.init(notifyOptions)
     this.metricsFeature.init(config.metrics)
   }
 
@@ -46,7 +46,7 @@ class PMX {
       level = context.level
     }
 
-    this.notify.notifyError(err, level)
+    this.notifyFeature.notifyError(err, level)
   }
 
   metric (metrics: Object | Array<any>): Object {
@@ -142,6 +142,16 @@ class PMX {
     console.warn('Deprecated : this feature will be removed in next release !')
 
     this.eventsFeature.emit(name, data)
+  }
+
+  notify (notification) {
+    console.warn('Deprecated : you should use pmx.notifyError() !')
+
+    if (!(notification instanceof Error)) {
+      notification = new Error(notification)
+    }
+
+    this.notifyFeature.notifyError(notification)
   }
 
   private genericBackwardConvertion (object, type) {
