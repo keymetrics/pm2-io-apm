@@ -1,5 +1,5 @@
 import SpecUtils from './fixtures/utils'
-import { expect } from 'chai'
+import { assert, expect } from 'chai'
 import * as chai from 'chai'
 import 'mocha'
 
@@ -198,5 +198,18 @@ describe('API', function () {
       })
     })
 
+    it('should receive data from notify', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardNotifyChild.js'))
+
+      child.on('message', msg => {
+        if (msg !== 'test' && msg !== 'testError' && msg.success) {
+          assert.fail()
+        }
+      })
+
+      child.on('exit', () => {
+        done()
+      })
+    })
   })
 })
