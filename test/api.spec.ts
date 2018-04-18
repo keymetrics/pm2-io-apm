@@ -183,5 +183,20 @@ describe('API', function () {
       const metric = probe.metric()
       expect(metric).to.equal(null)
     })
+
+    it('should receive data from event', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardEventChild.js'))
+
+      child.on('message', res => {
+        if (res.type === 'human:event') {
+          expect(res.data.__name).to.equal('myEvent')
+          expect(res.data.prop1).to.equal('value1')
+
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
+
   })
 })
