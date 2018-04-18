@@ -154,10 +154,18 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
 
       child.on('message', res => {
-        console.log(res)
         if (res.type === 'axm:monitor') {
           expect(res.data.hasOwnProperty('metricBackward')).to.equal(true)
           expect(res.data.metricBackward.value).to.equal(10)
+
+          expect(res.data.hasOwnProperty('counterBackward')).to.equal(true)
+          expect(res.data.counterBackward.value).to.equal(2)
+
+          expect(res.data.hasOwnProperty('meterBackward')).to.equal(true)
+          expect(res.data.meterBackward.value).to.equal('0')
+
+          expect(res.data.hasOwnProperty('histogramBackward')).to.equal(true)
+          expect(res.data.histogramBackward.value).to.equal('0')
 
           expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
           expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
@@ -166,6 +174,14 @@ describe('API', function () {
           done()
         }
       })
+    })
+
+    it('should return null', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+      const probe = pmx.probe()
+
+      const metric = probe.metric()
+      expect(metric).to.equal(null)
     })
   })
 })

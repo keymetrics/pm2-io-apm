@@ -11,3 +11,17 @@ const metric = probe.metric({
 })
 
 metric.set(10)
+
+const counter = probe.counter({
+  name: 'counterBackward'
+})
+
+counter.inc(2)
+
+const histogram = probe.histogram({
+  name: 'histogramBackward'
+})
+
+const meter = probe.meter({
+  name: 'meterBackward'
+})
