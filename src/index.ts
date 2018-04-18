@@ -1,17 +1,20 @@
 import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/notify'
 import MetricsFeature from './features/metrics'
 import ActionsFeature from './features/actions'
+import EventFeature from './features/events'
 
 class PMX {
 
   private notify: NotifyFeature
   private metricsFeature: MetricsFeature
   private actionsFeature: ActionsFeature
+  private eventsFeature: EventFeature
 
   constructor () {
     this.notify = new NotifyFeature()
     this.metricsFeature = new MetricsFeature()
     this.actionsFeature = new ActionsFeature()
+    this.eventsFeature = new EventFeature()
   }
 
   async init (config?) {
@@ -135,7 +138,13 @@ class PMX {
     }
   }
 
-  genericBackwardConvertion (object, type) {
+  emit (name, data) {
+    console.warn('Deprecated : this feature will be removed in next release !')
+
+    this.eventsFeature.emit(name, data)
+  }
+
+  private genericBackwardConvertion (object, type) {
     if (typeof object !== 'object') {
       console.error('Parameter should be an object')
       return null

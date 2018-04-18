@@ -9,9 +9,11 @@ import { Feature } from './featureTypes'
 export default class Events implements Feature {
   private transport: Transport
 
-  async init (): Promise<Object> {
+  constructor () {
     this.transport = ServiceManager.get('transport')
+  }
 
+  async init (): Promise<Object> {
     return {
       emit: this.emit
     }
