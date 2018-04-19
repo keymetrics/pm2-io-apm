@@ -25,19 +25,24 @@ class PMX {
       config = {}
     }
 
-    if (config) {
-      if (config.level) {
-        notifyOptions = {
-          level: config.level
-        }
-      }
-
-      if (config.metrics) {
-        configMetrics = config.metrics
+    if (config.level) {
+      notifyOptions = {
+        level: config.level
       }
     }
+
+    if (config.metrics) {
+      configMetrics = config.metrics
+    }
+
+    this.backwardConfigConversion(config)
+
     await this.notifyFeature.init(notifyOptions)
     this.metricsFeature.init(config.metrics)
+  }
+
+  destroy () {
+    this.metricsFeature.destroy()
   }
 
   notifyError (err: Error, context?) {
@@ -124,16 +129,16 @@ class PMX {
 
     return {
       histogram: (histogram) => {
-        return this.genericBackwardConvertion(histogram, 'histogram')
+        return this.genericBackwardConversion(histogram, 'histogram')
       },
       meter: (meter) => {
-        return this.genericBackwardConvertion(meter, 'meter')
+        return this.genericBackwardConversion(meter, 'meter')
       },
       metric: (metric) => {
-        return this.genericBackwardConvertion(metric, 'metric')
+        return this.genericBackwardConversion(metric, 'metric')
       },
       counter: (counter) => {
-        return this.genericBackwardConvertion(counter, 'counter')
+        return this.genericBackwardConversion(counter, 'counter')
       }
     }
   }
@@ -154,7 +159,7 @@ class PMX {
     this.notifyFeature.notifyError(notification)
   }
 
-  private genericBackwardConvertion (object, type) {
+  private genericBackwardConversion (object, type) {
     if (typeof object !== 'object') {
       console.error('Parameter should be an object')
       return null
@@ -163,6 +168,75 @@ class PMX {
     object.type = type
 
     return this.metric(object)[object.name]
+  }
+
+  private backwardConfigConversion (config) {
+
+    // ------------------------------------------
+    // Network
+    // ------------------------------------------
+    if (config.hasOwnProperty('network') || config.hasOwnProperty('ports')) {
+      const networkConf: any = {}
+
+      if (config.hasOwnProperty('network')) {
+        networkConf.traffic = config.network
+        delete config.network
+      }
+
+      if (config.hasOwnProperty('ports')) {
+        networkConf.ports = config.ports
+        delete config.ports
+      }
+
+      this.initMetricsConf(config)
+
+      config.metrics.network = networkConf
+    }
+
+    // ------------------------------------------
+    // V8
+    // ------------------------------------------
+    if (config.hasOwnProperty('v8')) {
+      this.initMetricsConf(config)
+
+      config.metrics.v8 = config.v8
+      delete config.v8
+    }
+
+    // ------------------------------------------
+    // transactions
+    // ------------------------------------------
+    if (config.hasOwnProperty('transactions') || config.hasOwnProperty('http')) {
+      this.initMetricsConf(config)
+
+      config.metrics.transaction = {}
+
+      if (config.hasOwnProperty('transactions')) {
+        config.metrics.transaction.tracing = config.transactions
+        delete config.transactions
+      }
+
+      if (config.hasOwnProperty('http')) {
+        config.metrics.transaction.http = config.http
+        delete config.http
+      }
+    }
+
+    // ------------------------------------------
+    // Deep metrics
+    // ------------------------------------------
+    if (config.hasOwnProperty('deep_metrics')) {
+      this.initMetricsConf(config)
+
+      config.metrics.deepMetrics = config.deep_metrics
+      delete config.deep_metrics
+    }
+  }
+
+  private initMetricsConf (config) {
+    if (!config.metrics) {
+      config.metrics = {}
+    }
   }
 }
 

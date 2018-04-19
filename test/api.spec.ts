@@ -6,7 +6,7 @@ import 'mocha'
 import { fork } from 'child_process'
 
 describe('API', function () {
-  this.timeout(5000)
+  this.timeout(10000)
 
   describe('Notify', () => {
     it('should receive data from notify', (done) => {
@@ -209,6 +209,35 @@ describe('API', function () {
 
       child.on('exit', () => {
         done()
+      })
+    })
+
+    it('should receive data with old config', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardConfChild.js'))
+      let tracingDone = false
+      let metricsDone = false
+
+      child.on('message', pck => {
+
+        if (pck.type === 'axm:trace') {
+          expect(pck.data.hasOwnProperty('projectId')).to.equal(true)
+          expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
+          tracingDone = true
+        }
+
+        if (pck.data.hasOwnProperty('New space used size')) {
+          expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
+          expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
+          expect(pck.data.hasOwnProperty('Network Upload')).to.equal(true)
+          expect(pck.data.hasOwnProperty('Open ports')).to.equal(true)
+          expect(pck.data.hasOwnProperty('HTTP: Response time')).to.equal(true)
+          metricsDone = true
+        }
+
+        if (tracingDone && metricsDone) {
+          child.kill('SIGINT')
+          done()
+        }
       })
     })
   })
