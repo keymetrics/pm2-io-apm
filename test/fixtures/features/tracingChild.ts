@@ -19,10 +19,10 @@ app.get('/toto', function (req, res) {
 })
 
 const server = app.listen(3001, function () {
-  timer = setInterval(function () {
+  timer = setTimeout(function () {
     httpModule.get('http://localhost:' + server.address().port)
     httpModule.get('http://localhost:' + server.address().port + '/toto')
-  }, 100)
+  }, 200)
 })
 
 process.on('SIGINT', function () {
