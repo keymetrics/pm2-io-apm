@@ -3,7 +3,7 @@ import { assert, expect } from 'chai'
 import * as chai from 'chai'
 import 'mocha'
 
-import {exec, fork} from 'child_process'
+import { exec, fork } from 'child_process'
 
 describe('API', function () {
   this.timeout(50000)
@@ -216,6 +216,7 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardConfChild.js'))
       let tracingDone = false
       let metricsDone = false
+      let finished = false
 
       child.on('message', pck => {
 
@@ -234,7 +235,8 @@ describe('API', function () {
           metricsDone = true
         }
 
-        if (tracingDone && metricsDone) {
+        if (tracingDone && metricsDone && !finished) {
+          finished = true
           child.kill('SIGINT')
           done()
         }
