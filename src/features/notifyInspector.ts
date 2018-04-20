@@ -1,6 +1,7 @@
 import async from 'async'
 import * as inspector from 'inspector'
 import JsonUtils from '../utils/json'
+import { ServiceManager } from '../serviceManager'
 
 export interface ErrorMetadata {
   type: String,
@@ -20,8 +21,8 @@ export default class NotifyInspector {
       scopes: Object
     }
     const exceptionsTrapped: TrappedException[] = []
-    const session = new inspector.Session()
-    session.connect()
+    const session = ServiceManager.get('inspector').createSession()
+    ServiceManager.get('inspector').connect()
 
     // trap exception so we can re-use them with the debugger
     const trapException = listener => {
