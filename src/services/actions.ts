@@ -31,4 +31,13 @@ export default class ActionsService {
       }
     }
   }
+
+  get (name: string) {
+    if (!this.services.has(name)) {
+      debug(`Service ${name} not found !`)
+      return null
+    }
+
+    return this.services.get(name)
+  }
 }
