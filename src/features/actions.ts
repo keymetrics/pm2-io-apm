@@ -4,16 +4,22 @@ debug('axm:actions')
 import { ServiceManager } from '../serviceManager'
 import Transport from '../utils/transport'
 import { Feature } from './featureTypes'
+import ActionsService from '../services/actions'
 
 export default class ActionsFeature implements Feature {
 
   private transport: Transport
+  private actionsService: ActionsService
 
   constructor () {
     this.transport = ServiceManager.get('transport')
+    ServiceManager.set('actionsService', new ActionsService(this))
+    this.actionsService = ServiceManager.get('actionsService')
   }
 
-  async init (): Promise<Object> {
+  async init (conf?): Promise<Object> {
+
+    this.actionsService.init(conf)
 
     return {
       action: this.action
