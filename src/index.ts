@@ -2,6 +2,7 @@ import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/n
 import MetricsFeature from './features/metrics'
 import ActionsFeature from './features/actions'
 import EventFeature from './features/events'
+import Inspector from './actions/eventLoopInspector'
 
 class PMX {
 
@@ -39,6 +40,10 @@ class PMX {
 
     await this.notifyFeature.init(notifyOptions)
     this.metricsFeature.init(config.metrics)
+
+    if (config.actions) {
+      await this.actionsFeature.init(config.actions)
+    }
   }
 
   destroy () {
@@ -231,11 +236,40 @@ class PMX {
       config.metrics.deepMetrics = config.deep_metrics
       delete config.deep_metrics
     }
+
+    // ------------------------------------------
+    // Event Loop action
+    // ------------------------------------------
+    if (config.hasOwnProperty('event_loop_dump')) {
+      this.initActionsConf(config)
+
+      config.actions.eventLoopDump = config.event_loop_dump
+      delete config.event_loop_dump
+    }
+
+    // ------------------------------------------
+    // Profiling action
+    // ------------------------------------------
+    if (config.hasOwnProperty('profiling')) {
+      this.initActionsConf(config)
+
+      config.actions = {
+        profilingCpu: true,
+        profilingHeap: true
+      }
+      delete config.profiling
+    }
   }
 
   private initMetricsConf (config) {
     if (!config.metrics) {
       config.metrics = {}
+    }
+  }
+
+  private initActionsConf (config) {
+    if (!config.actions) {
+      config.actions = {}
     }
   }
 }

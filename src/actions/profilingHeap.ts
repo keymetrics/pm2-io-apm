@@ -3,8 +3,9 @@ debug('axm:profilingaction')
 
 import ActionsFeature from '../features/actions'
 import ProfilingFeature from '../features/profiling'
+import ActionsInterface from './actionsInterface'
 
-export default class ProfilingHeapAction {
+export default class ProfilingHeapAction implements ActionsInterface {
 
   private actionFeature: ActionsFeature
   private profilingFeature

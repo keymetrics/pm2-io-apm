@@ -54,7 +54,7 @@ describe('EventLoopInspector', function () {
 
       const eventLoopInspector = new Inspector(action)
 
-      await eventLoopInspector.eventLoopDump().catch((e) => {
+      await eventLoopInspector.init().catch((e) => {
         expect(e.message).to.equal('event-loop-inspector not found')
       })
     })

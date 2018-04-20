@@ -240,5 +240,29 @@ describe('API', function () {
         }
       })
     })
+
+    it('should receive data from default actions', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardActionsChild.js'))
+      const actionDone: Array<string> = []
+
+      child.on('message', pck => {
+
+        if (pck.type === 'axm:action') {
+          if (actionDone.indexOf(pck.data.action_name) === -1) {
+            actionDone.push(pck.data.action_name)
+          }
+
+          if (actionDone.length === 5) {
+            expect(actionDone.indexOf('km:heap:sampling:start') > -1).to.equal(true)
+            expect(actionDone.indexOf('km:heap:sampling:stop') > -1).to.equal(true)
+            expect(actionDone.indexOf('km:cpu:profiling:start') > -1).to.equal(true)
+            expect(actionDone.indexOf('km:cpu:profiling:stop') > -1).to.equal(true)
+            expect(actionDone.indexOf('km:heapdump') > -1).to.equal(true)
+            child.kill('SIGINT')
+            done()
+          }
+        }
+      })
+    })
   })
 })

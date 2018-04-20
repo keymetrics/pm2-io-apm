@@ -3,8 +3,9 @@ debug('axm:eventloopaction')
 
 import utils from '../utils/module'
 import ActionsFeature from '../features/actions'
+import ActionsInterface from './actionsInterface'
 
-export default class Inspector {
+export default class Inspector implements ActionsInterface {
 
   private MODULE_NAME = 'event-loop-inspector'
   private actionFeature: ActionsFeature
@@ -13,7 +14,7 @@ export default class Inspector {
     this.actionFeature = actionFeature
   }
 
-  async eventLoopDump () {
+  async init () {
     return new Promise( (resolve, reject) => {
       utils.detectModule(this.MODULE_NAME, (err, inspectorPath) => {
 
