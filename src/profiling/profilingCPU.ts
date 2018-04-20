@@ -13,10 +13,10 @@ export default class ProfilingCPU implements ProfilingType {
     this.inspectorService = ServiceManager.get('inspector')
   }
 
-  async init () {
+  init () {
     this.inspectorService.createSession()
     this.inspectorService.connect()
-    await this.inspectorService.post('Profiler.enable')
+    return this.inspectorService.post('Profiler.enable')
   }
 
   async destroy () {
