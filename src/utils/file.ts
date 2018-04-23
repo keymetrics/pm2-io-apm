@@ -18,4 +18,22 @@ export default class FileUtils {
       })
     })
   }
+
+  static getFileSize (dumpFile) {
+    return new Promise( (resolve, reject) => {
+      fs.stat(dumpFile, (err, stats) => {
+        let fileSizeInMegabytes = 0
+
+        if (err) {
+          return reject(err)
+        }
+
+        const fileSizeInBytes = stats.size
+        // Convert the file size to megabytes
+        fileSizeInMegabytes = fileSizeInBytes / 1000000.0
+
+        resolve(fileSizeInMegabytes)
+      })
+    })
+  }
 }
