@@ -226,7 +226,7 @@ describe('API', function () {
           tracingDone = true
         }
 
-        if (pck.data.hasOwnProperty('New space used size')) {
+        if (pck.data && pck.data.hasOwnProperty('New space used size')) {
           expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
           expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
           expect(pck.data.hasOwnProperty('Network Upload')).to.equal(true)
