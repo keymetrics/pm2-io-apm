@@ -44,6 +44,8 @@ class PMX {
     if (config.actions) {
       await this.actionsFeature.init(config.actions)
     }
+
+    return this
   }
 
   destroy () {
