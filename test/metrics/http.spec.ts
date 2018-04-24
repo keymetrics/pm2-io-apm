@@ -32,7 +32,7 @@ describe('HttpWrapper', function () {
 
   it('should use tracing system', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/metrics/tracingChild.js'))
-
+    let isAlive = true
     child.on('message', pck => {
 
       if (pck.type === 'axm:trace') {
@@ -45,8 +45,11 @@ describe('HttpWrapper', function () {
         expect(pck.data.spans[0].labels['express/request.route.path']).to.equal('/')
         expect(pck.data.spans[0].labels['http/status_code']).to.equal('200')
 
-        child.kill('SIGINT')
-        done()
+        if (isAlive) {
+          child.kill('SIGINT')
+          done()
+          isAlive = false
+        }
       }
     })
   })

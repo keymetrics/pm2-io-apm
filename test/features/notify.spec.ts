@@ -46,7 +46,8 @@ describe('Notify', () => {
     it('should catch exception', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/features/catchAllChild.js'))
       child.on('message', msg => {
-        expect(msg).to.equal('test')
+        expect(msg.type).to.equal('process:exception')
+        expect(msg.data.message).to.equal('test')
         done()
       })
     })
@@ -60,7 +61,8 @@ describe('Notify', () => {
         })
       })
       child.on('message', msg => {
-        expect(msg).to.equal('test')
+        expect(msg.type).to.equal('process:exception')
+        expect(msg.data.message).to.equal('test')
         child.kill('SIGINT')
         done()
       })
