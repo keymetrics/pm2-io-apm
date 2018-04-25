@@ -52,7 +52,7 @@ describe('ProfilingFeature', function () {
 
       profiling.cpuProfiling.start()
 
-      await setTimeoutCPUInspectorProfile(profiling)
+      await setTimeoutCPUProfile(profiling)
     })
 
     it('should get CPU profile from v8-profiler module', async () => {
@@ -108,28 +108,6 @@ describe('ProfilingFeature', function () {
   })
 })
 
-function setTimeoutCPUInspectorProfile (profiling) {
-  return new Promise(resolve => {
-    setTimeout(async () => {
-      const res = await profiling.cpuProfiling.stop()
-
-      const content = JSON.parse(fs.readFileSync(res, 'utf8'))
-
-      if (semver.satisfies(process.version, '>= 8.0.0')) {
-        expect(content.hasOwnProperty('nodes')).to.equal(true)
-        expect(content.hasOwnProperty('startTime')).to.equal(true)
-        expect(content.hasOwnProperty('endTime')).to.equal(true)
-      } else {
-        expect(typeof content).to.equal('object')
-        expect(content.typeId).to.equal('CPU')
-      }
-
-      await profiling.cpuProfiling.destroy()
-      resolve()
-    }, 500)
-  })
-}
-
 function setTimeoutHeapProfile (profiling) {
   return new Promise( (resolve, reject) => {
     setTimeout(async () => {
@@ -160,6 +138,7 @@ function setTimeoutCPUProfile (profiling) {
 
       expect(typeof content).to.equal('object')
       expect(content.typeId).to.equal('CPU')
+      expect(Array.isArray(content.head)).to.equal(false)
 
       await profiling.cpuProfiling.destroy()
       resolve()
