@@ -8,7 +8,7 @@ import { exec, fork } from 'child_process'
 describe('API', function () {
   this.timeout(50000)
 
-  describe('Notify', () => {
+  xdescribe('Notify', () => {
     it('should receive data from notify', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiNotifyChild.js'))
 
@@ -22,7 +22,7 @@ describe('API', function () {
     })
   })
 
-  describe('Metrics', () => {
+  xdescribe('Metrics', () => {
     it('should receive data from metric', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiMetricsChild.js'))
 
@@ -44,7 +44,7 @@ describe('API', function () {
     })
   })
 
-  describe('Actions', () => {
+  xdescribe('Actions', () => {
     it('should receive data from action', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsChild.js'))
 
@@ -100,7 +100,7 @@ describe('API', function () {
     })
   })
 
-  describe('Transpose', () => {
+  xdescribe('Transpose', () => {
     it('should receive data from transpose', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiTransposeChild.js'))
 
@@ -118,7 +118,7 @@ describe('API', function () {
     })
   })
 
-  describe('Onexit', () => {
+  xdescribe('Onexit', () => {
     it('should catch signals and launch callback', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitChild.js'))
 
@@ -149,7 +149,7 @@ describe('API', function () {
     })
   })
 
-  describe('Compatibility', () => {
+  xdescribe('Compatibility', () => {
     it('should receive data', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
 
@@ -244,7 +244,7 @@ describe('API', function () {
     })
   })
 
-  describe('Compatibility actions', () => {
+  xdescribe('Compatibility actions', () => {
     const MODULE = 'v8-profiler'
 
     before(function (done) {
@@ -286,6 +286,72 @@ describe('API', function () {
           }
         })
       })
+    })
+  })
+
+  describe('InitModule', () => {
+    it('should return module conf', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+
+      process.env.mocha = JSON.stringify({
+        test: 'processTest',
+        bool: true,
+        boolAsString: 'true',
+        number: '12',
+        object: {
+          prop1: 'value1'
+        }
+      })
+
+      const conf = pmx.initModule({
+        test2: 'toto'
+      })
+
+      expect(conf.test2).to.equal('toto')
+      expect(conf.module_conf.test).to.equal('processTest')
+      expect(conf.module_conf.bool).to.equal(true)
+      expect(conf.module_conf.boolAsString).to.equal(true)
+      expect(typeof conf.module_conf.number).to.equal('number')
+      expect(conf.module_conf.number).to.equal(12)
+      expect(typeof conf.module_conf.object).to.equal('object')
+      expect(conf.module_conf.object.prop1).to.equal('value1')
+
+      expect(conf.module_name).to.equal('mocha')
+      expect(typeof conf.module_version).to.equal('string')
+      expect(typeof conf.module_name).to.equal('string')
+      expect(typeof conf.description).to.equal('string')
+      expect(typeof conf.pmx_version).to.equal('string')
+
+    })
+
+    it('should return module conf with callback', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+
+      process.env.mocha = JSON.stringify(new Date())
+
+      pmx.initModule({
+        test2: 'toto'
+      }, (err, conf) => {
+        expect(typeof conf.module_conf).to.equal('object')
+        expect(typeof conf.module_version).to.equal('string')
+        expect(typeof conf.module_name).to.equal('string')
+        expect(typeof conf.description).to.equal('string')
+        expect(typeof conf.pmx_version).to.equal('string')
+        expect(conf.test2).to.equal('toto')
+        expect(conf.module_name).to.equal('mocha')
+        expect(err).to.equal(null)
+      })
+    })
+
+    it('should return minimal conf', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+
+      const conf = pmx.initModule()
+      expect(conf.module_name).to.equal('mocha')
+      expect(typeof conf.module_version).to.equal('string')
+      expect(typeof conf.module_name).to.equal('string')
+      expect(typeof conf.description).to.equal('string')
+      expect(typeof conf.pmx_version).to.equal('string')
     })
   })
 })
