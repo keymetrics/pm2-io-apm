@@ -30,7 +30,7 @@ export default class Autocast {
    */
   autocast (s) {
     if (typeof(s) === 'object') {
-      this.traverse(s, process)
+      this.traverse(s, this.process)
       return s
     }
 
@@ -45,7 +45,7 @@ export default class Autocast {
     if (typeof s === 'boolean') return s
 
     // Try to cast it to a number
-    if (this.testKey(key, s)) return key
+    if (!isNaN(s)) return Number(s)
 
     // Try to make it a common string
     for (key in this.commonStrings) {
@@ -54,9 +54,5 @@ export default class Autocast {
 
     // Give up
     return s
-  }
-
-  private testKey (key, s) {
-    return (key = +s) === key
   }
 }
