@@ -8,7 +8,7 @@ import { exec, fork } from 'child_process'
 describe('API', function () {
   this.timeout(50000)
 
-  xdescribe('Notify', () => {
+  describe('Notify', () => {
     it('should receive data from notify', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiNotifyChild.js'))
 
@@ -22,7 +22,7 @@ describe('API', function () {
     })
   })
 
-  xdescribe('Metrics', () => {
+  describe('Metrics', () => {
     it('should receive data from metric', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiMetricsChild.js'))
 
@@ -44,7 +44,7 @@ describe('API', function () {
     })
   })
 
-  xdescribe('Actions', () => {
+  describe('Actions', () => {
     it('should receive data from action', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsChild.js'))
 
@@ -100,7 +100,7 @@ describe('API', function () {
     })
   })
 
-  xdescribe('Transpose', () => {
+  describe('Transpose', () => {
     it('should receive data from transpose', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiTransposeChild.js'))
 
@@ -118,7 +118,7 @@ describe('API', function () {
     })
   })
 
-  xdescribe('Onexit', () => {
+  describe('Onexit', () => {
     it('should catch signals and launch callback', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitChild.js'))
 
@@ -149,7 +149,7 @@ describe('API', function () {
     })
   })
 
-  xdescribe('Compatibility', () => {
+  describe('Compatibility', () => {
     it('should receive data', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
 
@@ -244,7 +244,7 @@ describe('API', function () {
     })
   })
 
-  xdescribe('Compatibility actions', () => {
+  describe('Compatibility actions', () => {
     const MODULE = 'v8-profiler'
 
     before(function (done) {
