@@ -7,7 +7,7 @@ import { fork, exec } from 'child_process'
 describe('EventLoopDelay', function () {
   this.timeout(7000)
   it('should send event loop delay', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/eventLoopDelayChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/eventLoopDelayChild.js'))
 
     child.on('message', pck => {
 

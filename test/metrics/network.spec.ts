@@ -8,7 +8,7 @@ describe('Network', function () {
   this.timeout(5000)
 
   it('should send network data', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/networkChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/networkChild.js'))
 
     child.on('message', pck => {
 
@@ -37,7 +37,7 @@ describe('Network', function () {
   })
 
   it('should only send upload data', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/networkWithoutDownloadChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/networkWithoutDownloadChild.js'))
 
     child.on('message', pck => {
 

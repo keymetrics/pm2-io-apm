@@ -7,7 +7,7 @@ import { fork, exec } from 'child_process'
 describe('DeepMetrics', function () {
   this.timeout(10000)
   it('should send info about all metrics', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/deepMetricsChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/deepMetricsChild.js'))
 
     child.on('message', pck => {
 

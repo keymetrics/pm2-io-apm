@@ -46,6 +46,8 @@ class PMX {
     if (config.actions) {
       await this.actionsFeature.init(config.actions)
     }
+
+    return this
   }
 
   destroy () {
@@ -207,12 +209,12 @@ class PMX {
       const networkConf: any = {}
 
       if (config.hasOwnProperty('network')) {
-        networkConf.traffic = config.network
+        networkConf.traffic = Boolean(config.network)
         delete config.network
       }
 
       if (config.hasOwnProperty('ports')) {
-        networkConf.ports = config.ports
+        networkConf.ports = Boolean(config.ports)
         delete config.ports
       }
 
@@ -277,8 +279,8 @@ class PMX {
       this.initActionsConf(config)
 
       config.actions = {
-        profilingCpu: true,
-        profilingHeap: true
+        profilingCpu: config.profiling,
+        profilingHeap: config.profiling
       }
       delete config.profiling
     }

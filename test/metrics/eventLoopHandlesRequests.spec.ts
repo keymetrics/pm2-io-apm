@@ -8,7 +8,7 @@ import EventLoopHandlesRequestsMetric from '../../src/metrics/eventLoopHandlesRe
 describe('EventLoopHandlesRequests', function () {
 
   it('should send event loop handles and requests counter', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/eventLoopHandlesRequestsChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/eventLoopHandlesRequestsChild.js'))
 
     child.on('message', pck => {
 

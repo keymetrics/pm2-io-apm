@@ -7,7 +7,7 @@ import { fork, exec } from 'child_process'
 describe('HttpWrapper', function () {
   this.timeout(10000)
   it('should wrap http and send basic metric', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/httpWrapperChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/httpWrapperChild.js'))
 
     child.on('message', pck => {
 
@@ -31,7 +31,7 @@ describe('HttpWrapper', function () {
   })
 
   it('should use tracing system', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/tracingChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/tracingChild.js'))
     let isAlive = true
     child.on('message', pck => {
 
