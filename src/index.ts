@@ -3,6 +3,8 @@ import MetricsFeature from './features/metrics'
 import ActionsFeature from './features/actions'
 import EventFeature from './features/events'
 import Inspector from './actions/eventLoopInspector'
+import * as merge from 'deepmerge'
+import Configuration from './configuration'
 
 class PMX {
 
@@ -164,6 +166,27 @@ class PMX {
     }
 
     this.notifyFeature.notifyError(notification)
+  }
+
+  initModule (opts, cb) {
+    if (!opts) opts = {}
+
+    opts = merge({
+      alert_enabled    : true,
+      widget           : {}
+    }, opts)
+
+    opts.widget = merge({
+      type : 'generic',
+      logo : 'https://app.keymetrics.io/img/logo/keymetrics-300.png',
+      theme            : ['#111111', '#1B2228', '#807C7C', '#807C7C']
+    }, opts.widget)
+
+    opts = new Configuration().init(opts)
+
+    if (cb && typeof(cb) === 'function') return cb(null, opts)
+
+    return opts
   }
 
   private genericBackwardConversion (object, type) {
