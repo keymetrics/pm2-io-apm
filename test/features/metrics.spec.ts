@@ -7,6 +7,7 @@ import { fork } from 'child_process'
 
 describe('Metrics', () => {
 
+
   describe('init', () => {
     it('should init metrics', () => {
       const metric = new Metric()
@@ -35,6 +36,7 @@ describe('Metrics', () => {
       expect(metric._getVar().get('test').value()).to.equal('0mb')
       expect(metric._getVar().get('test2')).to.equal(undefined)
       expect(metric._getVar().size).to.equal(1)
+      metric.destroy()
     })
   })
 
@@ -44,6 +46,7 @@ describe('Metrics', () => {
 
       const meter = metric.meter({tickInterval: 50})
       expect(meter).to.equal(undefined)
+      metric.destroy()
     })
 
     it('should calculate a meter', (done) => {
@@ -60,6 +63,7 @@ describe('Metrics', () => {
 
       setTimeout(function () {
         expect(meter.val()).to.equal(0)
+        metric.destroy()
         done()
       }, 60)
     })
@@ -80,6 +84,7 @@ describe('Metrics', () => {
 
       setTimeout(function () {
         expect(meter.val()).to.equal(0.17)
+        metric.destroy()
         done()
       }, 60)
     })
@@ -91,6 +96,7 @@ describe('Metrics', () => {
 
       const counter = metric.counter({})
       expect(counter).to.equal(undefined)
+      metric.destroy()
     })
 
     it('should calculate a meter', () => {
@@ -122,6 +128,8 @@ describe('Metrics', () => {
 
       counter.reset(10)
       expect(counter.val()).to.equal(10)
+
+      metric.destroy()
     })
   })
 
@@ -131,6 +139,8 @@ describe('Metrics', () => {
 
       const histo = metric.histogram({})
       expect(histo).to.equal(undefined)
+
+      metric.destroy()
     })
 
     it('should return undefined if measurement does not exist', () => {
@@ -138,6 +148,8 @@ describe('Metrics', () => {
 
       const histo = metric.histogram({name: 'test', measurement: 'does not exist'})
       expect(histo).to.equal(undefined)
+
+      metric.destroy()
     })
 
     it('should calculate an histogram', () => {
@@ -176,6 +188,8 @@ describe('Metrics', () => {
       expect(res.p99).to.equal(10)
       expect(res.p999).to.equal(10)
       expect(res.ema).to.equal(4.000000000000001)
+
+      metric.destroy()
     })
 
     it('should calculate an histogram and getters', () => {
@@ -200,6 +214,8 @@ describe('Metrics', () => {
       expect(histo.getMax()).to.equal(10)
       expect(histo.getCount()).to.equal(2)
       expect(histo.getSum()).to.equal(11)
+
+      metric.destroy()
     })
 
     it('should calculate an histogram : mean', () => {
@@ -219,6 +235,8 @@ describe('Metrics', () => {
 
       histo.update(10)
       expect(histo.val()).to.equal(10)
+
+      metric.destroy()
     })
 
     it('should calculate an histogram : median', () => {
@@ -238,6 +256,8 @@ describe('Metrics', () => {
 
       histo.update(10)
       expect(histo.val()).to.equal(10)
+
+      metric.destroy()
     })
   })
 
@@ -247,6 +267,8 @@ describe('Metrics', () => {
 
       const metric = metrics.metric({})
       expect(metric).to.equal(undefined)
+
+      metrics.destroy()
     })
 
     it('should create a metric and and fail cause no name', () => {
@@ -255,6 +277,8 @@ describe('Metrics', () => {
       })
 
       expect(metric).to.equal(undefined)
+
+      metrics.destroy()
     })
 
     it('should create a metric and use it', () => {
@@ -303,6 +327,8 @@ describe('Metrics', () => {
       })
 
       expect(metric.val()).to.equal('test is real !')
+
+      metrics.destroy()
     })
   })
 
@@ -328,6 +354,8 @@ describe('Metrics', () => {
         data: null
       })
       expect(transpose).to.equal(undefined)
+
+      metric.destroy()
     })
   })
 })
