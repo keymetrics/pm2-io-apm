@@ -30,7 +30,7 @@ function checkDefaultValue (pck) {
 describe('V8', function () {
   this.timeout(5000)
   it('should send all data with v8 heap info', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8Child.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/v8Child.js'))
 
     child.on('message', pck => {
 
@@ -52,7 +52,7 @@ describe('V8', function () {
   })
 
   it('should send default data with v8 heap info', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8DefaultChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/v8DefaultChild.js'))
 
     child.on('message', pck => {
 
@@ -69,7 +69,7 @@ describe('V8', function () {
   })
 
   it('should send only some data, according to config', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8SomeDataChild.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/v8SomeDataChild.js'))
 
     child.on('message', pck => {
 
@@ -118,7 +118,7 @@ describe('GC', function () {
   })
 
   it('should get GC stats', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/features/v8Child.js'))
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/v8Child.js'))
 
     child.on('message', pck => {
 
