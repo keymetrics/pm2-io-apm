@@ -19,8 +19,13 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
   async init () {
     this.profilingFeature = new ProfilingFeature().init()
-    await this.profilingFeature.cpuProfiling.init()
-    this.exposeActions()
+    try {
+      await this.profilingFeature.cpuProfiling.init()
+      // expose actions only if the feature is available
+      this.exposeActions()
+    } catch (err) {
+      console.error(`Failed to load cpu profiler: ${err.message}`)
+    }
   }
 
   private exposeActions () {
