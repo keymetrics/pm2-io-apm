@@ -20,7 +20,7 @@ export default class ProfilingHeap implements ProfilingType {
     this.inspectorService = ServiceManager.get('inspector')
   }
 
-  init (config?) {
+  async init (config?) {
     config = MetricConfig.getConfig(config, this.defaultConf)
     this.config = config
 
@@ -35,7 +35,9 @@ export default class ProfilingHeap implements ProfilingType {
   }
 
   start () {
-    return this.inspectorService.post('HeapProfiler.startSampling', {samplingInterval: this.config.samplingInterval})
+    return this.inspectorService.post('HeapProfiler.startSampling', {
+      samplingInterval: this.config.samplingInterval
+    })
   }
 
   async stop () {
@@ -48,7 +50,9 @@ export default class ProfilingHeap implements ProfilingType {
       chunks.push(data.params.chunk)
     })
 
-    await this.inspectorService.post('HeapProfiler.takeHeapSnapshot', {reportProgress: false})
+    await this.inspectorService.post('HeapProfiler.takeHeapSnapshot', {
+      reportProgress: false
+    })
 
     return FileUtils.writeDumpFile(chunks.join(''), '.heapprofile')
   }
