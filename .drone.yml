@@ -26,6 +26,11 @@ pipeline:
           {{/success}}
           see {{ build.link }}
         secrets: [ slack_webhook ]
+  publish:
+    image: plugins/npm
+    secrets: [ npm_username, npm_password, npm_email ]
+    when:
+      event: [ tag ]
 matrix:
   NODE_VERSION:
     - 4
