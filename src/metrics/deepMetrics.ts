@@ -49,6 +49,16 @@ export default class DeepMetrics implements MetricsInterface {
   }
 
   destroy () {
+
+    deepmetrics.stop()
+
+    // clean children
+    for (let probeName in this.allPossibleMetrics) {
+      if (this.allPossibleMetrics.hasOwnProperty(probeName)) {
+        this.allPossibleMetrics[probeName].destroy()
+      }
+    }
+
     this.allPossibleMetrics = {}
     debug('Deep metrics detroyed !')
   }

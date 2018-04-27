@@ -4,6 +4,7 @@ export default class DeepMetricsTracer {
   private metricFeature: MetricsFeature
   private tracer
   private eventName: string
+  private listenerFunc: Function
 
   private allMetrics = {
     http: {
@@ -138,26 +139,33 @@ export default class DeepMetricsTracer {
     this.metricFeature = metricFeature
     this.tracer = tracer
     this.eventName = eventName
+    this.listenerFunc = this.listener.bind(this)
   }
 
   init () {
+    this.tracer.on(this.eventName, this.listenerFunc)
+  }
+
+  destroy () {
+    this.tracer.removeListener(this.eventName, this.listenerFunc)
+  }
+
+  listener (data) {
     let latency
     let throughput
 
-    this.tracer.on(this.eventName, (data) => {
-      if (!latency) {
-        latency = this.metricFeature.histogram(this.allMetrics[this.eventName].histogram)
-      }
+    if (!latency) {
+      latency = this.metricFeature.histogram(this.allMetrics[this.eventName].histogram)
+    }
 
-      if (!throughput) {
-        throughput = this.metricFeature.meter(this.allMetrics[this.eventName].meter)
-      }
+    if (!throughput) {
+      throughput = this.metricFeature.meter(this.allMetrics[this.eventName].meter)
+    }
 
-      data = JSON.parse(data)
-      throughput.mark()
-      if (data.duration) {
-        latency.update(data.duration)
-      }
-    })
+    data = JSON.parse(data)
+    throughput.mark()
+    if (data.duration) {
+      latency.update(data.duration)
+    }
   }
 }
