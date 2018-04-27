@@ -353,5 +353,21 @@ describe('API', function () {
       expect(typeof conf.description).to.equal('string')
       expect(typeof conf.pmx_version).to.equal('string')
     })
+
+    it('should receive data from init module', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiInitModuleChild.js'))
+
+      child.on('message', pck => {
+        if (pck.type === 'axm:option:configuration') {
+          const conf = pck.data
+          expect(conf.module_name).to.equal('fixtures')
+          expect(conf.module_version).to.equal('0.0.1')
+          expect(typeof conf.module_name).to.equal('string')
+          expect(typeof conf.pmx_version).to.equal('string')
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
   })
 })
