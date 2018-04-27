@@ -5,7 +5,6 @@ import { CustomProfile } from './profilingType'
 import FileUtils from '../utils/file'
 import { ServiceManager } from '../serviceManager'
 import { InspectorService } from '../services/inspector'
-import * as inspector from 'inspector'
 
 export default class ProfilingCPU implements ProfilingType {
 
@@ -34,17 +33,16 @@ export default class ProfilingCPU implements ProfilingType {
     return await this.getProfileInfo()
   }
 
-  private _convertTimeDeltas(profile: CustomProfile) {
-    if (!profile.timeDeltas)
-      return null;
-    let lastTimeUsec = profile.startTime;
-    const timestamps = new Array(profile.timeDeltas.length + 1);
+  private _convertTimeDeltas (profile: CustomProfile) {
+    if (!profile.timeDeltas) return null
+    let lastTimeUsec = profile.startTime
+    const timestamps = new Array(profile.timeDeltas.length + 1)
     for (let i = 0; i < profile.timeDeltas.length; ++i) {
-      timestamps[i] = lastTimeUsec;
-      lastTimeUsec += profile.timeDeltas[i];
+      timestamps[i] = lastTimeUsec
+      lastTimeUsec += profile.timeDeltas[i]
     }
-    timestamps[profile.timeDeltas.length] = lastTimeUsec;
-    return timestamps;
+    timestamps[profile.timeDeltas.length] = lastTimeUsec
+    return timestamps
   }
 
   private getProfileInfo () {
@@ -73,7 +71,7 @@ export default class ProfilingCPU implements ProfilingType {
             url: node.callFrame.url,
             lineNumber: node.callFrame.lineNumber,
             callUID: node.callUID,
-            bailoutReason: "",
+            bailoutReason: '',
             id: node.id,
             scriptId: 0,
             hitCount: node.hitCount,
@@ -96,8 +94,8 @@ export default class ProfilingCPU implements ProfilingType {
           typeId: 'CPU',
           uid: '1',
           startTime: Math.floor(data.startTime / 1000000),
-          title: "km-cpu-profiling",
-          endTime: Math.floor(data.endTime/ 1000000),
+          title: 'km-cpu-profiling',
+          endTime: Math.floor(data.endTime / 1000000),
           samples: data.samples,
           timestamps: this._convertTimeDeltas(data)
         })))

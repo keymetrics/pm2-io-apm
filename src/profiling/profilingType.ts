@@ -9,9 +9,9 @@ export default interface ProfilingType {
 }
 
 export interface CustomProfileNode extends inspector.Profiler.ProfileNode {
-    callUID: number
+  callUID: number
 }
 
 export interface CustomProfile extends inspector.Profiler.Profile {
-  nodes: CustomProfileNode[];
+  nodes: CustomProfileNode[]
 }
