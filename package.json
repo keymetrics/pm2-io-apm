@@ -1,6 +1,6 @@
 {
   "name": "@keymetrics/pmx",
-  "version": "2.0.0-alpha1",
+  "version": "2.0.0-alpha2",
   "description": "",
   "main": "build/main/src/index.js",
   "typings": "build/main/src/index.d.ts",
@@ -26,7 +26,7 @@
     "docs:html": "typedoc src/index.ts --excludePrivate --mode file --theme minimal --out build/docs",
     "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
     "docs:publish": "yarn docs:html && gh-pages -d build/docs",
-    "prepublish": "npm run build"
+    "prepublish": "yarn build:main"
   },
   "scripts-info": {
     "info": "Display information about the scripts",
