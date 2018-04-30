@@ -33,7 +33,7 @@ pipeline:
     commands:
       - yarn 2> /dev/null
       - export PATH=$PATH:./node_modules/.bin/
-      - npm run build
+      - yarn prepublish
     when:
       event: [ tag ]
   publish:
