@@ -34,6 +34,7 @@ pipeline:
       - uname -r
       - yarn 2> /dev/null
       - export PATH=$PATH:./node_modules/.bin/
+      - mkdir build
       - yarn build
     when:
       event: [ tag ]
