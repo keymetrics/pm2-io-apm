@@ -28,9 +28,10 @@ pipeline:
     secrets: [ slack_webhook ]
   build:
     image: node:${NODE_VERSION}
-    environment:
-      - NODE_ENV=production
     commands:
+      - node -v
+      - yarn -v
+      - uname -r
       - yarn 2> /dev/null
       - export PATH=$PATH:./node_modules/.bin/
       - yarn prepublish
