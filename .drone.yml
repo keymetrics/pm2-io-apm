@@ -1,5 +1,5 @@
 pipeline:
-  build:
+  test:
     image: node:${NODE_VERSION}
     environment:
       - NODE_ENV=test
@@ -14,18 +14,28 @@ pipeline:
     secrets: [ codecov_token ]
     when:
       event: push
-      slack:
-        image: plugins/slack
-        channel: ci
-        status: [ success, failure ]
-        template: |
-          {{#success build.status}}
-            {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} succeeded in {{since build.started}}
-          {{else}}
-            {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} failed in {{since build.started}}
-          {{/success}}
-          see {{ build.link }}
-        secrets: [ slack_webhook ]
+  slack:
+    image: plugins/slack
+    channel: ci
+    status: [ success, failure ]
+    template: |
+      {{#success build.status}}
+        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} succeeded in {{since build.started}}
+      {{else}}
+        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} failed in {{since build.started}}
+      {{/success}}
+      see {{ build.link }}
+    secrets: [ slack_webhook ]
+  build:
+    image: node:${NODE_VERSION}
+    environment:
+      - NODE_ENV=production
+    commands:
+      - yarn 2> /dev/null
+      - export PATH=$PATH:./node_modules/.bin/
+      - npm run build
+    when:
+      event: [ tag ]
   publish:
     image: plugins/npm
     secrets: [ npm_username, npm_password, npm_email ]
