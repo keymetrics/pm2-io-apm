@@ -34,7 +34,7 @@ pipeline:
       - uname -r
       - yarn 2> /dev/null
       - export PATH=$PATH:./node_modules/.bin/
-      - yarn prepublish
+      - yarn build
     when:
       event: [ tag ]
   publish:
