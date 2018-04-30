@@ -7,7 +7,7 @@ import Action from '../../src/features/actions'
 const MODULE = 'event-loop-inspector'
 
 describe('EventLoopInspector', function () {
-  this.timeout(10000)
+  this.timeout(50000)
 
   describe('Event loop inspector module', function () {
     before(function (done) {
