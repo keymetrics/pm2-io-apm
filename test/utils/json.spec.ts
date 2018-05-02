@@ -5,7 +5,7 @@ import 'mocha'
 
 describe('Json', () => {
 
-  it('should not send cause no process.send function', () => {
+  it('should return the exact param cause it is not an object', () => {
     const res = JsonUtils.jsonize('test')
     expect(res).to.equal('test')
   })
