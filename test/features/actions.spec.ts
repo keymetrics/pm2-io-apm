@@ -98,6 +98,23 @@ describe('ActionsFeature', () => {
         expect(res).to.equal(undefined)
       })
     })
+
+    it('should create action according to conf', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/features/actionsConfChild.js'))
+      child.on('message', res => {
+        if (res.type === 'axm:action') {
+          expect(res.type).to.equal('axm:action')
+          expect(res.data.action_name).to.equal('myActionConf')
+          child.send(res.data.action_name)
+        } else if (res.type === 'axm:reply') {
+          expect(res.data.action_name).to.equal('myActionConf')
+          expect(res.data.return.data).to.equal('myActionConfReply')
+          expect(Object.keys(res.data.return.opts).length).to.equal(0)
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
   })
 
   describe('scopedAction', () => {

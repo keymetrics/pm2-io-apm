@@ -3,10 +3,15 @@ import ActionsFeature from '../features/actions'
 import EventLoopInspector from '../actions/eventLoopInspector'
 import ProfilingHeapAction from '../actions/profilingHeap'
 import ProfilingCPUAction from '../actions/profilingCpu'
+import MetricConfig from '../utils/metricConfig'
 
 debug('axm:actionsService')
 
 export default class ActionsService {
+
+  private defaultConf = {
+    profiling: { profilingCpu: true, profilingHeap: true }
+  }
 
   private services: Map<string, any>
 
@@ -17,7 +22,11 @@ export default class ActionsService {
     this.services.set('profilingHeap', new ProfilingHeapAction(actionsFeature))
   }
 
-  init (config) {
+  init (config?, force?) {
+
+    if (!force) {
+      config = MetricConfig.getConfig(config, this.defaultConf)
+    }
 
     // init actions only if they are enabled in config
     for (let property in config) {
