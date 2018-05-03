@@ -17,7 +17,7 @@ export default class ActionsFeature implements Feature {
     this.actionsService = ServiceManager.get('actionsService')
   }
 
-  async init (conf?, force?): Promise<Object> {
+  init (conf?, force?): Object {
 
     this.actionsService.init(conf, force)
 

@@ -7,7 +7,6 @@ import { fork } from 'child_process'
 
 describe('Metrics', () => {
 
-
   describe('init', () => {
     it('should init metrics', () => {
       const metric = new Metric()

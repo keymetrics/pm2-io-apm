@@ -20,7 +20,7 @@ class PMX {
     this.eventsFeature = new EventFeature()
   }
 
-  async init (config?) {
+  init (config?) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
@@ -40,11 +40,11 @@ class PMX {
 
     this.backwardConfigConversion(config)
 
-    await this.notifyFeature.init(notifyOptions)
+    this.notifyFeature.init(notifyOptions)
     this.metricsFeature.init(config.metrics)
 
     if (config.actions) {
-      await this.actionsFeature.init(config.actions)
+      this.actionsFeature.init(config.actions)
     }
 
     return this

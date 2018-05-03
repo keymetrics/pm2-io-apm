@@ -20,10 +20,9 @@ const httpModule = require('http')
 let timer
 let server
 
-notify.init().then(() => {
-  server = http.listen(3001, function () {
-    httpModule.get('http://localhost:' + server.address().port)
-  })
+notify.init()
+server = http.listen(3001, function () {
+  httpModule.get('http://localhost:' + server.address().port)
 })
 
 process.on('SIGINT', function () {

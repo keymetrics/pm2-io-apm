@@ -34,11 +34,10 @@ describe('Notify', () => {
 
     it('should return if argument is not an error', () => {
       const notify = new NotifyFeature()
-      notify.init().then(() => {
-        const msg = 'test' as any
-        const res = notify.notifyError(msg)
-        expect(res).to.equal(-1)
-      })
+      notify.init()
+      const msg = 'test' as any
+      const res = notify.notifyError(msg)
+      expect(res).to.equal(-1)
     })
   })
 
