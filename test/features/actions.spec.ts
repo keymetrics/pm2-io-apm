@@ -90,13 +90,12 @@ describe('ActionsFeature', () => {
     it('should return error/false in case of bad arguments', () => {
       const actions = new ActionsFeature()
 
-      actions.init().then(() => {
-        let res = actions.action(null)
-        expect(res).to.equal(undefined)
+      actions.init()
+      let res = actions.action(null)
+      expect(res).to.equal(undefined)
 
-        res = actions.action('testNoFn')
-        expect(res).to.equal(undefined)
-      })
+      res = actions.action('testNoFn')
+      expect(res).to.equal(undefined)
     })
 
     it('should create action according to conf', (done) => {

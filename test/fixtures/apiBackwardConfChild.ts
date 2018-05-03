@@ -11,21 +11,21 @@ pmx.init({
   transactions: {http_latency: 1},
   http: true,
   deep_metrics: true
-}).then(() => {
-  const express = require('express')
-  const app = express()
+})
 
-  const httpModule = require('http')
+const express = require('express')
+const app = express()
 
-  app.get('/', function (req, res) {
-    res.send('home')
-  })
+const httpModule = require('http')
 
-  server = app.listen(3001, function () {
-    timer = setInterval(function () {
-      httpModule.get('http://localhost:' + server.address().port)
-    }, 100)
-  })
+app.get('/', function (req, res) {
+  res.send('home')
+})
+
+server = app.listen(3001, function () {
+  timer = setInterval(function () {
+    httpModule.get('http://localhost:' + server.address().port)
+  }, 100)
 })
 
 process.on('SIGINT', function () {

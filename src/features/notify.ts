@@ -32,7 +32,7 @@ export class NotifyFeature implements Feature {
     this.transport = ServiceManager.get('transport')
   }
 
-  async init (options?: NotifyOptions): Promise<Object> {
+  init (options?: NotifyOptions): Object {
     if (options) {
       this.options = options
     }

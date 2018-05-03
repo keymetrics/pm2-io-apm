@@ -184,6 +184,15 @@ describe('API', function () {
       expect(metric).to.equal(null)
     })
 
+    it('should return null when using init', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js').init()
+      const probe = pmx.probe()
+
+      const metric = probe.metric()
+      expect(metric).to.equal(null)
+      pmx.destroy()
+    })
+
     it('should receive data from event', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardEventChild.js'))
 
