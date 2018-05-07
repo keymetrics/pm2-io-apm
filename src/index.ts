@@ -153,7 +153,7 @@ class PMX {
   }
 
   emit (name, data) {
-    console.warn('Deprecated : this feature will be removed in next release !')
+    console.warn('Deprecated : emit() method will be removed in next major release !')
 
     this.eventsFeature.emit(name, data)
   }
