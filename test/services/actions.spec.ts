@@ -15,7 +15,7 @@ describe('ActionsService', () => {
         toto: true,
         eventLoopDump: true,
         titi: false
-      })
+      }, true)
 
       expect(service.get('toto')).to.equal(null)
       expect(service.get('titi')).to.equal(null)

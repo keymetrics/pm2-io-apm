@@ -28,6 +28,10 @@ export default class ProfilingCPUAction implements ActionsInterface {
     }
   }
 
+  destroy () {
+    if (this.profilingFeature) this.profilingFeature.destroy()
+  }
+
   private exposeActions () {
 
     this.actionFeature.action('km:cpu:profiling:start', async (reply) => {
@@ -42,7 +46,6 @@ export default class ProfilingCPUAction implements ActionsInterface {
           uuid    : this.uuid
         })
       }
-
     })
 
     this.actionFeature.action('km:cpu:profiling:stop', async (reply) => {

@@ -26,6 +26,10 @@ export default class ActionsFeature implements Feature {
     }
   }
 
+  destroy (): void {
+    this.actionsService.destroy()
+  }
+
   action (actionName, opts?, fn?) {
     if (!fn) {
       fn = opts

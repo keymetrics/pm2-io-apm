@@ -185,7 +185,7 @@ describe('API', function () {
     })
 
     it('should return null when using init', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js').init()
+      const pmx = require(__dirname + '/../build/main/src/index.js').init({profiling: false})
       const probe = pmx.probe()
 
       const metric = probe.metric()
@@ -330,7 +330,6 @@ describe('API', function () {
       expect(typeof conf.module_name).to.equal('string')
       expect(typeof conf.description).to.equal('string')
       expect(typeof conf.pmx_version).to.equal('string')
-
     })
 
     it('should return module conf with callback', () => {
