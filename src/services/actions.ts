@@ -10,7 +10,8 @@ debug('axm:actionsService')
 export default class ActionsService {
 
   private defaultConf = {
-    profiling: { profilingCpu: true, profilingHeap: true }
+    profilingCpu: true,
+    profilingHeap: true
   }
 
   private services: Map<string, any>
