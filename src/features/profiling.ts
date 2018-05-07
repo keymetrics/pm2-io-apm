@@ -8,6 +8,7 @@ import Configuration from '../configuration'
 export default class ProfilingFeature implements Feature {
 
   private configurationModule: Configuration
+  private profilings
 
   constructor () {
     this.configurationModule = new Configuration()
@@ -30,9 +31,19 @@ export default class ProfilingFeature implements Feature {
       heapdump : true
     })
 
-    return {
+    this.profilings = {
       cpuProfiling: isInspectorOk ? new ProfilingCPU() : new ProfilingCPUFallback(),
       heapProfiling: isInspectorOk ? new ProfilingHeap() : new ProfilingHeapFallback()
+    }
+
+    return this.profilings
+  }
+
+  destroy () {
+    for (let profilingName in this.profilings) {
+      if (typeof this.profilings[profilingName].destroy === 'function') {
+        this.profilings[profilingName].destroy()
+      }
     }
   }
 }

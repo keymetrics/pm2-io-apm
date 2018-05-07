@@ -33,6 +33,10 @@ export default class ProfilingHeapAction implements ActionsInterface {
     }
   }
 
+  destroy () {
+    if (this.profilingFeature) this.profilingFeature.destroy()
+  }
+
   private exposeActions () {
 
     // -------------------------------------

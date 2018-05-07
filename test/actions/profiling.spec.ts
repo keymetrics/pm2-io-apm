@@ -1,7 +1,6 @@
 import SpecUtils from '../fixtures/utils'
 import { expect } from 'chai'
 import { fork, exec } from 'child_process'
-import Action from '../../src/features/actions'
 
 const MODULE = 'v8-profiler'
 
@@ -49,9 +48,7 @@ describe('ProfilingAction', function () {
           }
         }
         if (res === 'initialized') {
-          setTimeout(function () {
-            child.send('km:cpu:profiling:start')
-          }, 100)
+          child.send('km:cpu:profiling:start')
 
           setTimeout(function () {
             child.send('km:cpu:profiling:stop')
