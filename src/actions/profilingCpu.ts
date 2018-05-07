@@ -10,17 +10,19 @@ import FileUtils from '../utils/file'
 export default class ProfilingCPUAction implements ActionsInterface {
 
   private actionFeature: ActionsFeature
-  private profilingFeature
+  private profilingFeature: ProfilingFeature
   private uuid: string
+  private profilings
 
   constructor (actionFeature: ActionsFeature) {
     this.actionFeature = actionFeature
   }
 
   async init () {
-    this.profilingFeature = new ProfilingFeature().init()
+    this.profilingFeature = new ProfilingFeature()
+    this.profilings = this.profilingFeature.init()
     try {
-      await this.profilingFeature.cpuProfiling.init()
+      await this.profilings.cpuProfiling.init()
       // expose actions only if the feature is available
       this.exposeActions()
     } catch (err) {
@@ -37,7 +39,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
     this.actionFeature.action('km:cpu:profiling:start', async (reply) => {
       try {
         this.uuid = MiscUtils.generateUUID()
-        await this.profilingFeature.cpuProfiling.start()
+        await this.profilings.cpuProfiling.start()
         reply({ success : true, uuid: this.uuid })
       } catch (err) {
         return reply({
@@ -50,7 +52,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
     this.actionFeature.action('km:cpu:profiling:stop', async (reply) => {
       try {
-        const dumpFile = await this.profilingFeature.cpuProfiling.stop()
+        const dumpFile = await this.profilings.cpuProfiling.stop()
 
         let size
         try {

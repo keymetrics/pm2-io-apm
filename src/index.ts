@@ -43,9 +43,7 @@ class PMX {
     this.notifyFeature.init(notifyOptions)
     this.metricsFeature.init(config.metrics)
 
-    if (config.actions) {
-      this.actionsFeature.init(config.actions)
-    }
+    this.actionsFeature.init(config.actions)
 
     return this
   }

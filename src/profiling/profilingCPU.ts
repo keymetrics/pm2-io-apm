@@ -20,8 +20,7 @@ export default class ProfilingCPU implements ProfilingType {
     return this.inspectorService.post('Profiler.enable')
   }
 
-  async destroy () {
-    await this.inspectorService.post('Profiler.disable')
+  destroy () {
     this.inspectorService.disconnect()
   }
 

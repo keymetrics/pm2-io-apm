@@ -2,7 +2,9 @@ import SpecUtils from './utils'
 
 const pmx = require(__dirname + '/../../src/index.js')
 
-pmx.init()
+pmx.init({
+  profiling: false
+})
 
 const probe = pmx.probe()
 
@@ -24,4 +26,8 @@ const histogram = probe.histogram({
 
 const meter = probe.meter({
   name: 'meterBackward'
+})
+
+process.on('SIGINT', function () {
+  pmx.destroy()
 })
