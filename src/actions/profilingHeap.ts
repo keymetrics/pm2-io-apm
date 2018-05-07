@@ -10,9 +10,10 @@ import FileUtils from '../utils/file'
 export default class ProfilingHeapAction implements ActionsInterface {
 
   private actionFeature: ActionsFeature
-  private profilingFeature
+  private profilingFeature: ProfilingFeature
   private config
   private uuid: string
+  private profilings
 
   constructor (actionFeature: ActionsFeature, config?) {
     this.config = config
@@ -24,9 +25,10 @@ export default class ProfilingHeapAction implements ActionsInterface {
   }
 
   async init () {
-    this.profilingFeature = new ProfilingFeature().init()
+    this.profilingFeature = new ProfilingFeature()
+    this.profilings = this.profilingFeature.init()
     try {
-      await this.profilingFeature.heapProfiling.init(this.config.heap)
+      await this.profilings.heapProfiling.init(this.config.heap)
       this.exposeActions()
     } catch (err) {
       console.error(`Failed to load heap profiler: ${err.message}`)
@@ -45,7 +47,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
     this.actionFeature.action('km:heap:sampling:start', async (reply) => {
       try {
         this.uuid = MiscUtils.generateUUID()
-        await this.profilingFeature.heapProfiling.start()
+        await this.profilings.heapProfiling.start()
         reply({ success : true, uuid: this.uuid })
       } catch (err) {
         return reply({
@@ -59,7 +61,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
     this.actionFeature.action('km:heap:sampling:stop', async (reply) => {
       try {
-        const dumpFile = await this.profilingFeature.heapProfiling.stop()
+        const dumpFile = await this.profilings.heapProfiling.stop()
 
         let size
         try {
@@ -90,7 +92,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
     // -------------------------------------
     this.actionFeature.action('km:heapdump', async (reply) => {
       try {
-        const dumpFile = await this.profilingFeature.heapProfiling.takeSnapshot()
+        const dumpFile = await this.profilings.heapProfiling.takeSnapshot()
 
         return reply({
           success     : true,

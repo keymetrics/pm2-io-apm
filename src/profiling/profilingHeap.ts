@@ -29,8 +29,7 @@ export default class ProfilingHeap implements ProfilingType {
     return this.inspectorService.post('HeapProfiler.enable')
   }
 
-  async destroy () {
-    await this.inspectorService.post('HeapProfiler.disable')
+  destroy () {
     this.inspectorService.disconnect()
   }
 

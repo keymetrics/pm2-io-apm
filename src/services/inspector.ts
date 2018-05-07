@@ -37,8 +37,14 @@ export class InspectorService {
   }
 
   disconnect () {
-    this.session.disconnect()
-    this.isConnected = false
+    if (this.isConnected) {
+      this.session.post('Profiler.disable')
+
+      this.session.disconnect()
+      this.isConnected = false
+    } else {
+      console.warn('No open session !')
+    }
   }
 }
 

@@ -10,7 +10,8 @@ pmx.init({
   v8: true,
   transactions: {http_latency: 1},
   http: true,
-  deep_metrics: true
+  deep_metrics: true,
+  profiling: false
 })
 
 const express = require('express')
