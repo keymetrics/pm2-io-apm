@@ -4,6 +4,7 @@ import { Feature } from './featureTypes'
 import { ServiceManager } from '../serviceManager'
 import * as semver from 'semver'
 import JsonUtils from '../utils/json'
+import Configuration from '../configuration'
 
 export class NotifyOptions {
   level: string
@@ -26,10 +27,12 @@ export class NotifyFeature implements Feature {
 
   private options: NotifyOptions = NotifyOptionsDefault
   private transport
+  private configurationModule: Configuration
   private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
 
   constructor () {
     this.transport = ServiceManager.get('transport')
+    this.configurationModule = new Configuration()
   }
 
   init (options?: NotifyOptions): Object {
@@ -77,9 +80,9 @@ export class NotifyFeature implements Feature {
       opts = {errors: true}
     }
 
-    // Options.configureModule({
-    //   error : opts.errors
-    // });
+    this.configurationModule.configureModule({
+      error : opts.errors
+    })
 
     if (process.env.exec_mode === 'cluster_mode') {
       return false
