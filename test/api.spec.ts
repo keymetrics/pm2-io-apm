@@ -29,6 +29,8 @@ describe('API', function () {
       child.on('message', res => {
 
         if (res.type === 'axm:monitor') {
+          expect(res.data.hasOwnProperty('metric_with_spaces')).to.equal(true)
+          expect(res.data.hasOwnProperty('metric_with_special_chars__')).to.equal(true)
           expect(res.data.hasOwnProperty('metricHistogram')).to.equal(true)
           expect(res.data.metricHistogram.value).to.equal('10')
           expect(res.data.metricHistogram.type).to.equal('metric/custom')
