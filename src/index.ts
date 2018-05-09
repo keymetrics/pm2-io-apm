@@ -90,7 +90,7 @@ class PMX {
       }
 
       // escape spaces and special characters from metric's name
-      currentMetric.name = currentMetric.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
+      const metricKey = currentMetric.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
 
       const type = currentMetric.type
       currentMetric.type = currentMetric.id
@@ -100,7 +100,7 @@ class PMX {
         continue
       }
 
-      res[currentMetric.name] = this.metricsFeature[type](currentMetric)
+      res[metricKey] = this.metricsFeature[type](currentMetric)
     }
 
     return res
