@@ -89,6 +89,9 @@ class PMX {
         continue
       }
 
+      // escape spaces and special characters from metric's name
+      currentMetric.name = currentMetric.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
+
       const type = currentMetric.type
       currentMetric.type = currentMetric.id
       delete currentMetric.id

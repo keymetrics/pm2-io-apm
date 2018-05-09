@@ -16,6 +16,16 @@ const allMetrics = pmx.metric(
       id: 'metric/custom'
     },
     {
+      name: 'metric with spaces',
+      type: 'histogram',
+      id: 'metric/custom'
+    },
+    {
+      name: 'metric wi!th special chars % ///',
+      type: 'histogram',
+      id: 'metric/custom'
+    },
+    {
       name: 'metricFailure',
       type: 'notExist'
     }
