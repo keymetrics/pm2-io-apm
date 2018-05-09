@@ -29,8 +29,8 @@ describe('API', function () {
       child.on('message', res => {
 
         if (res.type === 'axm:monitor') {
-          expect(res.data.hasOwnProperty('metric_with_spaces')).to.equal(true)
-          expect(res.data.hasOwnProperty('metric_with_special_chars__')).to.equal(true)
+          expect(res.data.hasOwnProperty('metric with spaces')).to.equal(true)
+          expect(res.data.hasOwnProperty('metric wi!th special chars % ///')).to.equal(true)
           expect(res.data.hasOwnProperty('metricHistogram')).to.equal(true)
           expect(res.data.metricHistogram.value).to.equal('10')
           expect(res.data.metricHistogram.type).to.equal('metric/custom')
@@ -176,6 +176,36 @@ describe('API', function () {
           done()
         }
       })
+    })
+
+    it('should return metrics object with clean keys', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+
+      const metrics = pmx.metric([
+        {
+          name: 'metricHistogram',
+          type: 'histogram',
+          id: 'metric/custom'
+        },
+        {
+          name: 'metric with spaces',
+          type: 'histogram',
+          id: 'metric/custom'
+        },
+        {
+          name: 'metric wi!th special chars % ///',
+          type: 'histogram',
+          id: 'metric/custom'
+        },
+        {
+          name: 'metricFailure',
+          type: 'notExist'
+        }
+      ])
+      expect(metrics.hasOwnProperty('metricHistogram')).to.equal(true)
+      expect(metrics.hasOwnProperty('metric_with_spaces')).to.equal(true)
+      expect(metrics.hasOwnProperty('metric_with_special_chars__')).to.equal(true)
+      expect(Object.keys(metrics).length).to.equal(3)
     })
 
     it('should return null', () => {
