@@ -45,6 +45,7 @@ class PMX {
 
     this.actionsFeature.init(config.actions)
 
+    new Configuration().init(config)
     return this
   }
 
@@ -96,7 +97,7 @@ class PMX {
       currentMetric.type = currentMetric.id
       delete currentMetric.id
       if (typeof this.metricsFeature[type] !== 'function') {
-        console.warn(`Metric ${currentMetric.name} can't be initialized : unknown type ${type} !`)
+        console.warn(`Metric ${currentMetric.name} cant be initialized : unknown type ${type} !`)
         continue
       }
 
@@ -185,6 +186,7 @@ class PMX {
       theme            : ['#111111', '#1B2228', '#807C7C', '#807C7C']
     }, opts.widget)
 
+    opts.isModule = true
     opts = new Configuration().init(opts)
 
     if (cb && typeof(cb) === 'function') return cb(null, opts)

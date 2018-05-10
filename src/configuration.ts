@@ -59,27 +59,46 @@ export default class Configuration {
       conf.module_conf = {}
     }
 
-    /**
-     * Merge package.json metadata
-     */
-    try {
-      packageJson = require(packageFilepath || '')
+    if (conf.isModule == true) {
+      /**
+       * Merge package.json metadata
+       */
+      try {
+        packageJson = require(packageFilepath || '')
 
-      conf.module_version = packageJson.version
-      conf.module_name = packageJson.name
-      conf.description = packageJson.description
-      conf.pmx_version = null
+        conf.module_version = packageJson.version
+        conf.module_name = packageJson.name
+        conf.description = packageJson.description
+        conf.pmx_version = null
 
-      if (pkg.version) {
-        conf.pmx_version = pkg.version
+        if (pkg.version) {
+          conf.pmx_version = pkg.version
+        }
+
+        if (packageJson.config) {
+          conf = util['_extend'](conf, packageJson.config)
+          conf.module_conf = packageJson.config
+        }
+      } catch (e) {
+        throw new Error(e)
       }
+    } else {
+      conf.module_name = process.env.name || 'outside-pm2';
+      try {
+        packageJson = require(packageFilepath || '')
 
-      if (packageJson.config) {
-        conf = util['_extend'](conf, packageJson.config)
-        conf.module_conf = packageJson.config
+        conf.module_version = packageJson.version
+        conf.pmx_version    = null
+
+        if (pkg.version)
+          conf.pmx_version    = pkg.version
+
+        if (packageJson.config) {
+          conf = util['_extend'](conf, packageJson.config)
+          conf.module_conf = packageJson.config
+        }
+      } catch(e) {
       }
-    } catch (e) {
-      throw new Error(e)
     }
 
     /**

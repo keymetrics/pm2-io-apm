@@ -18,7 +18,7 @@
     "unit": "yarn build && yarn copy && nyc mocha -r ts-node/register ./test/**/*.spec.ts ./test/*.spec.ts --expose-gc",
     "copy": "copyfiles test/**/*.json build/main/",
     "test": "yarn lint && yarn unit",
-    "watch": "yarn build && concurrently -r --kill-others \"npm run --silent build:main -- -w\" \"npm run --silent build:tests -- -w --no-browser\" \"sleepms 2000 && ava --watch\"",
+    "watch": "tsc -w",
     "cov": "yarn unit && yarn html-coverage && opn coverage/index.html",
     "html-coverage": "nyc report --reporter=html",
     "send-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov -t $CODECOV_TOKEN",

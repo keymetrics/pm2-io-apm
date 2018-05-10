@@ -18,3 +18,16 @@
 
 
 PMX allows you to create advanced interactions with [PM2](https://github.com/Unitech/pm2) and [Keymetrics.io](https://app.keymetrics.io/).
+
+## Development
+
+To auto rebuild on file change:
+
+```bash
+$ npm install
+$ npm run watch
+```
+
+## Publishing
+
+TODO
