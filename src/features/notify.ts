@@ -6,6 +6,9 @@ import * as semver from 'semver'
 import JsonUtils from '../utils/json'
 import Configuration from '../configuration'
 
+import debug from 'debug'
+debug('axm:notify')
+
 export class NotifyOptions {
   level: string
 }
@@ -41,7 +44,7 @@ export class NotifyFeature implements Feature {
     }
 
     if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '< 8.0.0')) {
-      console.warn(`Inspector is not available on node version ${process.version} !`)
+      debug(`Inspector is not available on node version ${process.version} !`)
     }
 
     if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 8.0.0')) {
@@ -59,7 +62,7 @@ export class NotifyFeature implements Feature {
   notifyError (err: Error, level?: string) {
 
     if (!(err instanceof Error)) {
-      console.error('You should use notify with an Error !!!')
+      debug('You should use notify with an Error !!!')
       return -1
     }
 

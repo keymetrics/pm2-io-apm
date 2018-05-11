@@ -33,7 +33,7 @@ export default class ActionsService {
     for (let property in config) {
       if (config.hasOwnProperty(property) && config[property] !== false) {
         if (!this.services.has(property)) {
-          console.error(`Action ${property} does not exist`)
+          debug(`Action ${property} does not exist`)
           continue
         }
 

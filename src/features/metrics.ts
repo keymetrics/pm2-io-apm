@@ -7,6 +7,9 @@ import Transport from '../utils/transport'
 import constants from '../constants'
 import MetricsService from '../services/metrics'
 
+import debug from 'debug'
+debug('axm:metrics')
+
 export default class MetricsFeature implements Feature {
   private transport: Transport
   private _var: Map<string, any> = new Map()
@@ -73,7 +76,7 @@ export default class MetricsFeature implements Feature {
     }
 
     if (typeof reporter !== 'function') {
-      return console.error('[PMX] reporter is not a function')
+      return debug('[PMX] reporter is not a function')
     }
 
     this._var.set(variableName, {
@@ -83,7 +86,7 @@ export default class MetricsFeature implements Feature {
 
   meter (opts: any) {
     if (!opts.name) {
-      return console.error('[Probe][Meter] Name not defined')
+      return debug('[Probe][Meter] Name not defined')
     }
 
     opts.unit = opts.unit || ''
@@ -105,7 +108,7 @@ export default class MetricsFeature implements Feature {
 
   counter (opts?: any) {
     if (!opts.name) {
-      return console.error('[Probe][Counter] Name not defined')
+      return debug('[Probe][Counter] Name not defined')
     }
 
     const counter = new Counter(opts)
@@ -123,14 +126,14 @@ export default class MetricsFeature implements Feature {
 
   histogram (opts?: any): Histogram | void {
     if (!opts.name) {
-      return console.error('[Probe][Histogram] Name not defined')
+      return debug('[Probe][Histogram] Name not defined')
     }
 
     opts.measurement = opts.measurement || 'mean'
     opts.unit = opts.unit || ''
 
     if (this.AVAILABLE_MEASUREMENTS.indexOf(opts.measurement) === -1) {
-      return console.error('[Probe][Histogram] Measure type %s does not exists', opts.measurement)
+      return debug('[Probe][Histogram] Measure type %s does not exists', opts.measurement)
     }
 
     const histogram = new Histogram(opts)
@@ -150,7 +153,7 @@ export default class MetricsFeature implements Feature {
 
   metric (opts): any {
     if (!opts.name) {
-      return console.error('[Probe][Metric] Name not defined')
+      return debug('[Probe][Metric] Name not defined')
     }
 
     this._var.set(opts.name, {
