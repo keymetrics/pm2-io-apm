@@ -5,8 +5,9 @@ import 'mocha'
 
 describe('Module', () => {
 
-  it('should return false if module doesn\'t exist', () => {
+  it('should return an error if module doesn\'t exist', () => {
     const module = Module.loadModule('./fake/path', 'test')
+    console.log(module)
     expect(module.message).to.equal('Cannot find module \'./fake/path\'')
   })
 })
