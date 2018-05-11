@@ -202,7 +202,9 @@ class PMX {
 
     object.type = type
 
-    return this.metric(object)[object.name]
+    // escape spaces and special characters from metric's name
+    const metricKey = object.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
+    return this.metric(object)[metricKey]
   }
 
   private backwardConfigConversion (config) {
