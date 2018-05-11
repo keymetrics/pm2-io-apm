@@ -19,7 +19,7 @@ export default class Inspector implements ActionsInterface {
       utils.detectModule(this.MODULE_NAME, (err, inspectorPath) => {
 
         if (err) {
-          console.error(err)
+          debug(err)
           return reject(err)
         }
 

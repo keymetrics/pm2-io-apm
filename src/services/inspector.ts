@@ -43,7 +43,7 @@ export class InspectorService {
       this.session.disconnect()
       this.isConnected = false
     } else {
-      console.warn('No open session !')
+      debug('No open session !')
     }
   }
 }

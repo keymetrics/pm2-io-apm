@@ -4,6 +4,9 @@ import MetricsFeature from '../features/metrics'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'
 
+import debug from 'debug'
+debug('axm:v8')
+
 export default class V8Metric implements MetricsInterface {
 
   private timer
@@ -230,8 +233,8 @@ export default class V8Metric implements MetricsInterface {
     try {
       gc = (require(gcPath))()
     } catch (e) {
-      console.error('error when requiring gc-stats on path', gcPath)
-      console.error(e)
+      debug('error when requiring gc-stats on path', gcPath)
+      debug(e)
       return false
     }
 
