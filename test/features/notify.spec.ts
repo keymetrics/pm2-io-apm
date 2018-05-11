@@ -66,10 +66,12 @@ describe('Notify', () => {
         })
       })
       child.on('message', msg => {
-        expect(msg.type).to.equal('process:exception')
-        expect(msg.data.message).to.equal('test')
-        child.kill('SIGINT')
-        done()
+        if (msg.type === 'process:exception') {
+          expect(msg.type).to.equal('process:exception')
+          expect(msg.data.message).to.equal('test')
+          child.kill('SIGINT')
+          done()
+        }
       })
     })
   })
