@@ -69,14 +69,15 @@ export default class MetricsFeature implements Feature {
     }
   }
 
-  transpose (variableName, reporter?) {
+  transpose (variableName, reporter?): any {
     if (typeof variableName === 'object') {
       reporter = variableName.data
       variableName = variableName.name
     }
 
     if (typeof reporter !== 'function') {
-      return debug('[PMX] reporter is not a function')
+      debug('[PMX] reporter is not a function')
+      return undefined
     }
 
     this._var.set(variableName, {
@@ -86,7 +87,8 @@ export default class MetricsFeature implements Feature {
 
   meter (opts: any) {
     if (!opts.name) {
-      return debug('[Probe][Meter] Name not defined')
+      debug('[Probe][Meter] Name not defined')
+      return undefined
     }
 
     opts.unit = opts.unit || ''
@@ -108,7 +110,8 @@ export default class MetricsFeature implements Feature {
 
   counter (opts?: any) {
     if (!opts.name) {
-      return debug('[Probe][Counter] Name not defined')
+      debug('[Probe][Counter] Name not defined')
+      return undefined
     }
 
     const counter = new Counter(opts)
@@ -126,14 +129,16 @@ export default class MetricsFeature implements Feature {
 
   histogram (opts?: any): Histogram | void {
     if (!opts.name) {
-      return debug('[Probe][Histogram] Name not defined')
+      debug('[Probe][Histogram] Name not defined')
+      return undefined
     }
 
     opts.measurement = opts.measurement || 'mean'
     opts.unit = opts.unit || ''
 
     if (this.AVAILABLE_MEASUREMENTS.indexOf(opts.measurement) === -1) {
-      return debug('[Probe][Histogram] Measure type %s does not exists', opts.measurement)
+      debug('[Probe][Histogram] Measure type %s does not exists', opts.measurement)
+      return undefined
     }
 
     const histogram = new Histogram(opts)
@@ -153,7 +158,8 @@ export default class MetricsFeature implements Feature {
 
   metric (opts): any {
     if (!opts.name) {
-      return debug('[Probe][Metric] Name not defined')
+      debug('[Probe][Metric] Name not defined')
+      return undefined
     }
 
     this._var.set(opts.name, {

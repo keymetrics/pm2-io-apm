@@ -92,10 +92,10 @@ describe('ActionsFeature', () => {
 
       actions.init()
       let res = actions.action(null)
-      expect(res).to.equal(undefined)
+      expect(res).to.equal(false)
 
       res = actions.action('testNoFn')
-      expect(res).to.equal(undefined)
+      expect(res).to.equal(false)
     })
 
     it('should create action according to conf', (done) => {

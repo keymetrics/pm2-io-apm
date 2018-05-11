@@ -29,7 +29,7 @@ export default class ModuleUtils {
       }
     } catch (e) {
       debug(`Error when requiring ${moduleName} on path`, modulePath)
-      debug(e)
+      debug(e.message)
       return e
     }
 
