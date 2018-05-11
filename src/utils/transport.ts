@@ -12,7 +12,7 @@ export default class Transport {
      * For debug purpose
      */
     if (process.env.MODULE_DEBUG) {
-      console.log(args)
+      debug(args)
     }
 
     if (!process.send) {
@@ -24,8 +24,8 @@ export default class Transport {
     try {
       process.send(JSON.parse(stringify(msg)))
     } catch (e) {
-      console.error('Process disconnected from parent !')
-      console.error(e.stack || e)
+      debug('Process disconnected from parent !')
+      debug(e.stack || e)
       process.exit(1)
     }
 

@@ -10,7 +10,7 @@ export default class ModuleUtils {
       ModuleUtils.detectModule(moduleName, (err, path) => {
 
         if (err) {
-          console.error(err)
+          debug(err)
           return reject(err)
         }
 
@@ -28,8 +28,8 @@ export default class ModuleUtils {
         module = require(modulePath)
       }
     } catch (e) {
-      console.error(`Error when requiring ${moduleName} on path`, modulePath)
-      console.error(e)
+      debug(`Error when requiring ${moduleName} on path`, modulePath)
+      debug(e.message)
       return e
     }
 

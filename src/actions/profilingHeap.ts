@@ -31,7 +31,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
       await this.profilings.heapProfiling.init(this.config.heap)
       this.exposeActions()
     } catch (err) {
-      console.error(`Failed to load heap profiler: ${err.message}`)
+      debug(`Failed to load heap profiler: ${err.message}`)
     }
   }
 

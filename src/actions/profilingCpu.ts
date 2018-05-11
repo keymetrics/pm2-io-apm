@@ -26,7 +26,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
       // expose actions only if the feature is available
       this.exposeActions()
     } catch (err) {
-      console.error(`Failed to load cpu profiler: ${err.message}`)
+      debug(`Failed to load cpu profiler: ${err.message}`)
     }
   }
 

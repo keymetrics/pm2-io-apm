@@ -21,10 +21,10 @@ export default class Events implements Feature {
 
   emit (name, data) {
     if (!name) {
-      return console.error('[AXM] emit.name is missing')
+      return debug('[AXM] emit.name is missing')
     }
     if (!data) {
-      return console.error('[AXM] emit.data is missing')
+      return debug('[AXM] emit.data is missing')
     }
 
     let inflightObj: Object | any = {}

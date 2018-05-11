@@ -40,7 +40,7 @@ export default class MetricsService {
     for (let property in config) {
       if (config.hasOwnProperty(property) && config[property] !== false) {
         if (!this.services.has(property)) {
-          console.error(`Metric ${property} does not exist`)
+          debug(`Metric ${property} does not exist`)
           continue
         }
 
