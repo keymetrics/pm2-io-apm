@@ -62,7 +62,7 @@ export class NotifyFeature implements Feature {
   notifyError (err: Error, level?: string) {
 
     if (!(err instanceof Error)) {
-      debug('You should use notify with an Error !!!')
+      console.trace('[PMX] You should use notify with an Error object')
       return -1
     }
 

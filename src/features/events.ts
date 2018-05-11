@@ -1,5 +1,3 @@
-import debug from 'debug'
-debug('axm:events')
 import Transport from '../utils/transport.js'
 import { ServiceManager } from '../serviceManager'
 
@@ -21,10 +19,10 @@ export default class Events implements Feature {
 
   emit (name, data) {
     if (!name) {
-      return debug('[AXM] emit.name is missing')
+      return console.error('[PMX] emit.name is missing')
     }
     if (!data) {
-      return debug('[AXM] emit.data is missing')
+      return console.error('[PMX] emit.data is missing')
     }
 
     let inflightObj: Object | any = {}
