@@ -166,11 +166,11 @@ export default class ActionsFeature implements Feature {
 
   private check (actionName, fn) {
     if (!actionName) {
-      debug('[PMX] action.action_name is missing')
+      console.error('[PMX] action.action_name is missing')
       return false
     }
     if (!fn) {
-      debug('[PMX] callback is missing')
+      console.error('[PMX] callback is missing')
       return false
     }
 

@@ -7,9 +7,6 @@ import Transport from '../utils/transport'
 import constants from '../constants'
 import MetricsService from '../services/metrics'
 
-import debug from 'debug'
-debug('axm:metrics')
-
 export default class MetricsFeature implements Feature {
   private transport: Transport
   private _var: Map<string, any> = new Map()
@@ -76,7 +73,7 @@ export default class MetricsFeature implements Feature {
     }
 
     if (typeof reporter !== 'function') {
-      debug('[PMX] reporter is not a function')
+      console.error('[PMX][Transpose] reporter is not a function')
       return undefined
     }
 
@@ -87,7 +84,7 @@ export default class MetricsFeature implements Feature {
 
   meter (opts: any) {
     if (!opts.name) {
-      debug('[Probe][Meter] Name not defined')
+      console.error('[PMX][Meter] Name not defined')
       return undefined
     }
 
@@ -110,7 +107,7 @@ export default class MetricsFeature implements Feature {
 
   counter (opts?: any) {
     if (!opts.name) {
-      debug('[Probe][Counter] Name not defined')
+      console.error('[PMX][Counter] Name not defined')
       return undefined
     }
 
@@ -129,7 +126,7 @@ export default class MetricsFeature implements Feature {
 
   histogram (opts?: any): Histogram | void {
     if (!opts.name) {
-      debug('[Probe][Histogram] Name not defined')
+      console.error('[PMX][Histogram] Name not defined')
       return undefined
     }
 
@@ -137,7 +134,7 @@ export default class MetricsFeature implements Feature {
     opts.unit = opts.unit || ''
 
     if (this.AVAILABLE_MEASUREMENTS.indexOf(opts.measurement) === -1) {
-      debug('[Probe][Histogram] Measure type %s does not exists', opts.measurement)
+      console.error('[PMX][Histogram] Measure type %s does not exists', opts.measurement)
       return undefined
     }
 
@@ -158,7 +155,7 @@ export default class MetricsFeature implements Feature {
 
   metric (opts): any {
     if (!opts.name) {
-      debug('[Probe][Metric] Name not defined')
+      console.error('[PMX][Metric] Name not defined')
       return undefined
     }
 
