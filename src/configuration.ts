@@ -12,16 +12,16 @@ const pkg = require(prefix + '/package.json')
 
 export default class Configuration {
 
-  configureModule (opts) {
+  static configureModule (opts) {
     Transport.send({
       type : 'axm:option:configuration',
       data : opts
     }, false)
   }
 
-  findPackageJson () {
+  static findPackageJson () {
 
-    require.main = this.getMain()
+    require.main = Configuration.getMain()
 
     if (!require.main) {
       return
@@ -45,8 +45,8 @@ export default class Configuration {
     return pkgPath
   }
 
-  init (conf, doNotTellPm2?) {
-    const packageFilepath = this.findPackageJson()
+  static init (conf, doNotTellPm2?) {
+    const packageFilepath = Configuration.findPackageJson()
     let packageJson
 
     if (!conf.module_conf) {
@@ -122,11 +122,11 @@ export default class Configuration {
 
     if (doNotTellPm2 === true) return conf
 
-    this.configureModule(conf)
+    Configuration.configureModule(conf)
     return conf
   }
 
-  private getMain (): any {
+  static getMain (): any {
     return require.main || {filename: './somefile.js'}
   }
 }

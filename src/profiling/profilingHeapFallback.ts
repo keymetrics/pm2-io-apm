@@ -12,12 +12,6 @@ export default class ProfilingHeapFallback implements ProfilingType {
   private MODULE_NAME = 'v8-profiler-node8'
   private FALLBACK_MODULE_NAME = 'v8-profiler'
 
-  private configurationModule: Configuration
-
-  constructor () {
-    this.configurationModule = new Configuration()
-  }
-
   async init () {
     let path
     let moduleName = this.MODULE_NAME
@@ -29,7 +23,7 @@ export default class ProfilingHeapFallback implements ProfilingType {
         moduleName = this.FALLBACK_MODULE_NAME
         path = await utils.getModulePath(this.FALLBACK_MODULE_NAME)
       } catch (err) {
-        this.configurationModule.configureModule({
+        Configuration.configureModule({
           heapdump : false
         })
         throw new Error('Profiler not loaded !')
@@ -40,7 +34,7 @@ export default class ProfilingHeapFallback implements ProfilingType {
 
     const enable = !(this.profiler instanceof Error)
 
-    this.configurationModule.configureModule({
+    Configuration.configureModule({
       heapdump : enable
     })
   }

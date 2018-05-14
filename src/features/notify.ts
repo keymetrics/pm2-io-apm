@@ -29,12 +29,7 @@ export interface ErrorMetadata {
 export class NotifyFeature implements Feature {
 
   private options: NotifyOptions = NotifyOptionsDefault
-  private configurationModule: Configuration
   private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
-
-  constructor () {
-    this.configurationModule = new Configuration()
-  }
 
   init (options?: NotifyOptions): Object {
     if (options) {
@@ -81,7 +76,7 @@ export class NotifyFeature implements Feature {
       opts = {errors: true}
     }
 
-    this.configurationModule.configureModule({
+    Configuration.configureModule({
       error : opts.errors
     })
 

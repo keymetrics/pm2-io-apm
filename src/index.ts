@@ -45,7 +45,7 @@ class PMX {
 
     this.actionsFeature.init(config.actions)
 
-    new Configuration().init(config)
+    Configuration.init(config)
     return this
   }
 
@@ -187,7 +187,7 @@ class PMX {
     }, opts.widget)
 
     opts.isModule = true
-    opts = new Configuration().init(opts)
+    opts = Configuration.init(opts)
 
     if (cb && typeof(cb) === 'function') return cb(null, opts)
 

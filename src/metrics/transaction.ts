@@ -13,7 +13,6 @@ import MetricConfig from '../utils/metricConfig'
 export default class Transaction implements MetricsInterface {
 
   private metricFeature: MetricsFeature
-  private configurationModule: Configuration
   private tracer
 
   private defaultConf = {
@@ -22,7 +21,6 @@ export default class Transaction implements MetricsInterface {
 
   constructor (metricFeature: MetricsFeature) {
     this.metricFeature = metricFeature
-    this.configurationModule = new Configuration()
   }
 
   init (config?) {
@@ -54,7 +52,7 @@ export default class Transaction implements MetricsInterface {
 
     this.tracer = require('vxx').start(opts)
 
-    this.configurationModule.configureModule({
+    Configuration.configureModule({
       tracing_enabled: true
     })
 
@@ -94,7 +92,7 @@ export default class Transaction implements MetricsInterface {
       if (load.__axm_original) {
         debug('HTTP routes have already been wrapped before')
 
-        this.configurationModule.configureModule({
+        Configuration.configureModule({
           latency: opts.http
         })
 
@@ -118,7 +116,7 @@ export default class Transaction implements MetricsInterface {
         if (opts.http &&
           (file === 'http' || file === 'https')) {
           debug('http module being required')
-          self.configurationModule.configureModule({
+          Configuration.configureModule({
             latency: true
           })
 
