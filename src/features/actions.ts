@@ -8,11 +8,9 @@ import ActionsService from '../services/actions'
 
 export default class ActionsFeature implements Feature {
 
-  private transport: Transport
   private actionsService: ActionsService
 
   constructor () {
-    this.transport = ServiceManager.get('transport')
     ServiceManager.set('actionsService', new ActionsService(this))
     this.actionsService = ServiceManager.get('actionsService')
   }
@@ -42,7 +40,7 @@ export default class ActionsFeature implements Feature {
     }
 
     // Notify the action
-    this.transport.send({
+    Transport.send({
       type : 'axm:action',
       data : {
         action_name : actionName,
@@ -52,7 +50,7 @@ export default class ActionsFeature implements Feature {
     })
 
     const reply = (data) => {
-      this.transport.send({
+      Transport.send({
         type        : 'axm:reply',
         data        : {
           return      : data,
@@ -99,7 +97,7 @@ export default class ActionsFeature implements Feature {
     }
 
     // Notify the action
-    this.transport.send({
+    Transport.send({
       type : 'axm:action',
       data : {
         action_name : actionName,
@@ -117,7 +115,7 @@ export default class ActionsFeature implements Feature {
       if (data.action_name === actionName) {
         const res = {
           send : (dt) => {
-            this.transport.send({
+            Transport.send({
               type        : 'axm:scoped_action:stream',
               data        : {
                 data        : dt,
@@ -127,7 +125,7 @@ export default class ActionsFeature implements Feature {
             })
           },
           error : (dt) => {
-            this.transport.send({
+            Transport.send({
               type        : 'axm:scoped_action:error',
               data        : {
                 data        : dt,
@@ -137,7 +135,7 @@ export default class ActionsFeature implements Feature {
             })
           },
           end : (dt) => {
-            this.transport.send({
+            Transport.send({
               type        : 'axm:scoped_action:end',
               data        : {
                 data        : dt,

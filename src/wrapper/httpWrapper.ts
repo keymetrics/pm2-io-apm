@@ -1,16 +1,13 @@
-import { ServiceManager } from '../serviceManager'
 import Transport from '../utils/transport'
 import Proxy from '../utils/proxy'
 import MetricsFeature from '../features/metrics'
 
 export default class HttpWrapper {
 
-  private transport: Transport
   private metricFeature: MetricsFeature
 
   constructor (metricFeature: MetricsFeature) {
     this.metricFeature = metricFeature
-    this.transport = ServiceManager.get('transport')
   }
 
   init (opts, http) {
@@ -39,8 +36,6 @@ export default class HttpWrapper {
       return false
     }
 
-    const httpWrapper = this
-
     Proxy.wrap(http.Server.prototype, ['on', 'addListener'], function (addListener) {
       return function (event, listener) {
         const self = this
@@ -68,7 +63,7 @@ export default class HttpWrapper {
                 || response.statusCode >= opts.http_code)
               && !ignoreRoutes(httpStart.url)) {
 
-              httpWrapper.transport.send({
+              Transport.send({
                 type: 'http:transaction',
                 data: {
                   url: httpStart.url,

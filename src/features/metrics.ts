@@ -8,7 +8,6 @@ import constants from '../constants'
 import MetricsService from '../services/metrics'
 
 export default class MetricsFeature implements Feature {
-  private transport: Transport
   private _var: Map<string, any> = new Map()
   private defaultAggregation: string = 'avg'
   private _started: boolean = false
@@ -32,7 +31,6 @@ export default class MetricsFeature implements Feature {
   ]
 
   constructor () {
-    this.transport = ServiceManager.get('transport')
     this._var = ServiceManager.get('metricsMap')
     ServiceManager.set('metricService', new MetricsService(this))
     this.metricService = ServiceManager.get('metricService')
@@ -48,7 +46,7 @@ export default class MetricsFeature implements Feature {
 
         // don't send empty data
         if (Object.keys(data).length !== 0) {
-          self.transport.send({
+          Transport.send({
             type: 'axm:monitor',
             data: data
           })

@@ -1,15 +1,9 @@
-import Transport from '../utils/transport.js'
-import { ServiceManager } from '../serviceManager'
+import Transport from '../utils/transport'
 
 import * as stringify from 'json-stringify-safe'
 import { Feature } from './featureTypes'
 
 export default class Events implements Feature {
-  private transport: Transport
-
-  constructor () {
-    this.transport = ServiceManager.get('transport')
-  }
 
   async init (): Promise<Object> {
     return {
@@ -35,7 +29,7 @@ export default class Events implements Feature {
 
     inflightObj.__name = name
 
-    this.transport.send({
+    Transport.send({
       type : 'human:event',
       data : inflightObj
     }, true)
