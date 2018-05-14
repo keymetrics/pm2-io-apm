@@ -1,10 +1,10 @@
 import * as util from 'util'
 
 import { Feature } from './featureTypes'
-import { ServiceManager } from '../serviceManager'
 import * as semver from 'semver'
 import JsonUtils from '../utils/json'
 import Configuration from '../configuration'
+import Transport from '../utils/transport'
 
 import debug from 'debug'
 debug('axm:notify')
@@ -29,12 +29,10 @@ export interface ErrorMetadata {
 export class NotifyFeature implements Feature {
 
   private options: NotifyOptions = NotifyOptionsDefault
-  private transport
   private configurationModule: Configuration
   private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
 
   constructor () {
-    this.transport = ServiceManager.get('transport')
     this.configurationModule = new Configuration()
   }
 
@@ -49,7 +47,7 @@ export class NotifyFeature implements Feature {
 
     if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 8.0.0')) {
       const NotifyInspector = require('./notifyInspector').default
-      NotifyInspector.catchAllDebugger(this.transport)
+      NotifyInspector.catchAllDebugger()
     } else {
       this.catchAll()
     }
@@ -67,11 +65,11 @@ export class NotifyFeature implements Feature {
     }
 
     if (!level || this.levels.indexOf(level) === -1) {
-      return this.transport.send(err)
+      return Transport.send(err)
     }
 
     if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level)) {
-      return this.transport.send(err)
+      return Transport.send(err)
     }
 
     return null
@@ -113,7 +111,7 @@ export class NotifyFeature implements Feature {
           errObj = self._interpretError(err)
         }
 
-        self.transport.send({
+        Transport.send({
           type : 'process:exception',
           data : errObj !== undefined ? errObj : {message: 'No error but ' + listener + ' was caught!' }
         }, true)

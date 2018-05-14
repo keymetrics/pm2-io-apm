@@ -5,15 +5,13 @@ import Proxy from '../utils/proxy'
 import SimpleHttpWrap from '../wrapper/httpWrapper'
 import debug from 'debug'
 debug('axm:tracing')
-import Transport from '../utils/transport.js'
-import { ServiceManager } from '../serviceManager'
+import Transport from '../utils/transport'
 import Configuration from '../configuration'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'
 
 export default class Transaction implements MetricsInterface {
 
-  private transport: Transport
   private metricFeature: MetricsFeature
   private configurationModule: Configuration
   private tracer
@@ -24,7 +22,6 @@ export default class Transaction implements MetricsInterface {
 
   constructor (metricFeature: MetricsFeature) {
     this.metricFeature = metricFeature
-    this.transport = ServiceManager.get('transport')
     this.configurationModule = new Configuration()
   }
 
@@ -63,7 +60,7 @@ export default class Transaction implements MetricsInterface {
 
     // broadcast to pm2 aggregator
     this.tracer.getBus().on('transaction', (data) => {
-      this.transport.send({
+      Transport.send({
         type: 'axm:trace',
         data: data
       })

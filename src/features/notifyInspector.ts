@@ -2,6 +2,7 @@ import async from 'async'
 import * as inspector from 'inspector'
 import JsonUtils from '../utils/json'
 import { ServiceManager } from '../serviceManager'
+import Transport from '../utils/transport'
 
 export interface ErrorMetadata {
   type: String,
@@ -14,7 +15,7 @@ export interface ErrorMetadata {
 
 export default class NotifyInspector {
 
-  static catchAllDebugger (transport): Boolean | void {
+  static catchAllDebugger (): Boolean | void {
 
     interface TrappedException {
       error: ErrorMetadata,
@@ -39,7 +40,7 @@ export default class NotifyInspector {
         error = JsonUtils.jsonize(error)
         error.context = context ? context.scopes : undefined
         // send it
-        transport.send({
+        Transport.send({
           type: 'process:exception',
           data: error
         }, true)

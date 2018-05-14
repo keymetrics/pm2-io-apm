@@ -12,14 +12,8 @@ const pkg = require(prefix + '/package.json')
 
 export default class Configuration {
 
-  private transport: Transport
-
-  constructor () {
-    this.transport = new Transport()
-  }
-
   configureModule (opts) {
-    this.transport.send({
+    Transport.send({
       type : 'axm:option:configuration',
       data : opts
     }, false)
@@ -59,7 +53,7 @@ export default class Configuration {
       conf.module_conf = {}
     }
 
-    if (conf.isModule == true) {
+    if (conf.isModule === true) {
       /**
        * Merge package.json metadata
        */
@@ -83,21 +77,21 @@ export default class Configuration {
         throw new Error(e)
       }
     } else {
-      conf.module_name = process.env.name || 'outside-pm2';
+      conf.module_name = process.env.name || 'outside-pm2'
       try {
         packageJson = require(packageFilepath || '')
 
         conf.module_version = packageJson.version
-        conf.pmx_version    = null
+        conf.pmx_version = null
 
-        if (pkg.version)
-          conf.pmx_version    = pkg.version
+        if (pkg.version) conf.pmx_version = pkg.version
 
         if (packageJson.config) {
           conf = util['_extend'](conf, packageJson.config)
           conf.module_conf = packageJson.config
         }
-      } catch(e) {
+      } catch (e) {
+        debug(e.message)
       }
     }
 
