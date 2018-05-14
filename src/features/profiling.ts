@@ -7,12 +7,7 @@ import Configuration from '../configuration'
 
 export default class ProfilingFeature implements Feature {
 
-  private configurationModule: Configuration
   private profilings
-
-  constructor () {
-    this.configurationModule = new Configuration()
-  }
 
   init (forceFallback?: boolean) {
     // allow to force the fallback via environment
@@ -26,7 +21,7 @@ export default class ProfilingFeature implements Feature {
       ProfilingCPU = require('../profiling/profilingCPU').default
       ProfilingHeap = require('../profiling/profilingHeap').default
 
-      this.configurationModule.configureModule({
+      Configuration.configureModule({
         heapdump : true
       })
     }
