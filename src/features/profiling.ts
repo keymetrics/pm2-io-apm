@@ -25,11 +25,11 @@ export default class ProfilingFeature implements Feature {
     if (isInspectorOk) {
       ProfilingCPU = require('../profiling/profilingCPU').default
       ProfilingHeap = require('../profiling/profilingHeap').default
-    }
 
-    this.configurationModule.configureModule({
-      heapdump : true
-    })
+      this.configurationModule.configureModule({
+        heapdump : true
+      })
+    }
 
     this.profilings = {
       cpuProfiling: isInspectorOk ? new ProfilingCPU() : new ProfilingCPUFallback(),

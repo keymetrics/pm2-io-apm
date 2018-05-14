@@ -3,6 +3,7 @@ debug('axm:profiling')
 import ProfilingType from './profilingType'
 import FileUtils from '../utils/file'
 import utils from '../utils/module'
+import Configuration from '../configuration'
 
 export default class ProfilingHeapFallback implements ProfilingType {
 
@@ -10,6 +11,12 @@ export default class ProfilingHeapFallback implements ProfilingType {
   private snapshot
   private MODULE_NAME = 'v8-profiler-node8'
   private FALLBACK_MODULE_NAME = 'v8-profiler'
+
+  private configurationModule: Configuration
+
+  constructor () {
+    this.configurationModule = new Configuration()
+  }
 
   async init () {
     let path
@@ -22,11 +29,20 @@ export default class ProfilingHeapFallback implements ProfilingType {
         moduleName = this.FALLBACK_MODULE_NAME
         path = await utils.getModulePath(this.FALLBACK_MODULE_NAME)
       } catch (err) {
+        this.configurationModule.configureModule({
+          heapdump : false
+        })
         throw new Error('Profiler not loaded !')
       }
     }
 
     this.profiler = utils.loadModule(path, moduleName)
+
+    const enable = !(this.profiler instanceof Error)
+
+    this.configurationModule.configureModule({
+      heapdump : enable
+    })
   }
 
   destroy () {
