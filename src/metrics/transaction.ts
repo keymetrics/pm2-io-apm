@@ -3,8 +3,8 @@ import MetricsFeature from '../features/metrics'
 import * as util from 'util'
 import Proxy from '../utils/proxy'
 import SimpleHttpWrap from '../wrapper/httpWrapper'
-import debug from 'debug'
-debug('axm:tracing')
+import Debug from 'debug'
+const debug = Debug('axm:tracing')
 import Transport from '../utils/transport'
 import Configuration from '../configuration'
 import MetricsInterface from './metricsInterface'

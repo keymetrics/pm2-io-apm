@@ -3,8 +3,8 @@ import MetricsFeature from '../features/metrics'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'
 
-import debug from 'debug'
-debug('axm:network')
+import Debug from 'debug'
+const debug = Debug('axm:network')
 
 export default class NetworkMetric implements MetricsInterface {
   private metricFeature: MetricsFeature

@@ -1,5 +1,5 @@
-import debug from 'debug'
-debug('axm:profilingaction')
+import Debug from 'debug'
+const debug = Debug('axm:profilingaction')
 
 import ActionsFeature from '../features/actions'
 import ProfilingFeature from '../features/profiling'

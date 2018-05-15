@@ -6,8 +6,8 @@ import JsonUtils from '../utils/json'
 import Configuration from '../configuration'
 import Transport from '../utils/transport'
 
-import debug from 'debug'
-debug('axm:notify')
+import Debug from 'debug'
+const debug = Debug('axm:notify')
 
 export class NotifyOptions {
   level: string
