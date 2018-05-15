@@ -1,5 +1,5 @@
-import debug from 'debug'
-debug('axm:configuration')
+import Debug from 'debug'
+const debug = Debug('axm:configuration')
 
 import Transport from './utils/transport'
 import Autocast from './utils/autocast'

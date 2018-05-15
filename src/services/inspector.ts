@@ -1,6 +1,6 @@
 import * as inspector from 'inspector'
-import debug from 'debug'
-debug('axm:inspectorservice')
+import Debug from 'debug'
+const debug = Debug('axm:inspectorservice')
 
 export class InspectorService {
 

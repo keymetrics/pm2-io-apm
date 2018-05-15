@@ -1,5 +1,5 @@
-import debug from 'debug'
-debug('axm:profiling')
+import Debug from 'debug'
+const debug = Debug('axm:profiling')
 import ProfilingType from './profilingType'
 import FileUtils from '../utils/file'
 import MetricConfig from '../utils/metricConfig'

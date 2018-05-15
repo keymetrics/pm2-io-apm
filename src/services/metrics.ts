@@ -1,4 +1,4 @@
-import debug from 'debug'
+import Debug from 'debug'
 import v8 from '../metrics/v8'
 import MetricsFeature from '../features/metrics'
 import DeepMetrics from '../metrics/deepMetrics'
@@ -8,7 +8,7 @@ import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
 import Transaction from '../metrics/transaction'
 import NetworkMetric from '../metrics/network'
 
-debug('axm:metricService')
+const debug = Debug('axm:metricService')
 
 export default class MetricsService {
 

@@ -1,5 +1,5 @@
-import debug from 'debug'
-debug('axm:proxy')
+import Debug from 'debug'
+const debug = Debug('axm:proxy')
 
 export default class Proxy {
   static wrap (object, methods, hook) {
