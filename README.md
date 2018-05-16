@@ -64,6 +64,7 @@ const pmx = require('pmx.io');
 // returned by Object.keys(users).length
 const metric = pmx.metric({
   name    : 'Realtime user',
+  type    : 'metric',
   value   : function() {
     return Object.keys(users).length;
   }
@@ -90,8 +91,9 @@ Things that increment or decrement.
 const pmx = require('pmx.io');
 
 // The counter will start at 0
-const {Current_req_processed} = pmx.counter({
-  name : 'Current req processed'
+const {Current_req_processed} = pmx.metric({
+  name : 'Current req processed',
+  type : 'counter',
 });
 
 http.createServer(function(req, res) {
@@ -115,8 +117,9 @@ Things that are measured as events / interval.
 ```javascript
 const pmx = require('pmx.io');
 
-const {reqsec} = pmx.meter({
+const {reqsec} = pmx.metric({
   name      : 'req/sec',
+  type      : 'meter',
   samples   : 1  // This is per second. To get per min set this value to 60
 });
 
@@ -139,8 +142,9 @@ Keeps a reservoir of statistically relevant values biased towards the last 5 min
 ```javascript
 const pmx = require('pmx.io');
 
-const {latency} = pmx.histogram({
+const {latency} = pmx.metric({
   name        : 'latency',
+  type        : 'histogram',
   measurement : 'mean'
 });
 
