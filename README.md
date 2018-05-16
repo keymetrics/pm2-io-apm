@@ -258,7 +258,6 @@ Example:
 
 ```javascript
 pmx.init({
-  [...]
   metrics: {
     network : {
       traffic : true, // Allow application level network monitoring
