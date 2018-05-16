@@ -259,9 +259,11 @@ Example:
 ```javascript
 pmx.init({
   [...]
-  network : {
-    traffic : true, // Allow application level network monitoring
-    ports   : true  // Display ports used by the application
+  metrics: {
+    network : {
+      traffic : true, // Allow application level network monitoring
+      ports   : true  // Display ports used by the application
+    }
   }
 });
 ```
