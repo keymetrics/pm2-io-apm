@@ -1,9 +1,9 @@
 <div align="center">
-  <a href="http://pm2.keymetrics.io">
+  <a href="http://pm2.io">
     <img width=411px src="https://raw.githubusercontent.com/keymetrics/pmx/master/pres/logo.png">
   </a>
   <br/>
-  <b><a href="https://github.com/Unitech/pm2">PM2</a> programmatic integration</b>
+  <b><a href="https://github.com/Unitech/pm2">PM2</a> monitoring module</b>
   <br/>
   <br/>
   <a href="https://www.bithound.io/github/keymetrics/pmx">
@@ -16,170 +16,181 @@
 <br/>
 </div>
 
-
-PMX allows you to create advanced interactions with [PM2](https://github.com/Unitech/pm2) and [Keymetrics.io](https://app.keymetrics.io/).
+The [pm2.io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module comes along with PM2. It is the PM2 part responsible for gathering the metrics, reporting exceptions, exposing remote actions and every outside interaction with your application.
 
 # Table of Contents
 
 - [**Installation**](https://github.com/keymetrics/pmx-2/blob/master/README.md#installation)
+- [**Initialisation**](https://github.com/keymetrics/pmx-2#application-level-network-traffic-monitoring--display-used-ports)
 - [**Expose Custom Metrics**](https://github.com/keymetrics/pmx-2#expose-metrics-measure-anything)
-- [**Expose Triggerable Runtime Functions**](https://github.com/keymetrics/pmx-2#expose-functions-trigger-functions-remotely)
-- [**Report Exceptions and Alerts**](https://github.com/keymetrics/pmx-2#alert-system-for-custom-metrics)
-- [**Report Custom Events**](https://github.com/keymetrics/pmx-2#emit-events)
-- [**Monitor network traffic**](https://github.com/keymetrics/pmx-2#application-level-network-traffic-monitoring--display-used-ports)
+- [**Expose Remote Actions**](https://github.com/keymetrics/pmx-2#expose-remote-action)
+- [**Report Caught Exceptions**](https://github.com/keymetrics/pmx-2#alert-system-for-custom-metrics)
+- [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pmx-2#emit-events)
+- [**Predefined Metrics**](https://github.com/keymetrics/pmx-2#reference)
 - [**Development**](https://github.com/keymetrics/pmx-2#application-level-network-traffic-monitoring--display-used-ports)
 
 
 # Installation
 
-Install pmx with npm:
+With npm:
 
 ```bash
-$ npm install pmx.io --save
+npm install pm2.io --save
 ```
 
-## Expose Metrics: Measure anything
+With yarn:
 
-PMX allows you to expose code metrics from your code to the PM2 monit command or the Keymetrics Dashboard, in realtime and over time.
+```bash
+yarn add pm2.io
+```
 
-4 measurements are available:
+## Expose Custom Metrics
 
-- **Simple metrics**: Values that can be read instantly
-    - eg. Monitor variable value
-- **Counter**: Things that increment or decrement
-    - eg. Downloads being processed, user connected
-- **Meter**: Things that are measured as events / interval
-    - eg. Request per minute for a http server
-- **Histogram**: Keeps a reservoir of statistically relevant values biased towards the last 5 minutes to explore their distribution
-    - eg. Monitor the mean of execution of a query into database
+pm2.io allows you to gather metrics from your code to be reported in `pm2 monit` or in the Keymetrics dashboard.
 
-### Metric: Simple value reporting
+### Create a custom metrics
 
-This allow to expose values that can be read instantly.
+You can create a new custom metrics with the method `metric()` of `pm2.io`.
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-// Here the value function will be called each second to get the value
-// returned by Object.keys(users).length
-const metric = pmx.metric({
-  name    : 'Realtime user',
-  type    : 'metric',
-  value   : function() {
+io.metric({
+  type: 'metric',
+  name: 'Realtime user',
+});
+```
+
+You need to provide at least two arguments:
+
+- **name**: The metric name
+- **type**: The type of metric
+
+There are 4 different types of metrics:
+
+- **metric**: To expose a variable's value
+- **counter**: A discrete counter to be triggered manually to count a number of occurrence
+- **meter**: To measure a frequency, a number of occurrences of a repeating event per unit of time
+- **histogram**: To measure a statistic, a statistic on a metric over the last 5 minutes
+
+### Metric: Variable Exposition
+
+The first type of metric, called `metric`, allows to expose a variable's value. The variable can be exposed passively, with a function that gets called every second, or actively, with a method that you use to update the value.
+
+#### Passive Mode
+
+```javascript
+const io = require('pm2.io');
+
+io.metric({
+  type: 'metric',
+  name: 'Realtime user',
+  value: function() {
     return Object.keys(users).length;
   }
-})['Realtime_user'];
+});
+```
 
-// Here we are going to call valvar.set() to set the new value
-const {Realtime_Value} = pmx.metric({
-  name    : 'Realtime Value'
+#### Active Mode
+
+In active mode, you need to create a probe and call the method `set()` to update the value.
+
+```javascript
+const { Realtime_Value } = io.metric({
+  type: 'metric',
+  name: 'Realtime Value'
 });
 
 Realtime_Value.set(23);
 ```
 
-#### Options
+### Counter: Discrete Counter
 
-- **name**: Probe name
-- **value**: (optional) function that allows to monitor a global variable
-
-### Counter: Sequential value change
-
-Things that increment or decrement.
+The second type of metric, called `counter`, is a discrete counter that helps you count the number of occurrence of a particular event. The counter starts at 0 and can be incremented or decremented.
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-// The counter will start at 0
-const {Current_req_processed} = pmx.metric({
-  name : 'Current req processed',
-  type : 'counter',
+const { Current_req_processed } = io.metric({
+  name: 'Current req processed',
+  type: 'counter',
 });
 
-http.createServer(function(req, res) {
+http.createServer((req, res) => {
   // Increment the counter, counter will eq 1
   Current_req_processed.inc();
-  req.on('end', function() {
+  req.on('end', () => {
     // Decrement the counter, counter will eq 0
     Current_req_processed.dec();
   });
 });
 ```
 
-#### Options
+### Meter: Frequency
 
-- **name**: Probe name
-
-### Meter: Average calculated values
-
-Things that are measured as events / interval.
+The third type of metric, called `meter`, compute the frequency of an event. Each time the event happens, you need to call the `mark()` method. By default, the frequency is the number of events per second over the last minute.
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-const {reqsec} = pmx.metric({
-  name      : 'req/sec',
-  type      : 'meter',
-  samples   : 1  // This is per second. To get per min set this value to 60
+const { reqsec } = io.metric({
+  name: 'req/sec',
+  type: 'meter',
 });
 
-http.createServer(function(req, res) {
+http.createServer((req, res) => {
   reqsec.mark();
-  res.end({success:true});
+  res.end({ success: true });
 });
 ```
 
-#### Options
-
-- **name**: Probe name
+Additional options:
 - **samples**: (optional)(default: 1) Rate unit. Defaults to **1** sec.
-- **timeframe**: (optional)(default: 60) timeframe over which events will be analyzed. Defaults to **60** sec.
+- **timeframe**: (optional)(default: 60) Timeframe over which the events will be analyzed. Defaults to **60** sec.
 
-### Histogram
+### Histogram: Statistics
 
-Keeps a reservoir of statistically relevant values biased towards the last 5 minutes to explore their distribution.
+Collect values and provide statistic tools to explore their distribution over the last 5 minutes.
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-const {latency} = pmx.metric({
-  name        : 'latency',
-  type        : 'histogram',
-  measurement : 'mean'
+const { latency } = io.metric({
+  name: 'latency',
+  type: 'histogram',
+  measurement: 'mean'
 });
 
 const latencyValue = 0;
 
-setInterval(function() {
+setInterval(() => {
   latencyValue = Math.round(Math.random() * 100);
   latency.update(latencyValue);
 }, 100);
 ```
 
-#### Options
+Options is:
+- **measurement** : (optional)(default: avg) Can be `sum`, `max`, `min`, `avg` or `none`.
 
-- **name**: Probe name
-- **agg_type** : (optional)(default: none) Can be `sum`, `max`, `min`, `avg` (default) or `none`. It will impact the way the probe data are aggregated within the **Keymetrics** backend. Use `none` if this is irrelevant (eg: constant or string value).
+## Expose Remote Actions: Trigger Functions remotely
 
-## Expose Functions: Trigger Functions remotely
-
-Remotely trigger functions from Keymetrics. These metrics takes place in the main Keymetrics Dashboard page under the Custom Action section.
+Remotely trigger functions from Keymetrics.
 
 ### Simple actions
 
-Simple action allows to trigger a function from Keymetrics. The function takes a function as a parameter (reply here) and need to be called once the job is finished.
+The function takes a function as a parameter (reply here) and need to be called once the job is finished.
 
 Example:
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-pmx.action('db:clean', function(reply) {
-  clean.db(function() {
+io.action('db:clean', (reply) => {
+  clean.db(() => {
     /**
      * reply() must be called at the end of the action
      */
-     reply({success : true});
+     reply({ success: true });
   });
 });
 ```
@@ -193,100 +204,90 @@ Two arguments are passed to the function, data (optional data sent from Keymetri
 Example:
 
 ```javascript
-pmx.scopedAction('long running lsof', function(data, res) {
+io.scopedAction('long running lsof', (data, res) => {
   var child = spawn('lsof', []);
 
-  child.stdout.on('data', function(chunk) {
+  child.stdout.on('data', (chunk) => {
     chunk.toString().split('\n').forEach(function(line) {
       res.send(line); // This send log to Keymetrics to be saved (for tracking)
     });
   });
 
-  child.stdout.on('end', function(chunk) {
+  child.stdout.on('end', (chunk) => {
     res.end('end'); // This end the scoped action
   });
 
-  child.on('error', function(e) {
+  child.on('error', (e) => {
     res.error(e);  // This report an error to Keymetrics
   });
 
 });
 ```
 
-## Report Alerts: Errors / Uncaught Exceptions
+## Report Caught Exceptions
 
-**(Specific to Keymetrics)**
-
-By default once PM2 is linked to Keymetrics, you will be alerted of any uncaught exception.
-These errors are accessible in the **Issue** tab of Keymetrics.
-
-### Custom alert notification
-
-If you need to alert about any critical errors you can do it programmatically:
+By default, in the Issue tab, you are only alerted for uncaught exceptions. Any exception that you catch is not reported. You can manually report them with the `notify()` method.
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-pmx.notify({ success : false });
+io.notify({ success: false });
 
-pmx.notify('This is an error');
+io.notify('This is an error');
 
-pmx.notifyError(new Error('This is an error'));
+io.notifyError(new Error('This is an error'));
 ```
 
-## Emit Events
+## Report Custom Events (deprecated)
 
-Emit events and get historical and statistics.
-This is available in the **Events** page of Keymetrics.
+*Note that events are deprecated and will be removed from the Keymetrics dashboard.*
+
+Emit events and get historical and statistics. This is available in the **Events** page of Keymetrics.
 
 ```javascript
-const pmx = require('pmx.io');
+const io = require('pm2.io');
 
-pmx.emit('user:register', {
-  user : 'Alex registered',
-  email : 'thorustor@gmail.com'
+io.emit('user:register', {
+  user: 'Alex registered',
+  email: 'thorustor@gmail.com'
 });
 ```
 
-## Application level network traffic monitoring / Display used ports
-
-You can monitor the network usage of a specific application by adding the option `network: true` when initializing PMX. If you enable the flag `ports: true` when you init pmx it will show which ports your app is listenting on.
-
-These metrics will be shown in the Keymetrics Dashboard in the Custom Metrics section.
-
-Example:
+## Reference
 
 ```javascript
-pmx.init({
-  metrics: {
-    network : {
-      traffic : true, // Allow application level network monitoring
-      ports   : true  // Display ports used by the application
-    }
-  }
-});
-```
+const io = require('pm2.io')
 
-## Advanced PMX configuration
-
-
-```javascript
-const pmx = require('pmx.io').init({
-
+io.init({
   metrics: {
     eventLoopActive: true, // (default: true) Monitor active handles and active requests
     eventLoopDelay: true,  // (default: true) Get event loop's average delay
-  
+
+    // Network monitoring at the application level
+    network: {
+      traffic: true, // (default: true) Allow application level network monitoring
+      ports: true    // (default: false) Shows which ports your app is listening on
+    },
+
+    // Transaction Tracing system configuration
+    transaction: {
+      http: true,               // (default: true) HTTP routes logging
+      tracing: {                // (default: false) Enable transaction tracing
+        http_latency: 1,        // (default: 200) minimum latency in milliseconds to take into account
+        ignore_routes: ['/foo'] // (default: empty) exclude some routes
+      }
+    },
+
     deepMetrics: {
-      mongo: true,     // (default: true) Mongo connections monitoring
-      mysql: true,     // (default: true) MySQL connections monitoring
-      mqtt: true,      // (default: true) Mqtt connections monitoring
-      socketio: true,  // (default: true) WebSocket monitoring
-      redis: true,     // (default: true) Redis monitoring
-      http: true,      // (default: true) Http incoming requests monitoring
-      https: true,     // (default: true) Https incoming requests monitoring
-      "http-outbound": true, // (default: true) Http outbound requests monitoring
-      "https-outbound": true // (default: true) Https outbound requests monitoring
+      mongo: true,             // (default: true) Mongo connections monitoring
+      mysql: true,             // (default: true) MySQL connections monitoring
+      mqtt: true,              // (default: true) Mqtt connections monitoring
+      socketio: true,          // (default: true) WebSocket monitoring
+      redis: true,             // (default: true) Redis monitoring
+      http: true,              // (default: true) Http incoming requests monitoring
+      https: true,             // (default: true) Https incoming requests monitoring
+      "http-outbound": true,   // (default: true) Http outbound requests monitoring
+      "https-outbound": true   // (default: true) Https outbound requests monitoring
     },
   
     v8: {
@@ -314,21 +315,7 @@ const pmx = require('pmx.io').init({
         mallocedMemory: false,            // (default: false) GC allocated memory
         peakMallocedMemory: false,        // (default: false) GC peak of allocated memory
         gcType: true,                     // (default: true)  Type of GC (scavenge, mark/sweep/compact, ...)
-       gcPause: true                     // (default: true)  Duration of pause (in milliseconds)
-      }
-    },
-
-    network : {       // Network monitoring at the application level
-      traffic : true, // (default: true) Allow application level network monitoring
-      ports   : true  // (default: false) Shows which ports your app is listening on
-    },
-
-    // Transaction Tracing system configuration
-    transaction  : {
-      http : true,              // (default: true) HTTP routes logging
-      tracing: {                // (default: false) Enable transaction tracing
-        http_latency: 1,        // (default: 200) minimum latency in milliseconds to take into account
-        ignore_routes: ['/foo'] // (default: empty) exclude some routes
+        gcPause: true                     // (default: true)  Duration of pause (in milliseconds)
       }
     }
   },
