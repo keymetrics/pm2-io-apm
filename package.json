@@ -6,8 +6,12 @@
   "typings": "build/main/src/index.d.ts",
   "types": "build/main/src/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/keymetrics/pmx-2",
-  "author": "",
+  "repository": "https://github.com/keymetrics/pm2-io-apm",
+  "author": {
+    "name": "Vincent Vallet",
+    "email": "vincent@pm2.io",
+    "url": "https://pm2.io"
+  },
   "license": "MIT",
   "scripts": {
     "info": "npm-scripts-info",
