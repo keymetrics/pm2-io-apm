@@ -1,11 +1,11 @@
-import debug from 'debug'
+import Debug from 'debug'
 import ActionsFeature from '../features/actions'
 import EventLoopInspector from '../actions/eventLoopInspector'
 import ProfilingHeapAction from '../actions/profilingHeap'
 import ProfilingCPUAction from '../actions/profilingCpu'
 import MetricConfig from '../utils/metricConfig'
 
-debug('axm:actionsService')
+const debug = Debug('axm:actionsService')
 
 export default class ActionsService {
 

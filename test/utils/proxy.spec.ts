@@ -7,6 +7,6 @@ describe('Proxy', () => {
 
   it('should return debug function in case method is not found', () => {
     const res = Proxy.wrap({}, ['toto'], {})
-    expect(typeof res).to.equal('function')
+    expect(res).to.equal(undefined)
   })
 })

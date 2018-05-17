@@ -1,7 +1,7 @@
-import debug from 'debug'
+import Debug from 'debug'
 import * as stringify from 'json-stringify-safe'
 
-debug('axm:transport')
+const debug = Debug('axm:transport')
 
 export default class Transport {
   static send (args: Error | any, print?: Boolean): number {

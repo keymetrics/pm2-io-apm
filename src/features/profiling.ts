@@ -1,5 +1,3 @@
-import debug from 'debug'
-debug('axm:profiling')
 import { Feature } from './featureTypes'
 import ProfilingCPUFallback from '../profiling/profilingCPUFallback'
 import ProfilingHeapFallback from '../profiling/profilingHeapFallback'

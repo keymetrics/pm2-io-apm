@@ -4,8 +4,8 @@ import MetricsFeature from '../features/metrics'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'
 
-import debug from 'debug'
-debug('axm:v8')
+import Debug from 'debug'
+const debug = Debug('axm:v8')
 
 export default class V8Metric implements MetricsInterface {
 

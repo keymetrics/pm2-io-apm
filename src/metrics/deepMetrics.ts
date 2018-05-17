@@ -4,8 +4,8 @@ import MetricConfig from '../utils/metricConfig'
 import DeepMetricsTracer from './deepMetricsTracer'
 import * as deepmetrics from 'deep-metrics'
 
-import debug from 'debug'
-debug('axm:deepMetrics')
+import Debug from 'debug'
+const debug = Debug('axm:deepMetrics')
 
 export default class DeepMetrics implements MetricsInterface {
   private metricFeature: MetricsFeature

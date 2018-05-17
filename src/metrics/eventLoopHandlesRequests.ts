@@ -1,8 +1,8 @@
 import MetricsFeature from '../features/metrics'
 import MetricsInterface from './metricsInterface'
 
-import debug from 'debug'
-debug('axm:eventLoop')
+import Debug from 'debug'
+const debug = Debug('axm:eventLoop')
 
 export default class EventLoopHandlesRequestsMetric implements MetricsInterface {
   private metricFeature: MetricsFeature
