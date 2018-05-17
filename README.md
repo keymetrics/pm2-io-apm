@@ -20,14 +20,13 @@ The [pm2.io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module c
 
 # Table of Contents
 
-- [**Installation**](https://github.com/keymetrics/pmx-2/blob/master/README.md#installation)
-- [**Initialisation**](https://github.com/keymetrics/pmx-2#application-level-network-traffic-monitoring--display-used-ports)
-- [**Expose Custom Metrics**](https://github.com/keymetrics/pmx-2#expose-metrics-measure-anything)
-- [**Expose Remote Actions**](https://github.com/keymetrics/pmx-2#expose-remote-action)
-- [**Report Caught Exceptions**](https://github.com/keymetrics/pmx-2#alert-system-for-custom-metrics)
-- [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pmx-2#emit-events)
-- [**Predefined Metrics**](https://github.com/keymetrics/pmx-2#reference)
-- [**Development**](https://github.com/keymetrics/pmx-2#application-level-network-traffic-monitoring--display-used-ports)
+- [**Installation**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#installation)
+- [**Expose Custom Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#expose-custom-metrics)
+- [**Expose Remote Actions**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#expose-remote-actions)
+- [**Report Caught Exceptions**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#report-caught-exceptions)
+- [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#report-custom-events-deprecated)
+- [**Predefined Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#predefined-metrics)
+- [**Development**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#development)
 
 
 # Installation
@@ -253,7 +252,7 @@ io.emit('user:register', {
 });
 ```
 
-## Reference
+## Predefined Metrics
 
 ```javascript
 const io = require('pm2.io')
