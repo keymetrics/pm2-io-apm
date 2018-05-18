@@ -26,7 +26,9 @@ export default class DeepMetrics implements MetricsInterface {
 
   constructor (metricFeature: MetricsFeature) {
     this.metricFeature = metricFeature
+  }
 
+  init (config?: any | boolean) {
     deepmetrics.start()
 
     // instantiate all metrics
@@ -35,9 +37,7 @@ export default class DeepMetrics implements MetricsInterface {
         this.allPossibleMetrics[probeName] = new DeepMetricsTracer(this.metricFeature, deepmetrics.ee, probeName)
       }
     }
-  }
 
-  init (config?: any | boolean) {
     config = MetricConfig.getConfig(config, this.defaultConf)
 
     // initialize only metrics found in config
