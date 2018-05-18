@@ -395,12 +395,11 @@ class Entrypoint {
         this.io.onExit(() => {
           this.onStop(err, () => {
             this.io.destroy()
+            if (process && process.send) process.send('terminated')
           })
         })
 
-        if (process && process.send) {
-          process.send('ready')
-        }
+        if (process && process.send) process.send('ready')
       })
     } catch (e) {
       // properly exit in case onStart/onStop method has not been override
@@ -425,7 +424,7 @@ class Entrypoint {
   }
 
   onStop (err: Error, cb: Function) {
-    throw new Error('Entrypoint onStop() not specified')
+    cb() // by default only execute callback
   }
 
   conf () {

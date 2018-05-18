@@ -39,7 +39,7 @@ describe('Entrypoint', function () {
           child.kill('SIGINT')
         }
 
-        if (res === 'Done') {
+        if (res === 'terminated') {
           done()
         }
       })
