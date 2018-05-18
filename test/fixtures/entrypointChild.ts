@@ -7,11 +7,6 @@ class MyEntrypoint extends Entrypoint {
     cb()
   }
 
-  onStop (err: Error | null, cb: Function) {
-    if (process && process.send) process.send('Done')
-    cb()
-  }
-
   conf () {
     return {
       metrics: {
