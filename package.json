@@ -85,6 +85,7 @@
     "json-stringify-safe": "^5.0.1",
     "semver": "^5.5.0",
     "signal-exit": "^3.0.2",
+    "tslib": "^1.6.0",
     "vxx": "^1.2.2"
   }
 }
