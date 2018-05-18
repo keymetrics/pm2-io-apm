@@ -5,6 +5,8 @@ import EventFeature from './features/events'
 import Inspector from './actions/eventLoopInspector'
 import * as merge from 'deepmerge'
 import Configuration from './configuration'
+import Debug from 'debug'
+const debug = Debug('PMX')
 
 class PMX {
 
@@ -129,7 +131,7 @@ class PMX {
     if (callback && typeof callback === 'function') {
       const onExit = require('signal-exit')
 
-      return onExit(callback())
+      return onExit(callback)
     }
   }
 
@@ -306,4 +308,130 @@ class PMX {
   }
 }
 
+class Entrypoint {
+
+  public defaultConf = {
+    metrics: {
+      eventLoopActive: true,
+      eventLoopDelay: true,
+
+      network: {
+        traffic: true,
+        ports: true
+      },
+
+      transaction: {
+        http: true,
+        tracing: {
+          http_latency: 1,
+          ignore_routes: ['/foo']
+        }
+      },
+
+      deepMetrics: {
+        mongo: true,
+        mysql: true,
+        mqtt: true,
+        socketio: true,
+        redis: true,
+        http: true,
+        https: true,
+        'http-outbound': true,
+        'https-outbound': true
+      },
+
+      v8: {
+        new_space: true,
+        old_space: true,
+        map_space: true,
+        code_space: true,
+        large_object_space: true,
+        total_physical_size: false,
+        total_heap_size: true,
+        total_available_size: false,
+        total_heap_size_executable: true,
+        used_heap_size: true,
+        heap_size_limit: true,
+        malloced_memory: false,
+        peak_malloced_memory: false,
+        does_zap_garbage: false,
+        GC: {
+          totalHeapSize: true,
+          totalHeapExecutableSize: true,
+          usedHeapSize: true,
+          heapSizeLimit: false,
+          totalPhysicalSize: false,
+          totalAvailableSize: false,
+          mallocedMemory: false,
+          peakMallocedMemory: false,
+          gcType: true,
+          gcPause: true
+        }
+      }
+    },
+
+    actions: {
+      eventLoopDump: false,
+      profilingCpu: true,
+      profilingHeap: true
+    }
+  }
+
+  private io: PMX
+
+  constructor () {
+    try {
+      this.io = new PMX().init(this.conf())
+
+      this.onStart(err => {
+
+        if (err) {
+          debug(err)
+        }
+
+        this.metrics()
+        this.actions()
+
+        this.io.onExit(() => {
+          this.onStop(err, () => {
+            this.io.destroy()
+          })
+        })
+
+        if (process && process.send) {
+          process.send('ready')
+        }
+      })
+    } catch (e) {
+      // properly exit in case onStart/onStop method has not been override
+      if (this.io) {
+        this.io.destroy()
+      }
+
+      throw (e)
+    }
+  }
+
+  metrics () {
+    debug('No metrics !')
+  }
+
+  actions () {
+    debug('No actions !')
+  }
+
+  onStart (cb: Function) {
+    throw new Error('Entrypoint onStart() not specified')
+  }
+
+  onStop (err: Error, cb: Function) {
+    throw new Error('Entrypoint onStop() not specified')
+  }
+
+  conf () {
+    return this.defaultConf
+  }
+}
+
 module.exports = new PMX()
+module.exports.Entrypoint = Entrypoint
