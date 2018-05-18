@@ -319,58 +319,18 @@ class Entrypoint {
       eventLoopDelay: true,
 
       network: {
-        traffic: true,
-        ports: true
+        traffic: false,
+        ports: false
       },
 
       transaction: {
         http: true,
-        tracing: {
-          http_latency: 1,
-          ignore_routes: ['/foo']
-        }
+        tracing: false
       },
 
-      deepMetrics: {
-        mongo: true,
-        mysql: true,
-        mqtt: true,
-        socketio: true,
-        redis: true,
-        http: true,
-        https: true,
-        'http-outbound': true,
-        'https-outbound': true
-      },
+      deepMetrics: false,
 
-      v8: {
-        new_space: true,
-        old_space: true,
-        map_space: true,
-        code_space: true,
-        large_object_space: true,
-        total_physical_size: false,
-        total_heap_size: true,
-        total_available_size: false,
-        total_heap_size_executable: true,
-        used_heap_size: true,
-        heap_size_limit: true,
-        malloced_memory: false,
-        peak_malloced_memory: false,
-        does_zap_garbage: false,
-        GC: {
-          totalHeapSize: true,
-          totalHeapExecutableSize: true,
-          usedHeapSize: true,
-          heapSizeLimit: false,
-          totalPhysicalSize: false,
-          totalAvailableSize: false,
-          mallocedMemory: false,
-          peakMallocedMemory: false,
-          gcType: true,
-          gcPause: true
-        }
-      }
+      v8: false
     },
 
     actions: {
