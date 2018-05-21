@@ -154,6 +154,9 @@ class PMX {
       },
       counter: (counter) => {
         return this.genericBackwardConversion(counter, 'counter')
+      },
+      transpose: (variableName, reporter) => {
+        this.transpose(variableName, reporter)
       }
     }
   }
