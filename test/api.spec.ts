@@ -118,6 +118,22 @@ describe('API', function () {
         }
       })
     })
+
+    it('should receive data from backward transpose', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiTransposeBackwardChild.js'))
+
+      child.on('message', res => {
+        if (res.type === 'axm:monitor') {
+          expect(res.data.hasOwnProperty('transpose')).to.equal(true)
+          expect(res.data.transpose.value).to.equal('transposeResponse')
+          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
+          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
+
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
   })
 
   describe('Onexit', () => {
