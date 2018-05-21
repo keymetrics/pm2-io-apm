@@ -230,26 +230,7 @@ By default, in the Issue tab, you are only alerted for uncaught exceptions. Any 
 ```javascript
 const io = require('pm2.io');
 
-io.notify({ success: false });
-
-io.notify('This is an error');
-
 io.notifyError(new Error('This is an error'));
-```
-
-## Report Custom Events (deprecated)
-
-*Note that events are deprecated and will be removed from the Keymetrics dashboard.*
-
-Emit events and get historical and statistics. This is available in the **Events** page of Keymetrics.
-
-```javascript
-const io = require('pm2.io');
-
-io.emit('user:register', {
-  user: 'Alex registered',
-  email: 'thorustor@gmail.com'
-});
 ```
 
 ## Predefined Metrics
