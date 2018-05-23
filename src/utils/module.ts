@@ -28,7 +28,7 @@ export default class ModuleUtils {
         module = require(modulePath)
       }
     } catch (e) {
-      debug(`Error when requiringague ${moduleName} on path`, modulePath)
+      debug(`Error when requiring ${moduleName} on path`, modulePath)
       debug(e.message)
       return e
     }
