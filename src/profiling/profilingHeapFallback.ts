@@ -48,12 +48,12 @@ export default class ProfilingHeapFallback implements ProfilingType {
   }
 
   async stop () {
-    return await this.getProfileInfo()
+    return this.getProfileInfo()
   }
 
   async takeSnapshot () {
     this.start()
-    return await this.stop()
+    return this.stop()
   }
 
   private getProfileInfo () {

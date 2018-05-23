@@ -57,7 +57,7 @@ export default class MetricsService {
   }
 
   destroyAll () {
-    this.services.forEach( (service, serviceName) => {
+    this.services.forEach((service, serviceName) => {
       if (service.destroy && typeof service.destroy === 'function') {
         service.destroy()
       }

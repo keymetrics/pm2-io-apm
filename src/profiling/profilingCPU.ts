@@ -1,7 +1,6 @@
 import Debug from 'debug'
 const debug = Debug('axm:profiling')
-import ProfilingType from './profilingType'
-import { CustomProfile } from './profilingType'
+import ProfilingType, { CustomProfile } from './profilingType'
 import FileUtils from '../utils/file'
 import { ServiceManager } from '../serviceManager'
 import { InspectorService } from '../services/inspector'
@@ -29,7 +28,7 @@ export default class ProfilingCPU implements ProfilingType {
   }
 
   async stop () {
-    return await this.getProfileInfo()
+    return this.getProfileInfo()
   }
 
   private _convertTimeDeltas (profile: CustomProfile) {
@@ -45,7 +44,7 @@ export default class ProfilingCPU implements ProfilingType {
   }
 
   private getProfileInfo () {
-    return new Promise( async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         let rawData: any = await this.inspectorService.post('Profiler.stop')
 
@@ -81,7 +80,7 @@ export default class ProfilingCPU implements ProfilingType {
         // reformat then only keep the root as top level node
         const nodes = data.nodes
           .map(reformatNode)
-          .filter(node => node.functionName === '(root)' )[0]
+          .filter(node => node.functionName === '(root)')[0]
 
         // since it can be undefined, create an array so execution still works
         if (!data.timeDeltas) {

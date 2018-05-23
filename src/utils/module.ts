@@ -6,7 +6,7 @@ debug('axm:module')
 
 export default class ModuleUtils {
   static async getModulePath (moduleName) {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       ModuleUtils.detectModule(moduleName, (err, path) => {
 
         if (err) {
@@ -28,18 +28,18 @@ export default class ModuleUtils {
         module = require(modulePath)
       }
     } catch (e) {
-      debug(`Error when requiring ${moduleName} on path`, modulePath)
+      debug(`Error when requiringague ${moduleName} on path`, modulePath)
       debug(e.message)
       return e
     }
 
-    debug(`${moduleName} successfully enabled` )
+    debug(`${moduleName} successfully enabled`)
 
     return module
   }
 
   static detectModule (moduleName, cb) {
-    const module = this._getModule() || {paths: ['./node_modules', '/node_modules']}
+    const module = this._getModule() || { paths: ['./node_modules', '/node_modules'] }
 
     const requirePaths = module.paths.slice()
 

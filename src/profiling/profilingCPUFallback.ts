@@ -48,7 +48,7 @@ export default class ProfilingCPUFallback implements ProfilingType {
   }
 
   async stop () {
-    return await this.getProfileInfo()
+    return this.getProfileInfo()
   }
 
   private getProfileInfo () {
