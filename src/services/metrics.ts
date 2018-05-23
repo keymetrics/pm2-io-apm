@@ -1,7 +1,6 @@
 import Debug from 'debug'
 import v8 from '../metrics/v8'
 import MetricsFeature from '../features/metrics'
-import DeepMetrics from '../metrics/deepMetrics'
 import EventLoopDelayMetric from '../metrics/eventLoopDelay'
 import MetricConfig from '../utils/metricConfig'
 import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
@@ -13,6 +12,7 @@ const debug = Debug('axm:metricService')
 export default class MetricsService {
 
   private services: Map<string, any>
+  private metricsFeature: MetricsFeature
 
   private defaultConf = {
     eventLoopDelay: true,
@@ -21,9 +21,9 @@ export default class MetricsService {
   }
 
   constructor (metricsFeature: MetricsFeature) {
+    this.metricsFeature = metricsFeature
     this.services = new Map()
     this.services.set('v8', new v8(metricsFeature))
-    this.services.set('deepMetrics', new DeepMetrics(metricsFeature))
     this.services.set('eventLoopDelay', new EventLoopDelayMetric(metricsFeature))
     this.services.set('eventLoopActive', new EventLoopHandlesRequestsMetric(metricsFeature))
     this.services.set('transaction', new Transaction(metricsFeature))
@@ -39,6 +39,12 @@ export default class MetricsService {
     // init metrics only if they are enabled in config
     for (let property in config) {
       if (config.hasOwnProperty(property) && config[property] !== false) {
+
+        if (property === 'deepMetrics') {
+          const DeepMetrics = require('../metrics/deepMetrics').default
+          this.services.set('deepMetrics', new DeepMetrics(this.metricsFeature))
+        }
+
         if (!this.services.has(property)) {
           debug(`Metric ${property} does not exist`)
           continue
