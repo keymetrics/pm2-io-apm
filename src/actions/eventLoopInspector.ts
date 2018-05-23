@@ -15,7 +15,7 @@ export default class Inspector implements ActionsInterface {
   }
 
   async init () {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       utils.detectModule(this.MODULE_NAME, (err, inspectorPath) => {
 
         if (err) {

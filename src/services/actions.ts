@@ -43,7 +43,7 @@ export default class ActionsService {
   }
 
   destroy () {
-    this.services.forEach( (service, serviceName) => {
+    this.services.forEach((service, serviceName) => {
       if (service.destroy && typeof service.destroy === 'function') {
         service.destroy()
       }

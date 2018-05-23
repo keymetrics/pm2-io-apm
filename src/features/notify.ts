@@ -73,7 +73,7 @@ export class NotifyFeature implements Feature {
   catchAll (opts?: any): Boolean | void {
 
     if (opts === undefined) {
-      opts = {errors: true}
+      opts = { errors: true }
     }
 
     Configuration.configureModule({
@@ -108,7 +108,7 @@ export class NotifyFeature implements Feature {
 
         Transport.send({
           type : 'process:exception',
-          data : errObj !== undefined ? errObj : {message: 'No error but ' + listener + ' was caught!' }
+          data : errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' }
         }, true)
 
         if (!process.listeners(listener).filter(function (listener) {

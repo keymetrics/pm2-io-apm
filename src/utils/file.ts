@@ -6,7 +6,7 @@ export default class FileUtils {
   static writeDumpFile (data, extension?) {
     extension = extension ? extension : '.cpuprofile'
 
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const cpuDumpFile = path.join(os.tmpdir(), Date.now() + extension)
 
       fs.writeFile(cpuDumpFile, data, function (err) {
@@ -20,7 +20,7 @@ export default class FileUtils {
   }
 
   static getFileSize (dumpFile) {
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       fs.stat(dumpFile, (err, stats) => {
         let fileSizeInMegabytes = 0
 

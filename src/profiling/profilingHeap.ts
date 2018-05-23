@@ -40,7 +40,7 @@ export default class ProfilingHeap implements ProfilingType {
   }
 
   async stop () {
-    return await this.getProfileInfo()
+    return this.getProfileInfo()
   }
 
   async takeSnapshot () {
@@ -57,7 +57,7 @@ export default class ProfilingHeap implements ProfilingType {
   }
 
   private getProfileInfo () {
-    return new Promise( async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let data
       try {
         data = await this.inspectorService.post('HeapProfiler.stopSampling')
