@@ -66,7 +66,7 @@ class PMX {
     this.notifyFeature.notifyError(err, level)
   }
 
-  metric (metrics: Object | Array<any>): Object {
+  metrics (metrics: Object | Array<any>): Object {
 
     const res: Object = {}
 
@@ -209,7 +209,7 @@ class PMX {
 
     // escape spaces and special characters from metric's name
     const metricKey = object.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
-    return this.metric(object)[metricKey]
+    return this.metrics(object)[metricKey]
   }
 
   private backwardConfigConversion (config) {
