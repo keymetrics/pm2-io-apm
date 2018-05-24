@@ -1,9 +1,9 @@
 import SpecUtils from './fixtures/utils'
 import { assert, expect } from 'chai'
-import * as chai from 'chai'
 import 'mocha'
 
 import { exec, fork } from 'child_process'
+import Histogram from '../src/utils/metrics/histogram'
 
 describe('API', function () {
   this.timeout(50000)
@@ -72,7 +72,7 @@ describe('API', function () {
         if (res.type === 'axm:action') {
           expect(res.data.action_name).to.equal('testScopedAction')
           child.send(res.data.action_name)
-          child.send({action_name: res.data.action_name, uuid: 1000})
+          child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:scoped_action:stream') {
           expect(res.data.uuid).to.equal(1000)
           expect(res.data.action_name).to.equal('testScopedAction')
@@ -91,7 +91,7 @@ describe('API', function () {
         if (res.type === 'axm:action') {
           expect(res.data.action_name).to.equal('testActionWithConf')
           child.send(res.data.action_name)
-          child.send({action_name: res.data.action_name, uuid: 1000})
+          child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('testActionWithConf')
           expect(res.data.return.data).to.equal('testActionWithConfReply')
@@ -133,6 +133,58 @@ describe('API', function () {
           done()
         }
       })
+    })
+  })
+
+  describe('Histogram', () => {
+    it('should return an histogram', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+      const firstWay = pmx.histogram('firstWay')
+      const secondWay = pmx.histogram({
+        name: 'secondWay'
+      })
+
+      expect(firstWay.constructor.name).to.equal('Histogram')
+      expect(secondWay.constructor.name).to.equal('Histogram')
+    })
+  })
+
+  describe('Counter', () => {
+    it('should return a counter', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+      const firstWay = pmx.counter('firstWay')
+      const secondWay = pmx.counter({
+        name: 'secondWay'
+      })
+
+      expect(firstWay.constructor.name).to.equal('Counter')
+      expect(secondWay.constructor.name).to.equal('Counter')
+    })
+  })
+
+  describe('Meter', () => {
+    it('should return a counter', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+      const firstWay = pmx.meter('firstWay')
+      const secondWay = pmx.meter({
+        name: 'secondWay'
+      })
+
+      expect(firstWay.constructor.name).to.equal('Meter')
+      expect(secondWay.constructor.name).to.equal('Meter')
+    })
+  })
+
+  describe('Metric', () => {
+    it('should return an histogram', () => {
+      const pmx = require(__dirname + '/../build/main/src/index.js')
+      const firstWay = pmx.metric('firstWay')
+      const secondWay = pmx.metric({
+        name: 'secondWay'
+      })
+
+      expect(firstWay.hasOwnProperty('val')).to.equal(true)
+      expect(secondWay.hasOwnProperty('val')).to.equal(true)
     })
   })
 
@@ -233,7 +285,7 @@ describe('API', function () {
     })
 
     it('should return null when using init', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js').init({profiling: false})
+      const pmx = require(__dirname + '/../build/main/src/index.js').init({ profiling: false })
       const probe = pmx.probe()
 
       const metric = probe.metric()

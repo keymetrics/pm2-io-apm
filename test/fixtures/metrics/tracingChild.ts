@@ -1,6 +1,6 @@
 import Metric from '../../../src/features/metrics'
 const metric = new Metric()
-metric.init({transaction: {tracing: {http_latency: 1, ignore_routes: ['/toto']}}}, true)
+metric.init({ transaction: { tracing: { http_latency: 1, ignore_routes: ['/toto'] } } }, true)
 
 import * as express from 'express'
 const app = express()

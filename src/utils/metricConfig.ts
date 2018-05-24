@@ -31,4 +31,14 @@ export default class MetricConfig {
       }
     }
   }
+
+  static buildConfig (config) {
+    if (typeof config === 'string') {
+      config = {
+        name: config
+      }
+    }
+
+    return config
+  }
 }

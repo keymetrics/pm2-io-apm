@@ -4,7 +4,7 @@ const Entrypoint = require(__dirname + '/../../src/index.js').Entrypoint
 class MyEntrypoint extends Entrypoint {
 
   onStart (cb: Function) {
-    cb()
+    cb(new Error('test'))
   }
 
   conf () {
