@@ -5,6 +5,7 @@ import EventFeature from './features/events'
 import Inspector from './actions/eventLoopInspector'
 import * as merge from 'deepmerge'
 import Configuration from './configuration'
+import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
 const debug = Debug('PMX')
 
@@ -107,6 +108,30 @@ class PMX {
     }
 
     return res
+  }
+
+  histogram (config) {
+    config = Metriconfig.buildConfig(config)
+
+    return this.metricsFeature['histogram'](config)
+  }
+
+  metric (config) {
+    config = Metriconfig.buildConfig(config)
+
+    return this.metricsFeature['metric'](config)
+  }
+
+  counter (config) {
+    config = Metriconfig.buildConfig(config)
+
+    return this.metricsFeature['counter'](config)
+  }
+
+  meter (config) {
+    config = Metriconfig.buildConfig(config)
+
+    return this.metricsFeature['meter'](config)
   }
 
   action (name, opts?, fn?) {

@@ -1,16 +1,9 @@
 import SpecUtils from './fixtures/utils'
 import { assert, expect } from 'chai'
 import { exec, fork } from 'child_process'
-import * as chai from 'chai'
 import 'mocha'
 const pmx = require(__dirname + '/../build/main/src/index.js')
 const Entrypoint = pmx.Entrypoint
-
-class MyEntrypoint extends Entrypoint {
-  onStart (cb) {
-    cb()
-  }
-}
 
 describe('Entrypoint', function () {
   this.timeout(20000)
