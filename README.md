@@ -55,7 +55,6 @@ You can create a new custom metrics with the method `metric()` of `pm2.io`.
 const io = require('pm2.io');
 
 io.metric({
-  type: 'metric',
   name: 'Realtime user',
 });
 ```
@@ -82,7 +81,6 @@ The first type of metric, called `metric`, allows to expose a variable's value. 
 const io = require('pm2.io');
 
 io.metric({
-  type: 'metric',
   name: 'Realtime user',
   value: function() {
     return Object.keys(users).length;
@@ -95,8 +93,7 @@ io.metric({
 In active mode, you need to create a probe and call the method `set()` to update the value.
 
 ```javascript
-const { Realtime_Value } = io.metric({
-  type: 'metric',
+const Realtime_Value = io.metric({
   name: 'Realtime Value'
 });
 
@@ -110,7 +107,7 @@ The second type of metric, called `counter`, is a discrete counter that helps yo
 ```javascript
 const io = require('pm2.io');
 
-const { Current_req_processed } = io.metric({
+const Current_req_processed = io.counter({
   name: 'Current req processed',
   type: 'counter',
 });
@@ -132,7 +129,7 @@ The third type of metric, called `meter`, compute the frequency of an event. Eac
 ```javascript
 const io = require('pm2.io');
 
-const { reqsec } = io.metric({
+const reqsec = io.meter({
   name: 'req/sec',
   type: 'meter',
 });
@@ -154,9 +151,8 @@ Collect values and provide statistic tools to explore their distribution over th
 ```javascript
 const io = require('pm2.io');
 
-const { latency } = io.metric({
+const latency = io.histogram({
   name: 'latency',
-  type: 'histogram',
   measurement: 'mean'
 });
 
