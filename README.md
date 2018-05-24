@@ -173,19 +173,19 @@ Remotely trigger functions from Keymetrics.
 
 ### Simple actions
 
-The function takes a function as a parameter (reply here) and need to be called once the job is finished.
+The function takes a function as a parameter (cb here) and need to be called once the job is finished.
 
 Example:
 
 ```javascript
 const io = require('pm2.io');
 
-io.action('db:clean', (reply) => {
+io.action('db:clean', (cb) => {
   clean.db(() => {
     /**
-     * reply() must be called at the end of the action
+     * cb() must be called at the end of the action
      */
-     reply({ success: true });
+     cb({ success: true });
   });
 });
 ```
