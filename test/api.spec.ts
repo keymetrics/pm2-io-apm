@@ -197,7 +197,7 @@ describe('API', function () {
     it('should return metrics object with clean keys', () => {
       const pmx = require(__dirname + '/../build/main/src/index.js')
 
-      const metrics = pmx.metric([
+      const metrics = pmx.metrics([
         {
           name: 'metricHistogram',
           type: 'histogram',

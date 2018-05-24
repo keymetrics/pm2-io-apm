@@ -5,10 +5,10 @@ const pmx = require(__dirname + '/../../src/index.js')
 pmx.init({metrics:  {v8: true}})
 
 // should not fail but display a warning
-pmx.metric()
-pmx.metric({})
+pmx.metrics()
+pmx.metrics({})
 
-const allMetrics = pmx.metric(
+const allMetrics = pmx.metrics(
   [
     {
       name: 'metricHistogram',
