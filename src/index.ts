@@ -380,10 +380,9 @@ class Entrypoint {
         this.metrics()
         this.actions()
 
-        this.io.onExit(() => {
-          this.onStop(err, () => {
+        this.io.onExit((code, signal) => {
+          this.onStop(err, code, signal, () => {
             this.io.destroy()
-            if (process && process.send) process.send('terminated')
           })
         })
 
@@ -411,7 +410,7 @@ class Entrypoint {
     throw new Error('Entrypoint onStart() not specified')
   }
 
-  onStop (err: Error, cb: Function) {
+  onStop (err: Error, code: number, signal: string, cb: Function) {
     cb() // by default only execute callback
   }
 
