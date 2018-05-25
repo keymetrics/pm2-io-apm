@@ -385,9 +385,9 @@ class Entrypoint {
         this.actions()
 
         this.io.onExit((code, signal) => {
-          this.onStop(err, code, signal, () => {
+          this.onStop(err, () => {
             this.io.destroy()
-          })
+          }, code, signal)
         })
 
         if (process && process.send) process.send('ready')
@@ -414,7 +414,7 @@ class Entrypoint {
     throw new Error('Entrypoint onStart() not specified')
   }
 
-  onStop (err: Error, code: number, signal: string, cb: Function) {
+  onStop (err: Error, cb: Function, code: number, signal: string) {
     cb() // by default only execute callback
   }
 
