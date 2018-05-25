@@ -31,8 +31,15 @@ describe('Entrypoint', function () {
         if (res === 'ready') {
           child.kill('SIGINT')
         }
+      })
 
-        if (res === 'terminated') {
+      let exited = 0
+
+      child.on('exit', (err, code) => {
+        if (!exited) {
+          exited = 1
+          expect(err).to.equal(null)
+          expect(code).to.equal('SIGINT')
           done()
         }
       })
