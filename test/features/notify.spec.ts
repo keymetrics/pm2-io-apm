@@ -9,8 +9,8 @@ describe('Notify', () => {
     it('should send a notification', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/features/notifyChild.js'))
       child.on('message', msg => {
-        if (typeof msg === 'string') {
-          expect(msg).to.equal('test')
+        if (msg.type === 'process:exception') {
+          expect(msg.data.message).to.equal('test')
           done()
         }
       })
@@ -21,13 +21,13 @@ describe('Notify', () => {
       let count = 0
       child.on('message', msg => {
 
-        if (typeof msg === 'string') {
+        if (msg.type === 'process:exception') {
           count++
 
-          if (msg === 'info') {
+          if (msg.data.message === 'info') {
             assert.fail()
           } else {
-            expect(msg === 'warn' || msg === 'error' || msg === 'does not exist').to.equal(true)
+            expect(msg.data.message === 'warn' || msg.data.message === 'error' || msg.data.message === 'does not exist').to.equal(true)
           }
         }
 
