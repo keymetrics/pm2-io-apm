@@ -138,6 +138,28 @@ export class NotifyFeature implements Feature {
     }
   }
 
+  expressErrorHandler () {
+    Configuration.configureModule({
+      error : true
+    })
+
+    return function errorHandler (err, req, res, next) {
+      if (res.statusCode < 400) res.statusCode = 500
+
+      err.url = req.url
+      err.component = req.url
+      err.action = req.method
+      err.params = req.body
+      err.session = req.session
+
+      Transport.send({
+        type  : 'process:exception',
+        data  : JsonUtils.jsonize(err)
+      })
+      return next(err)
+    }
+  }
+
   private _interpretError (err: Error | string | object) {
     let sErr: any = {
       message: null,
