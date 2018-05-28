@@ -13,8 +13,8 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiNotifyChild.js'))
 
       child.on('message', msg => {
-        if (msg === 'myNotify') {
-          expect(msg).to.equal('myNotify')
+        if (msg.data.message === 'myNotify') {
+          expect(msg.data.message).to.equal('myNotify')
           child.kill('SIGINT')
           done()
         }
@@ -311,7 +311,7 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardNotifyChild.js'))
 
       child.on('message', msg => {
-        if (msg !== 'test' && msg !== 'testError' && msg.success) {
+        if (msg.data.message !== 'test' && msg.data.message !== 'testError' && msg.success) {
           assert.fail()
         }
       })
