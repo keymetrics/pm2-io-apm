@@ -224,6 +224,10 @@ class PMX {
     return opts
   }
 
+  expressErrorHandler () {
+    return this.notifyFeature.expressErrorHandler()
+  }
+
   private genericBackwardConversion (object, type) {
     if (typeof object !== 'object') {
       console.error('Parameter should be an object')

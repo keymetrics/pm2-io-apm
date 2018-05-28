@@ -321,6 +321,24 @@ describe('API', function () {
       })
     })
 
+    it('should receive data from expressErrorHandler', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardExpressChild.js'))
+
+      child.on('message', msg => {
+        if (msg === 'expressReady') {
+          const httpModule = require('http')
+          httpModule.get('http://localhost:3003/error')
+        } else if (msg.type === 'process:exception') {
+          expect(msg.data.message).to.equal('toto')
+          expect(msg.data.url).to.equal('/error')
+          expect(msg.data.action).to.equal('GET')
+          expect(msg.data.component).to.equal('/error')
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
+
     it('should receive data with old config', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardConfChild.js'))
       let tracingDone = false
