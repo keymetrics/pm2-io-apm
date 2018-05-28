@@ -60,11 +60,17 @@ export class NotifyFeature implements Feature {
     }
 
     if (!level || this.levels.indexOf(level) === -1) {
-      return Transport.send(err)
+      return Transport.send({
+        type : 'process:exception',
+        data : JsonUtils.jsonize(err)
+      })
     }
 
     if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level)) {
-      return Transport.send(err)
+      return Transport.send({
+        type : 'process:exception',
+        data : JsonUtils.jsonize(err)
+      })
     }
 
     return null
