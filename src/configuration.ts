@@ -16,7 +16,7 @@ export default class Configuration {
     Transport.send({
       type : 'axm:option:configuration',
       data : opts
-    }, false)
+    })
   }
 
   static findPackageJson () {
