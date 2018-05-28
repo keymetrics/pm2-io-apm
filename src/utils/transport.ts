@@ -4,9 +4,7 @@ import * as stringify from 'json-stringify-safe'
 const debug = Debug('axm:transport')
 
 export default class Transport {
-  static send (args: Error | any, print?: Boolean): number {
-
-    if (!print) print = false
+  static send (args: Error | any): number {
 
     /**
      * For debug purpose

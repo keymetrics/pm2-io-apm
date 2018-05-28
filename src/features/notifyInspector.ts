@@ -43,7 +43,7 @@ export default class NotifyInspector {
         Transport.send({
           type: 'process:exception',
           data: error
-        }, true)
+        })
         // at this point the process should exit
         process.exit(1)
       }

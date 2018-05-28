@@ -32,7 +32,7 @@ export default class Events implements Feature {
     Transport.send({
       type : 'human:event',
       data : inflightObj
-    }, true)
+    })
     return false
   }
 }

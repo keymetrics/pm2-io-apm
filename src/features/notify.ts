@@ -115,7 +115,7 @@ export class NotifyFeature implements Feature {
         Transport.send({
           type : 'process:exception',
           data : errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' }
-        }, true)
+        })
 
         if (!process.listeners(listener).filter(function (listener) {
           return listener !== uncaughtListener
