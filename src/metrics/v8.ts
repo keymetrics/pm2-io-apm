@@ -99,67 +99,68 @@ export default class V8Metric implements MetricsInterface {
       type: 'v8/heap/zapgarbage',
       unit: '',
       historic: false
+    }
+  }
+
+  private allPossibleMetricsGC = {
+    totalHeapSize: {
+      name: 'GC Heap size',
+      type: 'v8/gc/heap/size',
+      unit: this.unitKB,
+      historic: true
     },
-    GC: {
-      totalHeapSize: {
-        name: 'GC Heap size',
-        type: 'v8/gc/heap/size',
-        unit: this.unitKB,
-        historic: true
-      },
-      totalHeapExecutableSize: {
-        name: 'GC Executable heap size',
-        type: 'v8/gc/heap/executable',
-        unit: this.unitKB,
-        historic: false
-      },
-      usedHeapSize: {
-        name: 'GC Used heap size',
-        type: 'v8/gc/heap/used',
-        unit: this.unitKB,
-        historic: true
-      },
-      heapSizeLimit: {
-        name: 'GC heap size limit',
-        type: 'v8/gc/heap/limit',
-        unit: this.unitKB,
-        historic: false
-      },
-      totalPhysicalSize: {
-        name: 'GC physical size',
-        type: 'v8/gc/heap/physical',
-        unit: this.unitKB,
-        historic: false
-      },
-      totalAvailableSize: {
-        name: 'GC available size',
-        type: 'v8/gc/heap/available',
-        unit: this.unitKB,
-        historic: false
-      },
-      mallocedMemory: {
-        name: 'GC malloced memory',
-        type: 'v8/gc/heap/malloced',
-        unit: this.unitKB,
-        historic: false
-      },
-      peakMallocedMemory: {
-        name: 'GC peak malloced memory',
-        type: 'v8/gc/heap/peakmalloced',
-        unit: this.unitKB,
-        historic: false
-      },
-      gcType: {
-        name: 'GC Type',
-        type: 'v8/gc/type',
-        historic: false
-      },
-      gcPause: {
-        name: 'GC Pause',
-        type: 'v8/gc/pause',
-        unit: 'ms',
-        historic: false
-      }
+    totalHeapExecutableSize: {
+      name: 'GC Executable heap size',
+      type: 'v8/gc/heap/executable',
+      unit: this.unitKB,
+      historic: false
+    },
+    usedHeapSize: {
+      name: 'GC Used heap size',
+      type: 'v8/gc/heap/used',
+      unit: this.unitKB,
+      historic: true
+    },
+    heapSizeLimit: {
+      name: 'GC heap size limit',
+      type: 'v8/gc/heap/limit',
+      unit: this.unitKB,
+      historic: false
+    },
+    totalPhysicalSize: {
+      name: 'GC physical size',
+      type: 'v8/gc/heap/physical',
+      unit: this.unitKB,
+      historic: false
+    },
+    totalAvailableSize: {
+      name: 'GC available size',
+      type: 'v8/gc/heap/available',
+      unit: this.unitKB,
+      historic: false
+    },
+    mallocedMemory: {
+      name: 'GC malloced memory',
+      type: 'v8/gc/heap/malloced',
+      unit: this.unitKB,
+      historic: false
+    },
+    peakMallocedMemory: {
+      name: 'GC peak malloced memory',
+      type: 'v8/gc/heap/peakmalloced',
+      unit: this.unitKB,
+      historic: false
+    },
+    gcType: {
+      name: 'GC Type',
+      type: 'v8/gc/type',
+      historic: false
+    },
+    gcPause: {
+      name: 'GC Pause',
+      type: 'v8/gc/pause',
+      unit: 'ms',
+      historic: false
     }
   }
 
@@ -240,12 +241,12 @@ export default class V8Metric implements MetricsInterface {
 
     config = MetricConfig.getConfig(config, this.defaultConf.GC)
 
-    const gcProbes = MetricConfig.initProbes(this.allPossibleMetrics.GC, config, this.metricFeature)
+    const gcProbes = MetricConfig.initProbes(this.allPossibleMetricsGC, config, this.metricFeature)
     const self = this
 
     gc.on('stats', (stats) => {
 
-      MetricConfig.setProbesValue(this.allPossibleMetrics.GC, stats.after, gcProbes, self.unitKB)
+      MetricConfig.setProbesValue(this.allPossibleMetricsGC, stats.after, gcProbes, self.unitKB)
 
       gcProbes['gcType'].set(stats.gctype)
       gcProbes['gcPause'].set(Math.round(stats.pause / 1000000)) // convert to milliseconds (cause pauseMs seems to use Math.floor)
