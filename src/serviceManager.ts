@@ -1,9 +1,13 @@
 import MetricsService from './services/metrics'
 
 const services: {
-  metricsMap: Map<string, any>
+  metricsMap: Map<string, any>,
+  actions: Map<string, any>,
+  actionsScoped: Map<string, any>
 } = {
-  metricsMap: new Map()
+  metricsMap: new Map(),
+  actions: new Map(),
+  actionsScoped: new Map()
 }
 
 if (require('semver').satisfies(process.version, '>= 8.0.0')) {
@@ -18,5 +22,9 @@ export class ServiceManager {
 
   public static set (type: string, service) {
     services[type] = service
+  }
+
+  public static reset (type: string) {
+    services[type] = new Map()
   }
 }

@@ -13,6 +13,101 @@ export default class ActionsFeature implements Feature {
   constructor () {
     ServiceManager.set('actionsService', new ActionsService(this))
     this.actionsService = ServiceManager.get('actionsService')
+
+    process.on('message', this.listener)
+  }
+
+  listener (data) {
+    if (!data) return false
+
+    const actionName = data.msg ? data.msg : data.action_name ? data.action_name : data
+    let actionData = ServiceManager.get('actions').get(actionName)
+    let fn = actionData ? actionData.fn : null
+    const reply = actionData ? actionData.reply : null
+
+    if (actionData) {
+      // In case 2 arguments has been set but no options has been transmitted
+      if (fn.length === 2 && typeof(data) === 'string' && data === actionName) {
+        return fn({}, reply)
+      }
+
+      // In case 1 arguments has been set but options has been transmitted
+      if (fn.length === 1 && typeof(data) === 'object' && data.msg === actionName) {
+        return fn(reply)
+      }
+
+      /**
+       * Classical call
+       */
+      if (typeof(data) === 'string' && data === actionName) {
+        return fn(reply)
+      }
+
+      /**
+       * If data is an object == v2 protocol
+       * Pass the opts as first argument
+       */
+      if (typeof(data) === 'object' && data.msg === actionName) {
+        return fn(data.opts, reply)
+      }
+    }
+
+    // -----------------------------------------------------------
+    //                      Scoped actions
+    // -----------------------------------------------------------
+    if (data.uuid === undefined || data.action_name === undefined) {
+      return false
+    }
+
+    actionData = ServiceManager.get('actionsScoped').get(actionName)
+
+    if (data.action_name === actionName) {
+      const res = {
+        send : (dt) => {
+          Transport.send({
+            type        : 'axm:scoped_action:stream',
+            data        : {
+              data        : dt,
+              uuid        : data.uuid,
+              action_name : actionName
+            }
+          })
+        },
+        error : (dt) => {
+          Transport.send({
+            type        : 'axm:scoped_action:error',
+            data        : {
+              data        : dt,
+              uuid        : data.uuid,
+              action_name : actionName
+            }
+          })
+        },
+        end : (dt) => {
+          Transport.send({
+            type        : 'axm:scoped_action:end',
+            data        : {
+              data        : dt,
+              uuid        : data.uuid,
+              action_name : actionName
+            }
+          })
+        }
+      }
+
+      const d = domain.create()
+
+      d.on('error', function (err) {
+        res.error(err.message || err.stack || err)
+        setTimeout(function () {
+          process.exit(1)
+        }, 300)
+      })
+
+      d.run(function () {
+        actionData.fn(data.opts || null, res)
+      })
+    }
   }
 
   init (conf?, force?): Object {
@@ -26,6 +121,9 @@ export default class ActionsFeature implements Feature {
 
   destroy (): void {
     this.actionsService.destroy()
+    ServiceManager.reset('actions')
+    ServiceManager.reset('actionsScoped')
+    process.removeListener('message', this.listener)
   }
 
   action (actionName, opts?, fn?) {
@@ -59,34 +157,7 @@ export default class ActionsFeature implements Feature {
       })
     }
 
-    process.on('message', function (data) {
-      if (!data) return false
-
-      // In case 2 arguments has been set but no options has been transmitted
-      if (fn.length === 2 && typeof(data) === 'string' && data === actionName) {
-        return fn({}, reply)
-      }
-
-      // In case 1 arguments has been set but options has been transmitted
-      if (fn.length === 1 && typeof(data) === 'object' && data.msg === actionName) {
-        return fn(reply)
-      }
-
-      /**
-       * Classical call
-       */
-      if (typeof(data) === 'string' && data === actionName) {
-        return fn(reply)
-      }
-
-      /**
-       * If data is an object == v2 protocol
-       * Pass the opts as first argument
-       */
-      if (typeof(data) === 'object' && data.msg === actionName) {
-        return fn(data.opts, reply)
-      }
-    })
+    ServiceManager.get('actions').set(actionName, { fn: fn, reply: reply })
   }
 
   scopedAction (actionName, fn) {
@@ -105,61 +176,7 @@ export default class ActionsFeature implements Feature {
       }
     })
 
-    process.on('message', (data) => {
-      if (!data
-        || data.uuid === undefined
-        || data.action_name === undefined) {
-        return false
-      }
-
-      if (data.action_name === actionName) {
-        const res = {
-          send : (dt) => {
-            Transport.send({
-              type        : 'axm:scoped_action:stream',
-              data        : {
-                data        : dt,
-                uuid        : data.uuid,
-                action_name : actionName
-              }
-            })
-          },
-          error : (dt) => {
-            Transport.send({
-              type        : 'axm:scoped_action:error',
-              data        : {
-                data        : dt,
-                uuid        : data.uuid,
-                action_name : actionName
-              }
-            })
-          },
-          end : (dt) => {
-            Transport.send({
-              type        : 'axm:scoped_action:end',
-              data        : {
-                data        : dt,
-                uuid        : data.uuid,
-                action_name : actionName
-              }
-            })
-          }
-        }
-
-        const d = domain.create()
-
-        d.on('error', function (err) {
-          res.error(err.message || err.stack || err)
-          setTimeout(function () {
-            process.exit(1)
-          }, 300)
-        })
-
-        d.run(function () {
-          fn(data.opts || null, res)
-        })
-      }
-    })
+    ServiceManager.get('actionsScoped').set(actionName, { fn: fn })
   }
 
   private check (actionName, fn) {
