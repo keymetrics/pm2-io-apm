@@ -52,7 +52,7 @@ pm2.io allows you to gather metrics from your code to be reported in `pm2 monit`
 You can create a new custom metrics with the method `metric()` of `pm2.io`.
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 io.metric({
   name: 'Realtime user',
@@ -78,7 +78,7 @@ The first type of metric, called `metric`, allows to expose a variable's value. 
 #### Passive Mode
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 io.metric({
   name: 'Realtime user',
@@ -105,7 +105,7 @@ Realtime_Value.set(23);
 The second type of metric, called `counter`, is a discrete counter that helps you count the number of occurrence of a particular event. The counter starts at 0 and can be incremented or decremented.
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 const Current_req_processed = io.counter({
   name: 'Current req processed',
@@ -127,7 +127,7 @@ http.createServer((req, res) => {
 The third type of metric, called `meter`, compute the frequency of an event. Each time the event happens, you need to call the `mark()` method. By default, the frequency is the number of events per second over the last minute.
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 const reqsec = io.meter({
   name: 'req/sec',
@@ -149,7 +149,7 @@ Additional options:
 Collect values and provide statistic tools to explore their distribution over the last 5 minutes.
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 const latency = io.histogram({
   name: 'latency',
@@ -178,7 +178,7 @@ The function takes a function as a parameter (cb here) and need to be called onc
 Example:
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 io.action('db:clean', (cb) => {
   clean.db(() => {
@@ -224,7 +224,7 @@ io.scopedAction('long running lsof', (data, res) => {
 By default, in the Issue tab, you are only alerted for uncaught exceptions. Any exception that you catch is not reported. You can manually report them with the `notify()` method.
 
 ```javascript
-const io = require('pm2.io');
+const io = require('@pm2/io');
 
 io.notifyError(new Error('This is an error'));
 ```
@@ -232,7 +232,7 @@ io.notifyError(new Error('This is an error'));
 ## Predefined Metrics
 
 ```javascript
-const io = require('pm2.io')
+const io = require('@pm2/io')
 
 io.init({
   metrics: {
