@@ -348,6 +348,44 @@ io.init({
 ```
 **Note** : if you do not disable the default options they will be kept (merged with your configuration)
 
+## Entrypoint
+
+### Usage
+
+```javascript
+const app = require('express')()
+const pmx = require('@pm2/io')
+
+class MyEntrypoint extends pmx.Entrypoint {
+
+    onStop (err, code, signal, cb) {
+      console.log(`Application stopped with code ${code} or signal ${signal} !`)
+      cb()
+    }
+
+    onStart (cb) {
+
+      const http = require('http').Server(app)
+
+      app.get('/ok', function(req, res) {
+        res.send('Ok')
+      });
+
+      http.listen(process.env.PORT || 3000, function(){
+        console.log('Server express', 'listening on port', http.address().port)
+        cb()
+      });
+    }
+}
+
+new MyEntrypoint()
+```
+
+### Configuration
+
+### Access pmx features
+
+
 ## Development
 
 To auto rebuild on file change:
