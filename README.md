@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="http://pm2.io">
+  <a href="http://@pm2/io">
     <img width=411px src="https://raw.githubusercontent.com/keymetrics/pmx/master/pres/logo.png">
   </a>
   <br/>
@@ -16,7 +16,7 @@
 <br/>
 </div>
 
-The [pm2.io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module comes along with PM2. It is the PM2 part responsible for gathering the metrics, reporting exceptions, exposing remote actions and every outside interaction with your application.
+The [@pm2/io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module comes along with PM2. It is the PM2 part responsible for gathering the metrics, reporting exceptions, exposing remote actions and every outside interaction with your application.
 
 # Table of Contents
 
@@ -34,22 +34,22 @@ The [pm2.io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module c
 With npm:
 
 ```bash
-npm install pm2.io --save
+npm install @pm2/io --save
 ```
 
 With yarn:
 
 ```bash
-yarn add pm2.io
+yarn add @pm2/io
 ```
 
 ## Expose Custom Metrics
 
-pm2.io allows you to gather metrics from your code to be reported in `pm2 monit` or in the Keymetrics dashboard.
+@pm2/io allows you to gather metrics from your code to be reported in `pm2 monit` or in the Keymetrics dashboard.
 
 ### Create a custom metrics
 
-You can create a new custom metrics with the method `metric()` of `pm2.io`.
+You can create a new custom metrics with the method `metric()` of `@pm2/io`.
 
 ```javascript
 const io = require('@pm2/io');
@@ -59,10 +59,13 @@ io.metric({
 });
 ```
 
-You need to provide at least two arguments:
+This arguments are available:
 
-- **name**: The metric name
-- **type**: The type of metric
+- **name**: The metric name (required; string)
+- **type**: The type of metric (default 'metric', string)
+- **agg_type**: type of aggregation (default 'avg'; string: )
+- **unit**: unit of the measure (default ''; string)
+- **historic**: keep the history in PM2 Plus (default: true; boolean)
 
 There are 4 different types of metrics:
 
@@ -165,7 +168,7 @@ setInterval(() => {
 ```
 
 Options is:
-- **measurement** : (optional)(default: avg) Can be `sum`, `max`, `min`, `avg` or `none`.
+- **measurement** : default: mean; min, max, sum, count, variance, mean, stddev, median, p75, p95, p99, p99.
 
 ## Expose Remote Actions: Trigger Functions remotely
 
@@ -200,7 +203,7 @@ Example:
 
 ```javascript
 io.scopedAction('long running lsof', (data, res) => {
-  var child = spawn('lsof', []);
+  const child = spawn('lsof', []);
 
   child.stdout.on('data', (chunk) => {
     chunk.toString().split('\n').forEach(function(line) {
