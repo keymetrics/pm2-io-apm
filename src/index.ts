@@ -340,6 +340,7 @@ class PMX {
   }
 }
 
+const pmxInstance = new PMX()
 class Entrypoint {
 
   public defaultConf = {
@@ -373,7 +374,7 @@ class Entrypoint {
 
   constructor () {
     try {
-      this.io = new PMX().init(this.conf())
+      this.io = pmxInstance.init(this.conf())
 
       this.onStart(err => {
 
@@ -423,5 +424,5 @@ class Entrypoint {
   }
 }
 
-module.exports = new PMX()
+module.exports = pmxInstance
 module.exports.Entrypoint = Entrypoint
