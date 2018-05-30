@@ -229,7 +229,9 @@ const io = require('@pm2/io');
 io.notifyError(new Error('This is an error'));
 ```
 
-## Predefined Metrics
+## Configuration
+
+### Global configuration object
 
 ```javascript
 const io = require('@pm2/io')
@@ -303,6 +305,45 @@ io.init({
   }
 });
 ```
+
+### Custom configuration
+
+If you want to activate default options of a section :
+```javascript
+const io = require('@pm2/io')
+
+io.init({
+  metrics: {
+    v8: true
+  }
+})
+```
+
+If you want to activate all options of a section :
+```javascript
+const io = require('@pm2/io')
+
+io.init({
+  metrics: {
+    v8: 'all'
+  }
+})
+```
+
+If you want to customize a section :
+```javascript
+const io = require('@pm2/io')
+
+io.init({
+  metrics: {
+    v8: {
+      new_space: false, // don't take new_space into account
+      ...
+    }
+  }
+})
+```
+**Note** : if you do not disable the default options they will be kept (merged with your configuration)
 
 ## Development
 
