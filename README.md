@@ -167,7 +167,7 @@ setInterval(() => {
 }, 100);
 ```
 
-Options is:
+Options are:
 - **measurement** : default: mean; min, max, sum, count, variance, mean, stddev, median, p75, p95, p99, p99.
 
 ## Expose Remote Actions: Trigger Functions remotely
