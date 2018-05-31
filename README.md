@@ -1,6 +1,6 @@
 <div align="center">
   <a href="http://pm2.keymetrics.io">
-    <img width=411px src="https://raw.githubusercontent.com/keymetrics/pmx/master/pres/logo.png">
+    <img width=411px src="https://raw.githubusercontent.com/keymetrics/pm2-io-apm/master/pres/io-black.png">
   </a>
   <br/>
   <br/>
