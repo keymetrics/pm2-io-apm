@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="http://@pm2/io">
+  <a href="http://pm2.keymetrics.io">
     <img width=411px src="https://raw.githubusercontent.com/keymetrics/pmx/master/pres/logo.png">
   </a>
   <br/>
