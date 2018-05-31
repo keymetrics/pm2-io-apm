@@ -3,8 +3,6 @@
     <img width=411px src="https://raw.githubusercontent.com/keymetrics/pmx/master/pres/logo.png">
   </a>
   <br/>
-  <b><a href="https://github.com/Unitech/pm2">PM2</a> monitoring module</b>
-  <br/>
   <br/>
   <a href="https://www.bithound.io/github/keymetrics/pmx">
 <img src="https://www.bithound.io/github/keymetrics/pmx/badges/score.svg"/>
@@ -354,9 +352,9 @@ io.init({
 
 ```javascript
 const app = require('express')()
-const pmx = require('@pm2/io')
+const io = require('@pm2/io')
 
-class MyEntrypoint extends pmx.Entrypoint {
+class MyEntrypoint extends io.Entrypoint {
 
     onStop (err, code, signal, cb) {
       console.log(`Application stopped with code ${code} or signal ${signal} !`)
@@ -383,13 +381,13 @@ new MyEntrypoint()
 
 ### Configuration
 
-You can write your own configuration like you do for pmx, just add a conf() method into your entrypoint which returns a json object.
+You can write your own configuration like you do for @pm2/io, just add a conf() method into your entrypoint which returns a json object.
 Details of configuration can be found in this section : [**Configuration**](#configuration)
 
 ```javascript
-const pmx = require('@pm2/io')
+const io = require('@pm2/io')
 
-class MyEntrypoint extends pmx.Entrypoint {
+class MyEntrypoint extends io.Entrypoint {
 
     ...
     
@@ -403,15 +401,15 @@ class MyEntrypoint extends pmx.Entrypoint {
 new MyEntrypoint()
 ```
 
-### Access pmx features
+### Access @pm2/io features
 
-Entrypoint allow access to an instance of pmx. So you can use all features described above by calling this.io.
+Entrypoint allow access to an instance of @pm2/io. So you can use all features described above by calling this.io.
 
 ```javascript
 const app = require('express')()
-const pmx = require('@pm2/io')
+const io = require('@pm2/io')
 
-class MyEntrypoint extends pmx.Entrypoint {
+class MyEntrypoint extends io.Entrypoint {
 
     onStart (cb) {
 
