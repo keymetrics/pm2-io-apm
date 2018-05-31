@@ -18,13 +18,13 @@ The [@pm2/io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module 
 
 # Table of Contents
 
-- [**Installation**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#installation)
-- [**Expose Custom Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#expose-custom-metrics)
-- [**Expose Remote Actions**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#expose-remote-actions)
-- [**Report Caught Exceptions**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#report-caught-exceptions)
-- [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#report-custom-events-deprecated)
-- [**Predefined Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#predefined-metrics)
-- [**Development**](https://github.com/keymetrics/pm2-io-apm/tree/documentation#development)
+- [**Installation**](https://github.com/keymetrics/pm2-io-apm/tree/master#installation)
+- [**Expose Custom Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#expose-custom-metrics)
+- [**Expose Remote Actions**](https://github.com/keymetrics/pm2-io-apm/tree/master#expose-remote-actions)
+- [**Report Caught Exceptions**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-caught-exceptions)
+- [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-custom-events-deprecated)
+- [**Predefined Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#predefined-metrics)
+- [**Development**](https://github.com/keymetrics/pm2-io-apm/tree/master#development)
 
 
 # Installation
