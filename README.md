@@ -383,6 +383,26 @@ new MyEntrypoint()
 
 ### Configuration
 
+You can write your own configuration like you do for pmx, just add a conf() method into your entrypoint which returns a json object.
+Details of configuration can be found in this section : [**Configuration**](#configuration)
+
+```javascript
+const pmx = require('@pm2/io')
+
+class MyEntrypoint extends pmx.Entrypoint {
+
+    ...
+    
+    conf() {
+      return {
+        ...
+      }
+    }
+}
+
+new MyEntrypoint()
+```
+
 ### Access pmx features
 
 
