@@ -24,6 +24,8 @@ The [@pm2/io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module 
 - [**Report Caught Exceptions**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-caught-exceptions)
 - [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-custom-events-deprecated)
 - [**Predefined Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#predefined-metrics)
+- [**Configuration**](https://github.com/keymetrics/pm2-io-apm/tree/master#configuration)
+- [**Entrypoint**](https://github.com/keymetrics/pm2-io-apm/tree/master#entrypoint)
 - [**Development**](https://github.com/keymetrics/pm2-io-apm/tree/master#development)
 
 
