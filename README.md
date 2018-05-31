@@ -405,6 +405,34 @@ new MyEntrypoint()
 
 ### Access pmx features
 
+Entrypoint allow access to an instance of pmx. So you can use all features described above by calling this.io.
+
+```javascript
+const app = require('express')()
+const pmx = require('@pm2/io')
+
+class MyEntrypoint extends pmx.Entrypoint {
+
+    onStart (cb) {
+
+      const http = require('http').Server(app)
+
+      app.get('/ok', function(req, res) {
+        res.send('Ok')
+      });
+      
+      const counter = this.io.counter('start')
+
+      http.listen(process.env.PORT || 3000, () => {
+        console.log('Server express', 'listening on port', http.address().port)
+        counter.inc()
+        cb()
+      });
+    }
+}
+
+new MyEntrypoint()
+```
 
 ## Development
 
