@@ -4,11 +4,8 @@
   </a>
   <br/>
   <br/>
-  <a href="https://www.bithound.io/github/keymetrics/pmx">
-<img src="https://www.bithound.io/github/keymetrics/pmx/badges/score.svg"/>
-  </a>
-  <a href="https://travis-ci.org/keymetrics/pmx">
-<img src="https://api.travis-ci.org/keymetrics/pmx.png?branch=master"/>
+  <a href="https://github.com/keymetrics/pm2-io-apm">
+    <img src="https://ci.keymetrics.io/api/badges/keymetrics/pm2-io-apm/status.svg?branch=master"/>
   </a>
 <br/>
 <br/>
