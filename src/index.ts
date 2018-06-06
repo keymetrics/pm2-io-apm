@@ -441,9 +441,11 @@ class Entrypoint {
   }
 }
 
-global[IO_KEY].Entrypoint = Entrypoint
+if (!hasKey) {
+  global[IO_KEY].Entrypoint = Entrypoint
 
-// Freeze API, cannot be modified
-Object.freeze(global[IO_KEY])
+  // Freeze API, cannot be modified
+  Object.freeze(global[IO_KEY])
+}
 
 module.exports = global[IO_KEY]
