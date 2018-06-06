@@ -340,7 +340,24 @@ class PMX {
   }
 }
 
-const pmxInstance = new PMX()
+// -----------------------------------
+// create a unique, global symbol name
+// -----------------------------------
+
+const IO_KEY = Symbol.for('@pm2/io')
+
+// ------------------------------------------
+// check if the global object has this symbol
+// add it if it does not have the symbol, yet
+// ------------------------------------------
+
+const globalSymbols = Object.getOwnPropertySymbols(global)
+const hasKey = (globalSymbols.indexOf(IO_KEY) > -1)
+
+if (!hasKey) {
+  global[IO_KEY] = new PMX()
+}
+
 class Entrypoint {
 
   public defaultConf = {
@@ -374,7 +391,7 @@ class Entrypoint {
 
   constructor () {
     try {
-      this.io = pmxInstance.init(this.conf())
+      this.io = global[IO_KEY].init(this.conf())
 
       this.onStart(err => {
 
@@ -424,5 +441,9 @@ class Entrypoint {
   }
 }
 
-module.exports = pmxInstance
-module.exports.Entrypoint = Entrypoint
+global[IO_KEY].Entrypoint = Entrypoint
+
+// Freeze API, cannot be modified
+Object.freeze(global[IO_KEY])
+
+module.exports = global[IO_KEY]
