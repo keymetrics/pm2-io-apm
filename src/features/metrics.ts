@@ -71,7 +71,7 @@ export default class MetricsFeature implements Feature {
     }
 
     if (typeof reporter !== 'function') {
-      console.error('[PMX][Transpose] reporter is not a function')
+      console.error('[PM2 IO][Transpose] reporter is not a function')
       return undefined
     }
 
@@ -82,7 +82,7 @@ export default class MetricsFeature implements Feature {
 
   meter (opts: any) {
     if (!opts.name) {
-      console.error('[PMX][Meter] Name not defined')
+      console.error('[PM2 IO][Meter] Name not defined')
       return undefined
     }
 
@@ -105,7 +105,7 @@ export default class MetricsFeature implements Feature {
 
   counter (opts?: any) {
     if (!opts.name) {
-      console.error('[PMX][Counter] Name not defined')
+      console.error('[PM2 IO][Counter] Name not defined')
       return undefined
     }
 
@@ -124,7 +124,7 @@ export default class MetricsFeature implements Feature {
 
   histogram (opts?: any): Histogram | void {
     if (!opts.name) {
-      console.error('[PMX][Histogram] Name not defined')
+      console.error('[PM2 IO][Histogram] Name not defined')
       return undefined
     }
 
@@ -132,7 +132,7 @@ export default class MetricsFeature implements Feature {
     opts.unit = opts.unit || ''
 
     if (this.AVAILABLE_MEASUREMENTS.indexOf(opts.measurement) === -1) {
-      console.error('[PMX][Histogram] Measure type %s does not exists', opts.measurement)
+      console.error('[PM2 IO][Histogram] Measure type %s does not exists', opts.measurement)
       return undefined
     }
 
@@ -153,7 +153,7 @@ export default class MetricsFeature implements Feature {
 
   metric (opts): any {
     if (!opts.name) {
-      console.error('[PMX][Metric] Name not defined')
+      console.error('[PM2 IO][Metric] Name not defined')
       return undefined
     }
 
