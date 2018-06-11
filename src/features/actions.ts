@@ -137,11 +137,18 @@ export default class ActionsFeature implements Feature {
       return check
     }
 
+    let type = 'custom'
+
+    if (actionName.indexOf('km:') === 0 || actionName.indexOf('internal:') === 0) {
+      type = 'internal'
+    }
+
     // Notify the action
     Transport.send({
       type : 'axm:action',
       data : {
         action_name : actionName,
+        action_type : type,
         opts        : opts,
         arity       : fn.length
       }
