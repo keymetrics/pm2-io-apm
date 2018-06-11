@@ -29,6 +29,10 @@ describe('ProfilingAction', function () {
 
       child.on('message', res => {
 
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
         if (res.type === 'axm:reply') {
           expect(res.data.return.success).to.equal(true)
 
@@ -72,6 +76,10 @@ describe('ProfilingAction', function () {
 
       child.on('message', res => {
 
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
         if (res.type === 'axm:reply') {
           expect(res.data.return.success).to.equal(true)
 
@@ -106,6 +114,10 @@ describe('ProfilingAction', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/actions/profilingHeapChild.js'))
 
       child.on('message', res => {
+
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
 
         if (res.type === 'axm:reply') {
 

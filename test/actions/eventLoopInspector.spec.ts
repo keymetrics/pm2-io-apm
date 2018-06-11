@@ -26,6 +26,10 @@ describe('EventLoopInspector', function () {
 
       child.on('message', res => {
 
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
         if (res.type === 'axm:reply') {
 
           expect(res.data.return.success).to.equal(true)

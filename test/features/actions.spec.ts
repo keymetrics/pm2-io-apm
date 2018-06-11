@@ -19,6 +19,7 @@ describe('ActionsFeature', () => {
             expect(res.data.opts).to.equal(null)
           }
           expect(res.data.arity).to.equal(1)
+          expect(res.data.action_type).to.equal('custom')
 
           child.send(res.data.action_name)
         } else if (res.type === 'axm:reply') {
@@ -43,6 +44,7 @@ describe('ActionsFeature', () => {
         if (res.type === 'axm:action') {
           expect(res.type).to.equal('axm:action')
           expect(res.data.action_name).to.equal('myAction')
+          expect(res.data.action_type).to.equal('custom')
           child.send({msg: res.data.action_name})
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('myAction')
@@ -59,6 +61,7 @@ describe('ActionsFeature', () => {
         if (res.type === 'axm:action') {
           expect(res.type).to.equal('axm:action')
           expect(res.data.action_name).to.equal('myAction')
+          expect(res.data.action_type).to.equal('custom')
           child.send({msg: res.data.action_name, opts: {opts1: 'opts1'}})
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('myAction')
@@ -76,6 +79,7 @@ describe('ActionsFeature', () => {
         if (res.type === 'axm:action') {
           expect(res.type).to.equal('axm:action')
           expect(res.data.action_name).to.equal('myAction')
+          expect(res.data.action_type).to.equal('custom')
           child.send(res.data.action_name)
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('myAction')
@@ -104,6 +108,7 @@ describe('ActionsFeature', () => {
         if (res.type === 'axm:action') {
           expect(res.type).to.equal('axm:action')
           expect(res.data.action_name).to.equal('myActionConf')
+          expect(res.data.action_type).to.equal('custom')
           child.send(res.data.action_name)
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('myActionConf')
