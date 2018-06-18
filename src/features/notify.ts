@@ -11,10 +11,12 @@ const debug = Debug('axm:notify')
 
 export class NotifyOptions {
   level: string
+  catchExceptions: boolean
 }
 
 export const NotifyOptionsDefault = {
-  level: 'fatal'
+  level: 'fatal',
+  catchExceptions: true
 }
 
 export interface ErrorMetadata {
@@ -36,15 +38,17 @@ export class NotifyFeature implements Feature {
       this.options = options
     }
 
-    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '< 8.0.0')) {
-      debug(`Inspector is not available on node version ${process.version} !`)
-    }
+    if (this.options && this.options.catchExceptions) {
+      if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '< 8.0.0')) {
+        debug(`Inspector is not available on node version ${process.version} !`)
+      }
 
-    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 8.0.0')) {
-      const NotifyInspector = require('./notifyInspector').default
-      NotifyInspector.catchAllDebugger()
-    } else {
-      this.catchAll()
+      if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 8.0.0')) {
+        const NotifyInspector = require('./notifyInspector').default
+        NotifyInspector.catchAllDebugger()
+      } else {
+        this.catchAll()
+      }
     }
 
     return {
