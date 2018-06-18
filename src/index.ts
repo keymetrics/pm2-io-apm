@@ -32,9 +32,10 @@ class PMX {
     }
 
     if (config.level) {
-      notifyOptions = {
-        level: config.level
-      }
+      notifyOptions.level = config.level
+    }
+    if (config.catchExceptions) {
+      notifyOptions.catchExceptions = config.catchExceptions
     }
 
     if (config.metrics) {
