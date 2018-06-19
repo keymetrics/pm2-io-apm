@@ -14,6 +14,7 @@ export default class Transaction implements MetricsInterface {
 
   private metricFeature: MetricsFeature
   private tracer
+  private instance: SimpleHttpWrap
 
   private defaultConf = {
     http: true
@@ -120,7 +121,12 @@ export default class Transaction implements MetricsInterface {
             latency: true
           })
 
-          return new SimpleHttpWrap(self.metricFeature).init(opts, load.apply(this, arguments))
+          // initialize transaction metrics only once
+          if (!self.instance) {
+            self.instance = new SimpleHttpWrap(self.metricFeature).init(opts, load.apply(this, arguments))
+          }
+          return self.instance
+
         } else {
           return load.apply(this, arguments)
         }
