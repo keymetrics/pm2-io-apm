@@ -1,14 +1,14 @@
 import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+const io = require(__dirname + '/../../src/index.js')
 
-pmx.init({metrics:  {v8: true}})
+io.init({ metrics:  { v8: true } })
 
 // should not fail but display a warning
-pmx.metrics()
-pmx.metrics({})
+io.metrics()
+io.metrics({})
 
-const allMetrics = pmx.metrics(
+const allMetrics = io.metrics(
   [
     {
       name: 'metricHistogram',
@@ -33,3 +33,7 @@ const allMetrics = pmx.metrics(
 )
 
 allMetrics.metricHistogram.update(10)
+
+// test inline declaration
+const metric = io.metric('metricInline')
+metric.set(11)

@@ -100,6 +100,16 @@ const Realtime_Value = io.metric({
 Realtime_Value.set(23);
 ```
 
+#### Inline Mode
+
+In inline mode, you can create a probe with a simple string.
+
+```javascript
+const metric = io.metric('Inline');
+
+metric.set(23);
+```
+
 ### Counter: Discrete Counter
 
 The second type of metric, called `counter`, is a discrete counter that helps you count the number of occurrence of a particular event. The counter starts at 0 and can be incremented or decremented.
