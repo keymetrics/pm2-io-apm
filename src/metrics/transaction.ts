@@ -14,7 +14,7 @@ export default class Transaction implements MetricsInterface {
 
   private metricFeature: MetricsFeature
   private tracer
-  private instance: SimpleHttpWrap
+  private instance: Object = {}
 
   private defaultConf = {
     http: true
@@ -122,10 +122,10 @@ export default class Transaction implements MetricsInterface {
           })
 
           // initialize transaction metrics only once
-          if (!self.instance) {
-            self.instance = new SimpleHttpWrap(self.metricFeature).init(opts, load.apply(this, arguments))
+          if (!self.instance[file]) {
+            self.instance[file] = new SimpleHttpWrap(self.metricFeature).init(opts, load.apply(this, arguments))
           }
-          return self.instance
+          return self.instance[file]
 
         } else {
           return load.apply(this, arguments)
