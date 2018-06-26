@@ -355,7 +355,7 @@ const io = require('@pm2/io')
 
 class MyEntrypoint extends io.Entrypoint {
 
-    onStop (err, code, signal, cb) {
+    onStop (err, cb, code, signal) {
       console.log(`Application stopped with code ${code} or signal ${signal} !`)
       cb()
     }
