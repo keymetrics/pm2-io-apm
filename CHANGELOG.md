@@ -1,3 +1,12 @@
+## 2.0.1 ( Tue Jun 26 2018 10:21:19 GMT+0200 (CEST) )
+
+
+## Hot Fixes
+  - patch http and https module separately
+  ([6bdf9501](https://github.com/keymetrics/pm2-io-apm/commit/6bdf9501606102df06a9a1076ec243c910f1776a))
+
+
+
 ## 2.0.0 ( Tue Jun 19 2018 16:39:57 GMT+0200 (CEST) )
 
 
