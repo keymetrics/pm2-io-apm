@@ -1,4 +1,3 @@
-import Transport from '../utils/transport'
 import Proxy from '../utils/proxy'
 import MetricsFeature from '../features/metrics'
 
@@ -45,12 +44,7 @@ export default class HttpWrapper {
 
           let httpStart = {
             url: request.url,
-            method: request.method,
-            start: Date.now(),
-            ip: request.headers['x-forwarded-for'] ||
-            (request.connection ? request.connection.remoteAddress : false) ||
-            (request.socket ? request.socket.remoteAddress : false) ||
-            ((request.connection && request.connection.socket) ? request.connection.socket.remoteAddress : false) || ''
+            start: Date.now()
           }
 
           response.once('finish', function () {
@@ -58,25 +52,6 @@ export default class HttpWrapper {
             if (!ignoreRoutes(httpStart.url)) {
               glLatency.update(Date.now() - httpStart.start)
             }
-
-            if (((Date.now() - httpStart.start) >= opts.http_latency
-                || response.statusCode >= opts.http_code)
-              && !ignoreRoutes(httpStart.url)) {
-
-              Transport.send({
-                type: 'http:transaction',
-                data: {
-                  url: httpStart.url,
-                  method: httpStart.method,
-                  time: Date.now() - httpStart.start,
-                  code: response.statusCode,
-                  ip: httpStart.ip,
-                  size: response.getHeader('Content-Length') || null
-                }
-              })
-            }
-
-            // httpStart = null
           })
         }
 
