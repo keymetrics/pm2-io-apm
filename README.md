@@ -441,6 +441,37 @@ class MyEntrypoint extends io.Entrypoint {
 new MyEntrypoint()
 ```
 
+### Actions et Metrics
+
+You can group all your actions and all your metrics into one methods.
+Use actions() and metrics(), their will be automatically called by the entrypoint.
+
+```javascript
+const io = require('@pm2/io')
+
+class MyEntrypoint extends io.Entrypoint {
+
+    ...
+    
+    actions() {
+      this.io.action('db:clean', (cb) => {
+        clean.db(() => {
+          /**
+           * cb() must be called at the end of the action
+           */
+           cb({ success: true });
+        });
+      })
+    }
+    
+    metrics() {
+      this.myMetric = io.metric('Inline');
+    }
+}
+
+new MyEntrypoint()
+```
+
 ## Development
 
 To auto rebuild on file change:
