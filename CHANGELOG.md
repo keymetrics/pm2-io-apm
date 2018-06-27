@@ -1,3 +1,27 @@
+## 2.0.2 ( Wed Jun 27 2018 12:05:52 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - #134 remove unused tracing system
+  ([bad76339](https://github.com/keymetrics/pm2-io-apm/commit/bad76339032bdc2e9323b516a0c2e4a7f6bfd966))
+
+
+
+## Documentation
+  - add documentation about metrics() and actions() method
+  ([5536739a](https://github.com/keymetrics/pm2-io-apm/commit/5536739a65850497181205726d87d0ccc62c8009))
+
+
+
+## Chore
+  - #130 update readme with inline metric creation
+  ([bf73108d](https://github.com/keymetrics/pm2-io-apm/commit/bf73108d20a658ba5a600fc1a7da08ea234b2cca))
+  - #130 update readme according to code
+  ([f1f13579](https://github.com/keymetrics/pm2-io-apm/commit/f1f135798cdd6f53ddd3a034b1cf4cbee334380b))
+
+
+
+
 ## 2.0.1 ( Tue Jun 26 2018 10:21:19 GMT+0200 (CEST) )
 
 
