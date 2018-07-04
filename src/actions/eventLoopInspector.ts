@@ -30,7 +30,7 @@ export default class Inspector implements ActionsInterface {
         }
         return resolve()
       })
-    })
+    }).catch((e) => console.error(e))
   }
 
   private exposeActions (inspectorPath) {
