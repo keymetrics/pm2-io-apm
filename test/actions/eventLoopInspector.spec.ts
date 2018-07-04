@@ -1,5 +1,5 @@
 import SpecUtils from '../fixtures/utils'
-import { expect } from 'chai'
+import { expect, assert } from 'chai'
 import { fork, exec } from 'child_process'
 import Inspector from '../../src/actions/eventLoopInspector'
 import Action from '../../src/features/actions'
@@ -52,7 +52,7 @@ describe('EventLoopInspector', function () {
       exec('npm uninstall ' + MODULE, done)
     })
 
-    it('should return false cause module is not present', async () => {
+    it('should display error message cause module is not present', async () => {
       const action = new Action()
       action.init()
 
@@ -61,6 +61,20 @@ describe('EventLoopInspector', function () {
       await eventLoopInspector.init().catch((e) => {
         expect(e.message).to.equal('event-loop-inspector not found')
       })
+    })
+
+    it('should catch error cause module is not present', async () => {
+      const action = new Action()
+      action.init()
+
+      const eventLoopInspector = new Inspector(action)
+
+      try {
+        await eventLoopInspector.init()
+      } catch (e) {
+        assert.fail(e)
+      }
+
     })
   })
 })
