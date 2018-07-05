@@ -1,3 +1,22 @@
+ 
+## 2.0.3 ( Thu Jul 05 2018 17:43:57 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - #137 catch exception if module is not install (avoid app to stop)
+  ([d39bf5d4](https://github.com/keymetrics/pm2-io-apm/commit/d39bf5d4b1b03556d7feb66eb8f4650fe7c69281))
+  - #141 set default level of notify to info + clean some "pmx" words
+  ([ceefc142](https://github.com/keymetrics/pm2-io-apm/commit/ceefc1429264bfb5417b3d0e0a8efd6df77fcc20))
+  - #141 set default level of notify to info + clean some "pmx" words
+  ([8ac0d380](https://github.com/keymetrics/pm2-io-apm/commit/8ac0d3803c43dc327e52b8923c2b2929e51c5dce))
+
+
+## Documentation
+  - add documentation about metrics() and actions() method
+  ([5536739a](https://github.com/keymetrics/pm2-io-apm/commit/5536739a65850497181205726d87d0ccc62c8009))
+
+
+
 ## 2.0.2 ( Wed Jun 27 2018 12:05:52 GMT+0200 (CEST) )
 
 
