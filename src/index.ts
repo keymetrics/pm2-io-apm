@@ -7,7 +7,7 @@ import * as merge from 'deepmerge'
 import Configuration from './configuration'
 import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
-const debug = Debug('PMX')
+const debug = Debug('PM2-IO-APM')
 
 class PMX {
 
@@ -166,7 +166,7 @@ class PMX {
   // -----------------------------------------------------------
 
   probe () {
-    console.warn('Deprecated : you should use pmx instead of pmx.probe() !')
+    console.warn('Deprecated : you should use io instead of io.probe() !')
 
     return {
       histogram: (histogram) => {
@@ -194,7 +194,7 @@ class PMX {
   }
 
   notify (notification) {
-    console.warn('Deprecated : you should use pmx.notifyError() !')
+    console.warn('Deprecated : you should use io.notifyError() !')
 
     if (!(notification instanceof Error)) {
       notification = new Error(notification)

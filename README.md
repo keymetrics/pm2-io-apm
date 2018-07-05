@@ -231,7 +231,7 @@ io.scopedAction('long running lsof', (data, res) => {
 
 ## Report Caught Exceptions
 
-By default, in the Issue tab, you are only alerted for uncaught exceptions. Any exception that you catch is not reported. You can manually report them with the `notify()` method.
+By default, in the Issue tab, you are only alerted for uncaught exceptions. Any exception that you catch is not reported. You can manually report them with the `notifyError()` method.
 
 ```javascript
 const io = require('@pm2/io');

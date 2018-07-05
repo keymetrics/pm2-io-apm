@@ -15,7 +15,7 @@ export class NotifyOptions {
 }
 
 export const NotifyOptionsDefault = {
-  level: 'fatal',
+  level: 'info',
   catchExceptions: true
 }
 
@@ -59,7 +59,7 @@ export class NotifyFeature implements Feature {
   notifyError (err: Error, level?: string) {
 
     if (!(err instanceof Error)) {
-      console.trace('[PMX] You should use notify with an Error object')
+      console.trace('[PM2-IO-APM] You should use notify with an Error object')
       return -1
     }
 
