@@ -29,6 +29,8 @@ export default class EventLoopDelayMetric implements MetricsInterface {
         oldTime = newTime
         histogram.update(delay)
       }, this.TIME_INTERVAL)
+
+      this.timer.unref()
     }
   }
 
