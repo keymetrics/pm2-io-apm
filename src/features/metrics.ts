@@ -52,6 +52,8 @@ export default class MetricsFeature implements Feature {
           })
         }
       }, constants.METRIC_INTERVAL)
+
+      this.timer.unref()
     }
 
     this.metricService.init(config, force)

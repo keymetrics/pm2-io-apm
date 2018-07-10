@@ -217,6 +217,8 @@ export default class V8Metric implements MetricsInterface {
       }
     }.bind(this), this.TIME_INTERVAL)
 
+    this.timer.unref()
+
     utils.detectModule('gc-stats', (err, gcPath) => {
       if (err) {
         return false
