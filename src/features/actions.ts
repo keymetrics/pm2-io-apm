@@ -9,12 +9,11 @@ import ActionsService from '../services/actions'
 export default class ActionsFeature implements Feature {
 
   private actionsService: ActionsService
+  private firstAction: boolean = true
 
   constructor () {
     ServiceManager.set('actionsService', new ActionsService(this))
     this.actionsService = ServiceManager.get('actionsService')
-
-    process.on('message', this.listener)
   }
 
   listener (data) {
@@ -137,6 +136,11 @@ export default class ActionsFeature implements Feature {
       return check
     }
 
+    if (this.firstAction) {
+      this.firstAction = false
+      process.on('message', this.listener)
+    }
+
     let type = 'custom'
 
     if (actionName.indexOf('km:') === 0 || actionName.indexOf('internal:') === 0) {
@@ -172,6 +176,11 @@ export default class ActionsFeature implements Feature {
     const check = this.check(actionName, fn)
     if (!check) {
       return check
+    }
+
+    if (this.firstAction) {
+      this.firstAction = false
+      process.on('message', this.listener)
     }
 
     // Notify the action
