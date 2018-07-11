@@ -1,10 +1,10 @@
 import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+const io = require(__dirname + '/../../src/index.js')
 
-pmx.init()
+io.init()
 
-pmx.probe().transpose('transpose', function () {
+io.probe().transpose('transpose', function () {
   return 'transposeResponse'
 })
 
@@ -12,5 +12,6 @@ pmx.probe().transpose('transpose', function () {
 const timer = setInterval(function () {}, 5000)
 
 process.on('SIGINT', function () {
+  io.destroy()
   clearInterval(timer)
 })

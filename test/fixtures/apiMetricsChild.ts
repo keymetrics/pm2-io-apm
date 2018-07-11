@@ -43,4 +43,5 @@ const timer = setInterval(function () {}, 5000)
 
 process.on('SIGINT', function () {
   clearInterval(timer)
+  io.destroy()
 })
