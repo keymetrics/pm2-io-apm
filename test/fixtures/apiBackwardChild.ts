@@ -6,6 +6,9 @@ pmx.init({
   profiling: false
 })
 
+// set something into event loop. Else test will exit immediately
+const timer = setInterval(function () {}, 5000)
+
 const probe = pmx.probe()
 
 const metric = probe.metric({
@@ -29,5 +32,6 @@ const meter = probe.meter({
 })
 
 process.on('SIGINT', function () {
+  clearInterval(timer)
   pmx.destroy()
 })

@@ -8,6 +8,7 @@ describe('EventLoopDelay', function () {
   this.timeout(7000)
   it('should send event loop delay', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/metrics/eventLoopDelayChild.js'))
+    let count = 0
 
     child.on('message', pck => {
 
@@ -18,11 +19,13 @@ describe('EventLoopDelay', function () {
         expect(pck.data['Loop delay'].unit).to.equal('ms')
 
         child.kill('SIGINT')
-
-        child.on('exit', function () {
-          done()
-        })
+        count++
       }
+    })
+
+    child.on('exit', function () {
+      expect(count > 0).to.equal(true)
+      done()
     })
   })
 })
