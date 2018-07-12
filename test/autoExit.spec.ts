@@ -6,7 +6,7 @@ import { exec, fork } from 'child_process'
 import Histogram from '../src/utils/metrics/histogram'
 
 describe('API', function () {
-  this.timeout(5000)
+  this.timeout(10000)
 
   describe('AutoExit program', () => {
     it('should exit program when it has no more tasks to process', (done) => {
