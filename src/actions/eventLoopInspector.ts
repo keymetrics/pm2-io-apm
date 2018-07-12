@@ -1,13 +1,8 @@
-import Debug from 'debug'
-const debug = Debug('axm:eventloopaction')
-
-import utils from '../utils/module'
 import ActionsFeature from '../features/actions'
 import ActionsInterface from './actionsInterface'
 
 export default class Inspector implements ActionsInterface {
 
-  private MODULE_NAME = 'event-loop-inspector'
   private actionFeature: ActionsFeature
 
   constructor (actionFeature: ActionsFeature) {
@@ -16,34 +11,17 @@ export default class Inspector implements ActionsInterface {
 
   async init () {
     return new Promise((resolve, reject) => {
-      utils.detectModule(this.MODULE_NAME, (err, inspectorPath) => {
 
-        if (err) {
-          debug(err)
-          return reject(err)
-        }
+      this.exposeActions()
 
-        const res = this.exposeActions(inspectorPath)
-
-        if (res instanceof Error) {
-          return reject(res)
-        }
-        return resolve()
-      })
+      return resolve()
     }).catch((e) => console.error(e))
   }
 
-  private exposeActions (inspectorPath) {
-    let inspector = utils.loadModule(inspectorPath, this.MODULE_NAME, [true])
+  private exposeActions () {
+    let inspector = require('event-loop-inspector')(true)
 
-    if (inspector instanceof Error || !inspector) {
-      return inspector
-    }
-
-    /**
-     * Heap snapshot
-     */
-    return this.actionFeature.action('km:event-loop-dump', function (reply) {
+    this.actionFeature.action('km:event-loop-dump', function (reply) {
       const dump = inspector.dump()
 
       return reply({
