@@ -8,4 +8,4 @@ io.init()
 // after 1 seconds this script should exit
 setTimeout(function() {
 
-}, 1000)
+}, 2000)
