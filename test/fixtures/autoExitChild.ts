@@ -6,6 +6,6 @@ io.init()
 
 // simple timeout to make event loop working
 // after 1 seconds this script should exit
-setTimeout(function() {
+setTimeout(function () {
 
-}, 2000)
+}, 200)
