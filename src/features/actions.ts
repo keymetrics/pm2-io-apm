@@ -9,11 +9,28 @@ import ActionsService from '../services/actions'
 export default class ActionsFeature implements Feature {
 
   private actionsService: ActionsService
-  private firstAction: boolean = true
+  private timer
 
   constructor () {
     ServiceManager.set('actionsService', new ActionsService(this))
     this.actionsService = ServiceManager.get('actionsService')
+    process.on('message', this.listener)
+
+    // clean listener if event loop is empty
+    // important to ensure apm will not prevent application to stop
+    this.timer = setInterval(() => {
+      const eventLoopInspector = require('event-loop-inspector')(true)
+      const dump = eventLoopInspector.dump()
+
+      if (!dump || (dump.setImmediates.length === 0 &&
+          dump.nextTicks.length === 0 &&
+          Object.keys(dump.handles).length === 0 &&
+          Object.keys(dump.requests).length === 0)) {
+        process.removeListener('message', this.listener)
+      }
+    }, 1000)
+
+    this.timer.unref()
   }
 
   listener (data) {
@@ -123,6 +140,7 @@ export default class ActionsFeature implements Feature {
     ServiceManager.reset('actions')
     ServiceManager.reset('actionsScoped')
     process.removeListener('message', this.listener)
+    clearInterval(this.timer)
   }
 
   action (actionName, opts?, fn?) {
@@ -134,11 +152,6 @@ export default class ActionsFeature implements Feature {
     const check = this.check(actionName, fn)
     if (!check) {
       return check
-    }
-
-    if (this.firstAction) {
-      this.firstAction = false
-      process.on('message', this.listener)
     }
 
     let type = 'custom'
@@ -176,11 +189,6 @@ export default class ActionsFeature implements Feature {
     const check = this.check(actionName, fn)
     if (!check) {
       return check
-    }
-
-    if (this.firstAction) {
-      this.firstAction = false
-      process.on('message', this.listener)
     }
 
     // Notify the action
