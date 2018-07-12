@@ -41,9 +41,12 @@ describe('API', function () {
 
           if (res.data.hasOwnProperty('New space used size')) {
             child.kill('SIGINT')
-            done()
           }
         }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
   })
@@ -116,8 +119,11 @@ describe('API', function () {
           expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
-          done()
         }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
 
@@ -132,8 +138,11 @@ describe('API', function () {
           expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
-          done()
         }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
   })
