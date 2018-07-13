@@ -24,7 +24,7 @@ export default class ActionsFeature implements Feature {
 
       if (!dump || (dump.setImmediates.length === 0 &&
           dump.nextTicks.length === 0 &&
-          (Object.keys(dump.handles).length === 0 || (Object(dump.handles).keys === 1 &&
+          (Object.keys(dump.handles).length === 0 || (Object.keys(dump.handles).length === 1 &&
             dump.handles.hasOwnProperty('Socket') &&
             dump.handles.Socket.length === 2 &&
             dump.handles.Socket[0].fd === 1 &&
