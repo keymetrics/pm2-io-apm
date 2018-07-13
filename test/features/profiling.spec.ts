@@ -6,7 +6,7 @@ import ProfilingFeature from '../../src/features/profiling'
 import * as semver from 'semver'
 import * as fs from 'fs'
 
-const MODULE = require('semver').satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
+const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
 describe('ProfilingFeature', function () {
   this.timeout(50000)
@@ -39,10 +39,14 @@ describe('ProfilingFeature', function () {
 
   describe('CPU', () => {
     before(function (done) {
-      exec('npm install ' + MODULE, function (err) {
-        expect(err).to.equal(null)
-        setTimeout(done, 1000)
-      })
+      if (semver.satisfies(process.version, '< 10.0.0')) {
+        exec('npm install ' + MODULE, function (err) {
+          expect(err).to.equal(null)
+          setTimeout(done, 1000)
+        })
+      } else {
+        done()
+      }
     })
 
     it('should get CPU profile from inspector', async () => {
@@ -67,10 +71,14 @@ describe('ProfilingFeature', function () {
 
   describe('Heap', () => {
     before(function (done) {
-      exec('npm install ' + MODULE, function (err) {
-        expect(err).to.equal(null)
-        setTimeout(done, 1000)
-      })
+      if (semver.satisfies(process.version, '< 10.0.0')) {
+        exec('npm install ' + MODULE, function (err) {
+          expect(err).to.equal(null)
+          setTimeout(done, 1000)
+        })
+      } else {
+        done()
+      }
     })
 
     it('should get Heap profile from inspector', async () => {

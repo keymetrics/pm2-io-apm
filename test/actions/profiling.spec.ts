@@ -1,8 +1,9 @@
 import SpecUtils from '../fixtures/utils'
 import { expect } from 'chai'
 import { fork, exec } from 'child_process'
+import * as semver from 'semver'
 
-const MODULE = require('semver').satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
+const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
 describe('ProfilingAction', function () {
   this.timeout(50000)
@@ -17,10 +18,14 @@ describe('ProfilingAction', function () {
 
   describe('CPU', () => {
     before(function (done) {
-      exec('npm install ' + MODULE, function (err) {
-        expect(err).to.equal(null)
-        setTimeout(done, 1000)
-      })
+      if (semver.satisfies(process.version, '< 10.0.0')) {
+        exec('npm install ' + MODULE, function (err) {
+          expect(err).to.equal(null)
+          setTimeout(done, 1000)
+        })
+      } else {
+        done()
+      }
     })
 
     it('should get cpu profile data', (done) => {
@@ -64,10 +69,14 @@ describe('ProfilingAction', function () {
 
   describe('Heap', () => {
     before(function (done) {
-      exec('npm install ' + MODULE, function (err) {
-        expect(err).to.equal(null)
-        setTimeout(done, 1000)
-      })
+      if (semver.satisfies(process.version, '< 10.0.0')) {
+        exec('npm install ' + MODULE, function (err) {
+          expect(err).to.equal(null)
+          setTimeout(done, 1000)
+        })
+      } else {
+        done()
+      }
     })
 
     it('should get heap profile data', (done) => {
