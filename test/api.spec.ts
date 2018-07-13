@@ -383,7 +383,7 @@ describe('API', function () {
   })
 
   describe('Compatibility actions', () => {
-    const MODULE = 'v8-profiler'
+    const MODULE = require('semver').satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
     before(function (done) {
       exec('npm uninstall ' + MODULE, done)

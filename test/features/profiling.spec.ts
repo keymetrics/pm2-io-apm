@@ -6,7 +6,7 @@ import ProfilingFeature from '../../src/features/profiling'
 import * as semver from 'semver'
 import * as fs from 'fs'
 
-const MODULE = 'v8-profiler-node8'
+const MODULE = require('semver').satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
 describe('ProfilingFeature', function () {
   this.timeout(50000)
@@ -109,7 +109,7 @@ describe('ProfilingFeature', function () {
 })
 
 function setTimeoutHeapProfile (profiling) {
-  return new Promise( (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     setTimeout(async () => {
       const res = await profiling.heapProfiling.stop()
 
@@ -130,8 +130,8 @@ function setTimeoutHeapProfile (profiling) {
 }
 
 function setTimeoutCPUProfile (profiling) {
-  return new Promise( (resolve, reject) => {
-    setTimeout( async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
       const res = await profiling.cpuProfiling.stop()
 
       const content = JSON.parse(fs.readFileSync(res, 'utf8'))
@@ -148,8 +148,8 @@ function setTimeoutCPUProfile (profiling) {
 }
 
 function setTimeoutProfile (profiling) {
-  return new Promise( (resolve, reject) => {
-    setTimeout( async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
       const res = await profiling.heapProfiling.takeSnapshot()
 
       const content = JSON.parse(fs.readFileSync(res, 'utf8'))

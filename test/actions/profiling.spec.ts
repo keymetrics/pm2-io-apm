@@ -2,7 +2,7 @@ import SpecUtils from '../fixtures/utils'
 import { expect } from 'chai'
 import { fork, exec } from 'child_process'
 
-const MODULE = 'v8-profiler'
+const MODULE = require('semver').satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
 describe('ProfilingAction', function () {
   this.timeout(50000)
