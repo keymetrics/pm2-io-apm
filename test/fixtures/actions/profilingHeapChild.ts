@@ -14,6 +14,7 @@ profiling.init().then(() => {
 const timer = setInterval(function () {}, 5000)
 
 process.on('SIGINT', function () {
+  action.destroy()
   profiling.destroy()
   clearInterval(timer)
 })
