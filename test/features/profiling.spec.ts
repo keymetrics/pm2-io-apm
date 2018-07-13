@@ -59,14 +59,16 @@ describe('ProfilingFeature', function () {
       await setTimeoutCPUProfile(profiling)
     })
 
-    it('should get CPU profile from v8-profiler module', async () => {
-      const profiling = new ProfilingFeature().init(true)
+    if (semver.satisfies(process.version, '< 10.0.0')) {
+      it('should get CPU profile from v8-profiler module', async () => {
+        const profiling = new ProfilingFeature().init(true)
 
-      await profiling.cpuProfiling.init()
-      profiling.cpuProfiling.start()
+        await profiling.cpuProfiling.init()
+        profiling.cpuProfiling.start()
 
-      await setTimeoutCPUProfile(profiling)
-    })
+        await setTimeoutCPUProfile(profiling)
+      })
+    }
   })
 
   describe('Heap', () => {
@@ -106,13 +108,15 @@ describe('ProfilingFeature', function () {
       await profiling.heapProfiling.destroy()
     })
 
-    it('should get Heap profile from v8-profiler module', async () => {
-      const profiling = new ProfilingFeature().init(true)
+    if (semver.satisfies(process.version, '< 10.0.0')) {
+      it('should get Heap profile from v8-profiler module', async () => {
+        const profiling = new ProfilingFeature().init(true)
 
-      await profiling.heapProfiling.init()
+        await profiling.heapProfiling.init()
 
-      await setTimeoutProfile(profiling)
-    })
+        await setTimeoutProfile(profiling)
+      })
+    }
   })
 })
 

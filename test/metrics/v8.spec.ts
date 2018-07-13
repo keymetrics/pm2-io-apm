@@ -57,8 +57,7 @@ describe('V8', function () {
     child.on('message', pck => {
 
       if (pck.type === 'axm:monitor') {
-
-        expect(Object.keys(pck.data).length).to.equal(8)
+        expect(Object.keys(pck.data).length >= 8).to.equal(true)
 
         checkDefaultValue(pck)
 
