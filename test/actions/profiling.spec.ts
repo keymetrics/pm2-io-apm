@@ -94,7 +94,6 @@ describe('ProfilingAction', function () {
             expect(res.data.return.heapdump).to.equal(true)
             expect(res.data.return.uuid).to.equal(uuid)
             child.kill('SIGINT')
-            done()
           }
         }
 
@@ -107,6 +106,10 @@ describe('ProfilingAction', function () {
             child.send('km:heap:sampling:stop')
           }, 500)
         }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
 
@@ -128,7 +131,6 @@ describe('ProfilingAction', function () {
             expect(typeof res.data.return.dump_file).to.equal('string')
 
             child.kill('SIGINT')
-            done()
           }
         }
 
@@ -137,6 +139,10 @@ describe('ProfilingAction', function () {
             child.send('km:heapdump')
           }, 500)
         }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
   })

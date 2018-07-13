@@ -30,7 +30,6 @@ export default class ActionsFeature implements Feature {
             dump.handles.Socket[0].fd === 1 &&
             dump.handles.Socket[1].fd === 2)) &&
           Object.keys(dump.requests).length === 0)) {
-        console.log(dump)
         process.removeListener('message', this.listener)
       }
     }, 1000)

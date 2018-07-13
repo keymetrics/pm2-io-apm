@@ -11,7 +11,7 @@ export default class ProfilingFeature implements Feature {
     // allow to force the fallback via environment
     if (process.env.PM2_PROFILING_FORCE_FALLBACK) forceFallback = true
 
-    const isInspectorOk = require('semver').satisfies(process.version, '>= 8.0.0') && !forceFallback
+    const isInspectorOk = require('semver').satisfies(process.version, '>= 10.0.0') && !forceFallback
     let ProfilingCPU
     let ProfilingHeap
 
