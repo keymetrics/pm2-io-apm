@@ -20,7 +20,6 @@ describe('EventLoopInspector', function () {
 
           expect(res.data.return.success).to.equal(true)
           expect(typeof res.data.return.dump).to.equal('object')
-
           child.kill('SIGINT')
         }
       })
