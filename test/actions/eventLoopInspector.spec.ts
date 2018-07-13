@@ -5,7 +5,7 @@ import Inspector from '../../src/actions/eventLoopInspector'
 import Action from '../../src/features/actions'
 
 describe('EventLoopInspector', function () {
-  this.timeout(50000)
+  this.timeout(20000)
 
   describe('Event loop inspector module', function () {
 
@@ -24,12 +24,16 @@ describe('EventLoopInspector', function () {
           expect(typeof res.data.return.dump).to.equal('object')
 
           child.kill('SIGINT')
-          done()
         }
       })
 
-      setTimeout(function () {
+      child.on('exit', function() {
+        done()
+      })
+
+      const timer = setTimeout(function () {
         child.send('km:event-loop-dump')
+        clearTimeout(timer)
       }, 2000)
     })
   })
