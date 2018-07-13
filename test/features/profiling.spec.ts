@@ -90,7 +90,7 @@ describe('ProfilingFeature', function () {
 
       const content = JSON.parse(fs.readFileSync(res, 'utf8'))
 
-      if (semver.satisfies(process.version, '>= 8.0.0')) {
+      if (semver.satisfies(process.version, '>= 10.0.0')) {
         expect(typeof content).to.equal('object')
         expect(content.hasOwnProperty('snapshot')).to.equal(true)
       }
@@ -115,7 +115,7 @@ function setTimeoutHeapProfile (profiling) {
 
       const content = JSON.parse(fs.readFileSync(res, 'utf8'))
 
-      if (semver.satisfies(process.version, '>= 8.0.0')) {
+      if (semver.satisfies(process.version, '>= 10.0.0')) {
         expect(typeof content).to.equal('object')
         expect(content.hasOwnProperty('head')).to.equal(true)
       } else {
