@@ -1,8 +1,6 @@
 import SpecUtils from '../fixtures/utils'
 import { expect, assert } from 'chai'
 import { fork, exec } from 'child_process'
-import Inspector from '../../src/actions/eventLoopInspector'
-import Action from '../../src/features/actions'
 
 describe('EventLoopInspector', function () {
   this.timeout(20000)
@@ -27,7 +25,7 @@ describe('EventLoopInspector', function () {
         }
       })
 
-      child.on('exit', function() {
+      child.on('exit', function () {
         done()
       })
 
