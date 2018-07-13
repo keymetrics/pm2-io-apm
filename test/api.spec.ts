@@ -1,6 +1,7 @@
 import SpecUtils from './fixtures/utils'
 import { assert, expect } from 'chai'
 import 'mocha'
+import * as semver from 'semver'
 
 import { exec, fork } from 'child_process'
 import Histogram from '../src/utils/metrics/histogram'
@@ -383,7 +384,7 @@ describe('API', function () {
   })
 
   describe('Compatibility actions', () => {
-    const MODULE = require('semver').satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
+    const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
     before(function (done) {
       exec('npm uninstall ' + MODULE, done)
@@ -395,10 +396,14 @@ describe('API', function () {
 
     describe('Profiling', () => {
       before(function (done) {
-        exec('npm install ' + MODULE, function (err) {
-          expect(err).to.equal(null)
-          setTimeout(done, 1000)
-        })
+        if (semver.satisfies(process.version, '< 10.0.0')) {
+          exec('npm install ' + MODULE, function (err) {
+            expect(err).to.equal(null)
+            setTimeout(done, 1000)
+          })
+        } else {
+          done()
+        }
       })
 
       it('should receive data from default actions', (done) => {
