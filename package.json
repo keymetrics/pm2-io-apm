@@ -1,6 +1,6 @@
 {
   "name": "@pm2/io",
-  "version": "2.1.0-beta",
+  "version": "2.1.0-beta2",
   "description": "",
   "main": "build/main/src/index.js",
   "typings": "build/main/src/index.d.ts",
@@ -29,7 +29,8 @@
     "docs": "yarn docs:html && opn build/docs/index.html",
     "docs:html": "typedoc src/index.ts --excludePrivate --mode file --theme minimal --out build/docs",
     "docs:json": "typedoc --mode file --json build/docs/typedoc.json src/index.ts",
-    "docs:publish": "yarn docs:html && gh-pages -d build/docs"
+    "docs:publish": "yarn docs:html && gh-pages -d build/docs",
+    "prepublishOnly": "yarn build"
   },
   "scripts-info": {
     "info": "Display information about the scripts",
