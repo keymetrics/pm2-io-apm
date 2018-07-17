@@ -10,7 +10,8 @@ const services: {
   actionsScoped: new Map()
 }
 
-if (require('semver').satisfies(process.version, '>= 10.0.0')) {
+if (require('semver').satisfies(process.version, '>= 10.0.0') ||
+  (require('semver').satisfies(process.version, '>= 8.0.0') && process.env.forceInspector)) {
   services['inspector'] = require('./services/inspector')
 }
 

@@ -69,6 +69,19 @@ describe('ProfilingFeature', function () {
         await setTimeoutCPUProfile(profiling)
       })
     }
+
+    if (semver.satisfies(process.version, '8.x')) {
+      it('should get CPU profile from inspector on node 8', async () => {
+        process.env.forceInspector = 'true'
+        const profiling = new ProfilingFeature().init()
+
+        await profiling.cpuProfiling.init()
+        profiling.cpuProfiling.start()
+
+        await setTimeoutCPUProfile(profiling)
+        delete process.env.forceInspector
+      })
+    }
   })
 
   describe('Heap', () => {
@@ -100,7 +113,8 @@ describe('ProfilingFeature', function () {
 
       const content = JSON.parse(fs.readFileSync(res, 'utf8'))
 
-      if (semver.satisfies(process.version, '>= 10.0.0')) {
+      if (semver.satisfies(process.version, '>= 10.0.0') ||
+        (semver.satisfies(process.version, '>= 8.0.0') && process.env.forceInspector)) {
         expect(typeof content).to.equal('object')
         expect(content.hasOwnProperty('snapshot')).to.equal(true)
       }

@@ -2,6 +2,7 @@ import { Feature } from './featureTypes'
 import ProfilingCPUFallback from '../profiling/profilingCPUFallback'
 import ProfilingHeapFallback from '../profiling/profilingHeapFallback'
 import Configuration from '../configuration'
+import * as semver from 'semver'
 
 export default class ProfilingFeature implements Feature {
 
@@ -11,7 +12,8 @@ export default class ProfilingFeature implements Feature {
     // allow to force the fallback via environment
     if (process.env.PM2_PROFILING_FORCE_FALLBACK) forceFallback = true
 
-    const isInspectorOk = require('semver').satisfies(process.version, '>= 10.0.0') && !forceFallback
+    const isInspectorOk = (semver.satisfies(process.version, '>= 10.0.0') ||
+      (semver.satisfies(process.version, '>= 8.0.0') && process.env.forceInspector)) && !forceFallback
     let ProfilingCPU
     let ProfilingHeap
 
