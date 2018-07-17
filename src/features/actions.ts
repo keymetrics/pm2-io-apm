@@ -11,30 +11,31 @@ export default class ActionsFeature implements Feature {
   private actionsService: ActionsService
   private timer
 
-  constructor () {
+  constructor (autoExit?: boolean) {
     ServiceManager.set('actionsService', new ActionsService(this))
     this.actionsService = ServiceManager.get('actionsService')
     process.on('message', this.listener)
 
-    // clean listener if event loop is empty
-    // important to ensure apm will not prevent application to stop
-    this.timer = setInterval(() => {
-      const eventLoopInspector = require('event-loop-inspector')(true)
-      const dump = eventLoopInspector.dump()
+    if (autoExit) {
+      // clean listener if event loop is empty
+      // important to ensure apm will not prevent application to stop
+      this.timer = setInterval(() => {
+        const dump = ServiceManager.get('eventLoopService').inspector.dump()
 
-      if (!dump || (dump.setImmediates.length === 0 &&
-          dump.nextTicks.length === 0 &&
-          (Object.keys(dump.handles).length === 0 || (Object.keys(dump.handles).length === 1 &&
-            dump.handles.hasOwnProperty('Socket') &&
-            dump.handles.Socket.length === 2 &&
-            dump.handles.Socket[0].fd === 1 &&
-            dump.handles.Socket[1].fd === 2)) &&
-          Object.keys(dump.requests).length === 0)) {
-        process.removeListener('message', this.listener)
-      }
-    }, 1000)
+        if (!dump || (dump.setImmediates.length === 0 &&
+            dump.nextTicks.length === 0 &&
+            (Object.keys(dump.handles).length === 0 || (Object.keys(dump.handles).length === 1 &&
+              dump.handles.hasOwnProperty('Socket') &&
+              dump.handles.Socket.length === 2 &&
+              dump.handles.Socket[0].fd === 1 &&
+              dump.handles.Socket[1].fd === 2)) &&
+            Object.keys(dump.requests).length === 0)) {
+          process.removeListener('message', this.listener)
+        }
+      }, 1000)
 
-    this.timer.unref()
+      this.timer.unref()
+    }
   }
 
   listener (data) {

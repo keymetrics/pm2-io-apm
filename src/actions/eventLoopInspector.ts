@@ -1,5 +1,6 @@
 import ActionsFeature from '../features/actions'
 import ActionsInterface from './actionsInterface'
+import { ServiceManager } from '../serviceManager'
 
 export default class Inspector implements ActionsInterface {
 
@@ -19,10 +20,9 @@ export default class Inspector implements ActionsInterface {
   }
 
   private exposeActions () {
-    let inspector = require('event-loop-inspector')(true)
 
     this.actionFeature.action('km:event-loop-dump', function (reply) {
-      const dump = inspector.dump()
+      const dump = ServiceManager.get('eventLoopService').inspector.dump()
 
       return reply({
         success: true,
