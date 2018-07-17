@@ -7,6 +7,7 @@ import * as merge from 'deepmerge'
 import Configuration from './configuration'
 import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
+import { ServiceManager } from './serviceManager'
 const debug = Debug('PM2-IO-APM')
 
 class PMX {
@@ -19,8 +20,13 @@ class PMX {
   constructor () {
     this.notifyFeature = new NotifyFeature()
     this.metricsFeature = new MetricsFeature()
-    this.actionsFeature = new ActionsFeature()
+    this.actionsFeature = new ActionsFeature(true)
     this.eventsFeature = new EventFeature()
+
+    const eventLoopInspector = require('event-loop-inspector')(true)
+    ServiceManager.set('eventLoopService', {
+      inspector: eventLoopInspector
+    })
   }
 
   init (config?) {
