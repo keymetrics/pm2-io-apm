@@ -1,8 +1,12 @@
  
-## 2.1.0 ( Mon Jul 16 2018 14:51:16 GMT+0200 (CEST) )
+## 2.1.0 ( Wed Jul 18 2018 11:24:10 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
+  - #151 add environment variable to force inspector on node 8
+  ([ecd0dba4](https://github.com/keymetrics/pm2-io-apm/commit/ecd0dba4dc0152973b3a3c0d0be00c19b9b1ade2))
+  - #150 load event loop inspector module only once
+  ([27fdf377](https://github.com/keymetrics/pm2-io-apm/commit/27fdf377203eb7a93eb3d625848da30149d320ae))
   - issue with keys function .... I should be tired !
   ([2fedff44](https://github.com/keymetrics/pm2-io-apm/commit/2fedff4405b134d55a94a48e1ffac9e5278cacf0))
   - #148 allow inspector only on node 10, else we can't handle multiple sessions
@@ -25,6 +29,8 @@
 
 
 ## Refactor
+  - rename variable and stabilize tests
+  ([29e77290](https://github.com/keymetrics/pm2-io-apm/commit/29e7729031439fd630004043be7883a6263be9ac))
   - #145 use event-loop-inspector as native module
   ([714a6ae4](https://github.com/keymetrics/pm2-io-apm/commit/714a6ae437e550bcc9b9a30112bb2ed8f7b83217))
 
@@ -63,6 +69,10 @@
 
 
 ## Chore
+  - add prepublish hook to auto build sources
+  ([a01b5f5d](https://github.com/keymetrics/pm2-io-apm/commit/a01b5f5d5bbdf80e44ebe3368e220e1947aae5f0))
+  - update to 2.1.0-beta
+  ([03cefe06](https://github.com/keymetrics/pm2-io-apm/commit/03cefe064194e266156001178db5c39a7993f652))
   - add node 10 on CI
   ([f645c69d](https://github.com/keymetrics/pm2-io-apm/commit/f645c69dc88a0506ff9a8a309c690be82ae0b891))
 
@@ -72,7 +82,6 @@
 ## Branchs merged
   - Merge branch 'master' of github.com:keymetrics/pmx-2
   ([f40e172f](https://github.com/keymetrics/pm2-io-apm/commit/f40e172feeaf235b8a3f85925c185ee68a633799))
-
 
 
 
