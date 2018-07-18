@@ -483,7 +483,15 @@ $ npm run watch
 
 ## Publishing
 
-TODO
+Just run :
+```bash
+$ npm publish
+```
+
+And for beta
+```bash
+$ npm publish --tag beta
+```
 
 
 ## License
