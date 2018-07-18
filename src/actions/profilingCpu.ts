@@ -6,6 +6,7 @@ import ProfilingFeature from '../features/profiling'
 import ActionsInterface from './actionsInterface'
 import MiscUtils from '../utils/miscellaneous'
 import FileUtils from '../utils/file'
+import Transport from '../utils/transport'
 
 export default class ProfilingCPUAction implements ActionsInterface {
 
@@ -34,40 +35,58 @@ export default class ProfilingCPUAction implements ActionsInterface {
     if (this.profilingFeature) this.profilingFeature.destroy()
   }
 
+  private async stopProfiling (reply) {
+    try {
+      const dumpFile = await this.profilings.cpuProfiling.stop()
+
+      let size
+      try {
+        size = await FileUtils.getFileSize(dumpFile)
+      } catch (err) {
+        size = -1
+      }
+
+      return reply({
+        success     : true,
+        cpuprofile  : true,
+        dump_file   : dumpFile,
+        dump_file_size : size,
+        uuid        : this.uuid
+      })
+    } catch (err) {
+      return reply({
+        success : false,
+        err     : err,
+        uuid    : this.uuid
+      })
+    }
+  }
+
   private exposeActions () {
 
-    this.actionFeature.action('km:cpu:profiling:start', async (reply) => {
+    this.actionFeature.action('km:cpu:profiling:start', async (opts, reply) => {
+      if (!reply) {
+        reply = opts
+        opts = null
+      }
+
       try {
         this.uuid = MiscUtils.generateUUID()
         await this.profilings.cpuProfiling.start()
         reply({ success : true, uuid: this.uuid })
-      } catch (err) {
-        return reply({
-          success : false,
-          err     : err,
-          uuid    : this.uuid
-        })
-      }
-    })
 
-    this.actionFeature.action('km:cpu:profiling:stop', async (reply) => {
-      try {
-        const dumpFile = await this.profilings.cpuProfiling.stop()
-
-        let size
-        try {
-          size = await FileUtils.getFileSize(dumpFile)
-        } catch (err) {
-          size = -1
+        if (opts.timeout && typeof opts.timeout === 'number') {
+          setTimeout(async _ => {
+            const reply = (data) => Transport.send({
+              type        : 'axm:reply',
+              data        : {
+                return      : data,
+                action_name : 'km:cpu:profiling:stop'
+              }
+            })
+            await this.stopProfiling(reply)
+          }, opts.timeout)
         }
-
-        return reply({
-          success     : true,
-          cpuprofile  : true,
-          dump_file   : dumpFile,
-          dump_file_size : size,
-          uuid        : this.uuid
-        })
       } catch (err) {
         return reply({
           success : false,
@@ -76,5 +95,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
         })
       }
     })
+
+    this.actionFeature.action('km:cpu:profiling:stop', this.stopProfiling.bind(this))
   }
 }
