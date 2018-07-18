@@ -1,8 +1,11 @@
  
-## 2.1.0 ( Wed Jul 18 2018 11:24:10 GMT+0200 (CEST) )
+ 
+## 2.1.0 ( Wed Jul 18 2018 17:50:16 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
+  - #147 seperate HTTP and HTTPS requests, important for apps which load both modules (http and https)
+  ([78c944cc](https://github.com/keymetrics/pm2-io-apm/commit/78c944cc0b319123405ddfed4bf1f52c95078bc3))
   - #151 add environment variable to force inspector on node 8
   ([ecd0dba4](https://github.com/keymetrics/pm2-io-apm/commit/ecd0dba4dc0152973b3a3c0d0be00c19b9b1ade2))
   - #150 load event loop inspector module only once
@@ -69,6 +72,10 @@
 
 
 ## Chore
+  - add publishing section in readme file
+  ([522ef26b](https://github.com/keymetrics/pm2-io-apm/commit/522ef26b808a158ffe09363f6a58731cf44bdb62))
+  - upgrade version to 2.1.0-beta3
+  ([53dcaafa](https://github.com/keymetrics/pm2-io-apm/commit/53dcaafab3b9f721c677d48cf8af13cc11434357))
   - add prepublish hook to auto build sources
   ([a01b5f5d](https://github.com/keymetrics/pm2-io-apm/commit/a01b5f5d5bbdf80e44ebe3368e220e1947aae5f0))
   - update to 2.1.0-beta
@@ -81,8 +88,6 @@
 
 ## Branchs merged
   - Merge branch 'master' of github.com:keymetrics/pmx-2
-  ([f40e172f](https://github.com/keymetrics/pm2-io-apm/commit/f40e172feeaf235b8a3f85925c185ee68a633799))
-
 
 
 ## 2.0.3 ( Thu Jul 05 2018 17:43:57 GMT+0200 (CEST) )
