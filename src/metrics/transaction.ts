@@ -9,12 +9,12 @@ import Transport from '../utils/transport'
 import Configuration from '../configuration'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'
+import { ServiceManager } from '../serviceManager'
 
 export default class Transaction implements MetricsInterface {
 
   private metricFeature: MetricsFeature
   private tracer
-  private instance: Object = {}
 
   private defaultConf = {
     http: true
@@ -22,6 +22,7 @@ export default class Transaction implements MetricsInterface {
 
   constructor (metricFeature: MetricsFeature) {
     this.metricFeature = metricFeature
+    ServiceManager.set('wrapper', {})
   }
 
   init (config?) {
@@ -122,10 +123,11 @@ export default class Transaction implements MetricsInterface {
           })
 
           // initialize transaction metrics only once
-          if (!self.instance[file]) {
-            self.instance[file] = new SimpleHttpWrap(self.metricFeature).init(opts, load.apply(this, arguments))
+          if (!ServiceManager.get('wrapper')[file]) {
+            opts.name = file
+            ServiceManager.get('wrapper')[file] = new SimpleHttpWrap(self.metricFeature).init(opts, load.apply(this, arguments))
           }
-          return self.instance[file]
+          return ServiceManager.get('wrapper')[file]
 
         } else {
           return load.apply(this, arguments)
