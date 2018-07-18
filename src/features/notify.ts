@@ -40,12 +40,12 @@ export class NotifyFeature implements Feature {
 
     if (this.options && this.options.catchExceptions) {
       if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && (semver.satisfies(process.version, '< 8.0.0') ||
-          (semver.satisfies(process.version, '< 10.0.0') && !process.env.forceInspector))) {
+          (semver.satisfies(process.version, '< 10.0.0') && !process.env.FORCE_INSPECTOR))) {
         debug(`Inspector is not available on node version ${process.version} !`)
       }
 
       if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 10.0.0') ||
-        (semver.satisfies(process.version, '>= 8.0.0') && process.env.forceInspector)) {
+        (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
         const NotifyInspector = require('./notifyInspector').default
         NotifyInspector.catchAllDebugger()
       } else {

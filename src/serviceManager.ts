@@ -11,7 +11,7 @@ const services: {
 }
 
 if (require('semver').satisfies(process.version, '>= 10.0.0') ||
-  (require('semver').satisfies(process.version, '>= 8.0.0') && process.env.forceInspector)) {
+  (require('semver').satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
   services['inspector'] = require('./services/inspector')
 }
 
