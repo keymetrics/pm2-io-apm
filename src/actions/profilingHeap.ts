@@ -72,7 +72,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
         return reply({
           success     : true,
-          heapdump  : true,
+          heapprofile  : true,
           dump_file   : dumpFile,
           dump_file_size: size,
           uuid: this.uuid

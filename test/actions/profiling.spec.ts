@@ -140,7 +140,7 @@ describe('ProfilingAction', function () {
             expect(typeof res.data.return.dump_file).to.equal('string')
             expect(typeof res.data.return.dump_file_size).to.equal('number')
 
-            expect(res.data.return.heapdump).to.equal(true)
+            expect(res.data.return.heapprofile).to.equal(true)
             expect(res.data.return.uuid).to.equal(uuid)
             child.kill('SIGINT')
           }

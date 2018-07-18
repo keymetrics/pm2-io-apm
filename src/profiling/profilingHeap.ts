@@ -53,7 +53,7 @@ export default class ProfilingHeap implements ProfilingType {
       reportProgress: false
     })
 
-    return FileUtils.writeDumpFile(chunks.join(''), '.heapprofile')
+    return FileUtils.writeDumpFile(chunks.join(''), '.heapdump')
   }
 
   private getProfileInfo () {
