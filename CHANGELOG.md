@@ -1,6 +1,5 @@
  
- 
-## 2.1.0 ( Wed Jul 18 2018 17:50:16 GMT+0200 (CEST) )
+## 2.1.0 ( Thu Jul 19 2018 16:53:33 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
@@ -72,6 +71,12 @@
 
 
 ## Chore
+  - upgrade some packages
+  ([b4cc2f57](https://github.com/keymetrics/pm2-io-apm/commit/b4cc2f573ea46e0501a5dca1d487315b3c2c13fb))
+  - upgrade version to 2.1.0-beta5
+  ([012c5868](https://github.com/keymetrics/pm2-io-apm/commit/012c5868c0f47ce54052c05ffbfdbc5022c53237))
+  - upgrade version to 2.1.0-beta4
+  ([4c0a04b7](https://github.com/keymetrics/pm2-io-apm/commit/4c0a04b778de95afcb2461bc500945a1ccc25302))
   - add publishing section in readme file
   ([522ef26b](https://github.com/keymetrics/pm2-io-apm/commit/522ef26b808a158ffe09363f6a58731cf44bdb62))
   - upgrade version to 2.1.0-beta3
@@ -88,6 +93,9 @@
 
 ## Branchs merged
   - Merge branch 'master' of github.com:keymetrics/pmx-2
+  ([f40e172f](https://github.com/keymetrics/pm2-io-apm/commit/f40e172feeaf235b8a3f85925c185ee68a633799))
+
+
 
 
 ## 2.0.3 ( Thu Jul 05 2018 17:43:57 GMT+0200 (CEST) )
