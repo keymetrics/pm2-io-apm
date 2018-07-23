@@ -1,4 +1,14 @@
  
+## 2.1.1 ( Mon Jul 23 2018 10:43:03 GMT+0200 (CEST) )
+
+
+## Hot Fixes
+  - better instantiation for debug module
+  ([d3930df9](https://github.com/keymetrics/pm2-io-apm/commit/d3930df9305e7c2221da23b63cce2b6b08ae1f2d))
+
+
+
+
 ## 2.1.0 ( Thu Jul 19 2018 16:53:33 GMT+0200 (CEST) )
 
 
