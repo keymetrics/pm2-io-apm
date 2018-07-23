@@ -67,7 +67,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
     this.actionFeature.action('km:cpu:profiling:start', async (opts, reply) => {
       if (!reply) {
         reply = opts
-        opts = null
+        opts = {}
       }
 
       try {

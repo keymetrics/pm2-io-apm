@@ -76,7 +76,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
     this.actionFeature.action('km:heap:sampling:start', async (opts, reply) => {
       if (!reply) {
         reply = opts
-        opts = null
+        opts = {}
       }
 
       try {
