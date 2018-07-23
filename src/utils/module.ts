@@ -1,8 +1,8 @@
 import * as fs from 'fs'
-import * as debug from 'debug'
+import * as Debug from 'debug'
 import * as path from 'path'
 
-debug('axm:module')
+const debug = Debug('axm:module')
 
 export default class ModuleUtils {
   static async getModulePath (moduleName) {
