@@ -27,8 +27,10 @@ export default class ActionsFeature implements Feature {
             (Object.keys(dump.handles).length === 0 || (Object.keys(dump.handles).length === 1 &&
               dump.handles.hasOwnProperty('Socket') &&
               dump.handles.Socket.length === 2 &&
-              dump.handles.Socket[0].fd === 1 &&
-              dump.handles.Socket[1].fd === 2)) &&
+              (dump.handles.Socket[0].fd === 1 ||
+                dump.handles.Socket[0].fd === -1) &&
+              (dump.handles.Socket[1].fd === 2 ||
+                dump.handles.Socket[1].fd === -1))) &&
             Object.keys(dump.requests).length === 0)) {
           process.removeListener('message', this.listener)
         }
