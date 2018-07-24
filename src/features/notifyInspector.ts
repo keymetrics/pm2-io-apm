@@ -1,4 +1,4 @@
-import async from 'async'
+import map from 'async/map'
 import * as inspector from 'inspector'
 import JsonUtils from '../utils/json'
 import { ServiceManager } from '../serviceManager'
@@ -64,7 +64,7 @@ export default class NotifyInspector {
       // only the current frame is interesting us
       const frame = params.callFrames[0]
       // inspect each scope to retrieve his context
-      async.map(frame.scopeChain, (scope: inspector.Debugger.Scope, next) => {
+      map(frame.scopeChain, (scope: inspector.Debugger.Scope, next) => {
         if (scope.type === 'global') return next()
         // get context of the scope
         session.post('Runtime.getProperties', {
@@ -98,7 +98,7 @@ export default class NotifyInspector {
           return scope.startLocation ? scope.startLocation.scriptId : null
         }).filter(scriptId => !!scriptId)
 
-        async.map(scriptIds, (scriptId: String, next) => {
+        map(scriptIds, (scriptId: String, next) => {
           session.post('Debugger.getScriptSource', {
             scriptId
           }, (err, data: inspector.Debugger.GetScriptSourceReturnType) => {
@@ -108,7 +108,7 @@ export default class NotifyInspector {
           if (err) return console.error(err)
           // so now we want only to attach the script source that match each scope
 
-          async.map(scopes, (scope: inspector.Debugger.Scope, next) => {
+          map(scopes, (scope: inspector.Debugger.Scope, next) => {
             if (!scope.startLocation || !scope.endLocation) return next()
             // get the script for this scope
             let script = scripts.find(script => {
