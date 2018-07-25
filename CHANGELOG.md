@@ -1,5 +1,11 @@
- 
-## 2.1.1 ( Mon Jul 23 2018 10:43:03 GMT+0200 (CEST) )
+## 2.1.2 ( Wed Jul 25 2018 10:24:22 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - check -1 fd for windows
+  ([b17e060b](https://github.com/keymetrics/pm2-io-apm/commit/b17e060b82af2acc4dcb6bc81d685c1b056c3f17))
+  - set options as empty object to avoid crash
+  ([46a62a21](https://github.com/keymetrics/pm2-io-apm/commit/46a62a21b3ee693de2953012eeb5fb7c9ce3d502))
 
 
 ## Hot Fixes
@@ -8,6 +14,24 @@
 
 
 
+
+
+## 2.1.1 ( Mon Jul 23 2018 10:43:03 GMT+0200 (CEST) )
+
+
+## Hot Fixes
+  - better instantiation for debug module
+  ([d3930df9](https://github.com/keymetrics/pm2-io-apm/commit/d3930df9305e7c2221da23b63cce2b6b08ae1f2d))
+
+
+## Chore
+  - upgrade version to 2.1.1
+  ([e0f3dd00](https://github.com/keymetrics/pm2-io-apm/commit/e0f3dd00899244294fde3f6d7c95987384210a03))
+  
+  
+  
+  
+  
 
 ## 2.1.0 ( Thu Jul 19 2018 16:53:33 GMT+0200 (CEST) )
 
