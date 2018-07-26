@@ -1,3 +1,13 @@
+## 2.1.3 ( Thu Jul 26 2018 17:58:05 GMT+0200 (CEST) )
+
+
+## Hot Fixes
+  - fix variable scope in deep metrics tracer to avoid memory leak
+  ([0e194428](https://github.com/keymetrics/pm2-io-apm/commit/0e19442852e62539987146a6ff51eaf41d00e39d))
+
+
+
+
 ## 2.1.2 ( Wed Jul 25 2018 10:24:22 GMT+0200 (CEST) )
 
 
