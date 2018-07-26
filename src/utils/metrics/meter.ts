@@ -29,7 +29,7 @@ export default class Meter {
     this._interval.unref()
   }
 
-  mark = function (n) {
+  mark = function (n?) {
     n = n || 1
 
     this._rate.update(n)
