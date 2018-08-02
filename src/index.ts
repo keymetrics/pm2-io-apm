@@ -29,7 +29,7 @@ class PMX {
     })
   }
 
-  init (config?) {
+  init(config?, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
@@ -51,9 +51,9 @@ class PMX {
     this.backwardConfigConversion(config)
 
     this.notifyFeature.init(notifyOptions)
-    this.metricsFeature.init(config.metrics)
+    this.metricsFeature.init(config.metrics, force)
 
-    this.actionsFeature.init(config.actions)
+    this.actionsFeature.init(config.actions, force)
 
     Configuration.init(config)
     return this
