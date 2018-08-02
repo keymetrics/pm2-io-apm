@@ -1,6 +1,6 @@
 import MetricsFeature from '../features/metrics'
 import MetricsInterface from './metricsInterface'
-import {ServiceManager} from '../serviceManager'
+import { ServiceManager } from '../serviceManager'
 
 import Debug from 'debug'
 
@@ -9,11 +9,11 @@ const debug = Debug('axm:workers')
 export default class WorkersMetric implements MetricsInterface {
   private metricFeature: MetricsFeature
 
-  constructor(metricFeature: MetricsFeature) {
+  constructor (metricFeature: MetricsFeature) {
     this.metricFeature = metricFeature
   }
 
-  init(config?: any | boolean) {
+  init (config?: any | boolean) {
     this.metricFeature.metric({
       name: 'Child processes',
       value: () => {
@@ -31,7 +31,7 @@ export default class WorkersMetric implements MetricsInterface {
     })
   }
 
-  destroy() {
+  destroy () {
     debug('WorkersMetric destroyed !')
   }
 }
