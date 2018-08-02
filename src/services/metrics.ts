@@ -6,6 +6,7 @@ import MetricConfig from '../utils/metricConfig'
 import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
 import Transaction from '../metrics/transaction'
 import NetworkMetric from '../metrics/network'
+import WorkersMetric from '../metrics/workers'
 
 const debug = Debug('axm:metricService')
 
@@ -28,6 +29,7 @@ export default class MetricsService {
     this.services.set('eventLoopActive', new EventLoopHandlesRequestsMetric(metricsFeature))
     this.services.set('transaction', new Transaction(metricsFeature))
     this.services.set('network', new NetworkMetric(metricsFeature))
+    this.services.set('worker', new WorkersMetric(metricsFeature))
   }
 
   init (config?, force?) {

@@ -305,7 +305,9 @@ io.init({
         gcType: true,                     // (default: true)  Type of GC (scavenge, mark/sweep/compact, ...)
         gcPause: true                     // (default: true)  Duration of pause (in milliseconds)
       }
-    }
+    },
+    
+    worker: true // default false
   },
   
   actions: {
