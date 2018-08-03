@@ -1,3 +1,20 @@
+## 2.2.0 ( Fri Aug 03 2018 15:20:16 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - fix tslint errors
+  ([7c8cea47](https://github.com/keymetrics/pm2-io-apm/commit/7c8cea47db25ef3dce1cab96d9dfb413b48196c4))
+
+
+
+
+## Features
+  - add worker metrics
+  ([e099d969](https://github.com/keymetrics/pm2-io-apm/commit/e099d969a6efb8c2f82ec3f6ba4defc1aea4e05c))
+
+
+
+
 ## 2.1.3 ( Thu Jul 26 2018 17:58:05 GMT+0200 (CEST) )
 
 
