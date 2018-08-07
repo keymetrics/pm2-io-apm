@@ -46,8 +46,10 @@ export class NotifyFeature implements Feature {
 
       if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 10.0.0') ||
         (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
+        debug('Enabling inspector based error reporting')
         const NotifyInspector = require('./notifyInspector').default
-        NotifyInspector.catchAllDebugger()
+        const feature = new NotifyInspector()
+        feature.init(options)
       } else {
         this.catchAll()
       }

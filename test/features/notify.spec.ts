@@ -62,13 +62,16 @@ describe('Notify', () => {
     it('should catch exception', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/features/catchAllInspectorChild.js'), [], {
         env: Object.assign(process.env, {
-          CATCH_CONTEXT_ON_ERROR: 'true'
+          CATCH_CONTEXT_ON_ERROR: 'true',
+          FORCE_INSPECTOR: 1
         })
       })
       child.on('message', msg => {
         if (msg.type === 'process:exception') {
           expect(msg.type).to.equal('process:exception')
-          expect(msg.data.message).to.equal('test')
+          expect(msg.data.message).to.equal('res.send is not a function')
+          assert(msg.data.stack.indexOf("bootstrap_node.js") > 0, 'should have async stacktrace')
+          assert(msg.data.frame.scopeChain.length > 0, 'should have attached scopes')
           child.kill('SIGINT')
           done()
         }

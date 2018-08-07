@@ -1,8 +1,9 @@
-import map from 'async/map'
+import async from 'async'
 import * as inspector from 'inspector'
 import JsonUtils from '../utils/json'
 import { ServiceManager } from '../serviceManager'
 import Transport from '../utils/transport'
+import { InspectorService } from '../services/inspector'
 
 export interface ErrorMetadata {
   type: String,
@@ -13,130 +14,266 @@ export interface ErrorMetadata {
   uncaught: Boolean
 }
 
+export interface ScopeMetadata extends inspector.Debugger.Scope {
+  context: PropertyMetadata[]
+}
+
+export interface PropertyMetadata {
+  properties?: PropertyMetadata[]
+  name: string
+  value?: inspector.Runtime.RemoteObject
+  writable?: boolean
+  get?: inspector.Runtime.RemoteObject
+  set?: inspector.Runtime.RemoteObject
+  configurable?: boolean
+  enumerable?: boolean
+  wasThrown?: boolean
+  isOwn?: boolean
+  symbol?: inspector.Runtime.RemoteObject
+}
+
+export interface TrappedException {
+  error: ErrorMetadata,
+  frame: Object,
+  asyncStackTrace?: inspector.Runtime.StackTrace
+}
+
+export interface fetchObjectPropertiesReturnType {
+  (err?: Error, data?: PropertyMetadata[]) : void
+}
+
 export default class NotifyInspector {
 
-  static catchAllDebugger (): Boolean | void {
+  private inspectorService: InspectorService
+  private exceptionsTrapped: TrappedException[]
 
-    interface TrappedException {
-      error: ErrorMetadata,
-      scopes: Object
-    }
-    const exceptionsTrapped: TrappedException[] = []
-    const session = ServiceManager.get('inspector').createSession()
-    ServiceManager.get('inspector').connect()
+  constructor () {
+    this.inspectorService = ServiceManager.get('inspector')
+    this.exceptionsTrapped = []
+  }
 
-    // trap exception so we can re-use them with the debugger
-    const trapException = listener => {
-      return (error) => {
-        // log it
-        if (listener === 'unhandledRejection') {
-          console.log('You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:')
+  init () {
+    this.inspectorService.createSession()
+    this.inspectorService.connect()
+    this.catchAllDebugger()
+  }
+
+  destroy () {
+    this.inspectorService.disconnect()
+  }
+
+  trapException (listener: String) {
+    return (error) => {
+      // log it
+      if (listener === 'unhandledRejection') {
+        console.log('You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:')
+      }
+      console.error(error)
+      // create object to be send
+      const context = this.exceptionsTrapped.find((exception: TrappedException) => {
+        return !!exception.error.description.match(error.message)
+      })
+      error = JsonUtils.jsonize(error)
+
+      // inject async stackframe
+      if (context && context.asyncStackTrace) {
+        const fetchFrames = (entry: inspector.Runtime.StackTrace): inspector.Runtime.CallFrame[] => {
+          return entry.parent ? entry.callFrames.concat(fetchFrames(entry.parent)) : entry.callFrames
         }
-        console.error(error)
-        // create object to be send
-        const context = exceptionsTrapped.find((exception: TrappedException) => {
-          return !!exception.error.description.match(error.message)
-        })
-        error = JsonUtils.jsonize(error)
-        error.context = context ? context.scopes : undefined
-        // send it
-        Transport.send({
-          type: 'process:exception',
-          data: error
-        })
-        // at this point the process should exit
-        process.exit(1)
+        const asyncStack: String[] = fetchFrames(context.asyncStackTrace)
+          .filter(frame => frame.url.indexOf('internal') === -1)
+          .map(frame => {
+            return `    at ${frame.functionName || '<anonymous>'} (${frame.url}:${frame.lineNumber}:${frame.columnNumber})`
+          })
+        asyncStack.unshift('')
+        error.stack = error.stack.concat(asyncStack.join('\n'))
+      }
+      error.frame = context ? context.frame : undefined
+      // send it
+      Transport.send({
+        type: 'process:exception',
+        data: error
+      })
+      // at this point the process should exit
+      process.exit(1)
+    }
+  }
+
+  isObjectInteresting (entry: PropertyMetadata) : Boolean {
+    if (!entry.value) return false
+    if (!entry.value.objectId) return false
+    if (entry.value.type !== 'object') return false
+
+    switch (entry.value.description) {
+      case 'IncomingMessage': {
+        return true
       }
     }
-    process.on('uncaughtException', trapException('uncaughtException'))
-    process.on('unhandledRejection', trapException('unhandledRejection'))
 
+    switch (entry.name) {
+      case 'headers': {
+        return true
+      }
+      case 'user': {
+        return true
+      }
+      case 'token': {
+        return true
+      }
+      case 'body': {
+        return true
+      }
+      case 'params': {
+        return true
+      }
+      case 'query': {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  isPropertyIntesting (entry: PropertyMetadata, parent?: PropertyMetadata) : Boolean {
+    if (!entry.value) return false
+    if (entry.value.type === 'object' && entry.properties) return true
+    if (parent && parent.name === 'headers') return true
+    if (parent && parent.name === 'body') return true
+    if (parent && parent.name === 'params') return true
+    if (parent && parent.name === 'query') return true
+    if (entry.name === '__proto__') return false
+
+    switch (entry.name) {
+      case 'url': {
+        return true
+      }
+      case 'user': {
+        return true
+      }
+      case 'token': {
+        return true
+      }
+      case 'method': {
+        return true
+      }
+      case 'path': {
+        return true
+      }
+      case 'ip': {
+        return true
+      }
+      case 'query': {
+        return true
+      }
+      case 'path': {
+        return true
+      }
+      case 'body': {
+        return true
+      }
+      case 'params': {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  formatProperty (property: PropertyMetadata) {
+    const value = property.value && property.value.value ? property.value.value : null
+    const description = property.value && property.value.description ? property.value.description : null
+    return {
+      name: property.name,
+      value: value || description || property.value,
+      properties: property.properties
+    }
+  }
+
+  fetchObjectProperties (session: inspector.Session, object: String, cb: fetchObjectPropertiesReturnType) {
+    session.post('Runtime.getProperties', {
+      objectId: object,
+      ownProperties: true
+    }, (err, data: inspector.Runtime.GetPropertiesReturnType) => {
+      if (err) return cb(err, undefined)
+      async.map(data.result, (entry: PropertyMetadata, next) => {
+        if (entry.value && entry.value.objectId && this.isObjectInteresting(entry)) {
+          return this.fetchObjectProperties(session, entry.value.objectId, (err, properties) => {
+            if (err) return next(err)
+
+            // if some properties has been dumped, attach them
+            if (properties) {
+              entry.properties = properties
+                .filter(property => {
+                  return this.isPropertyIntesting(property, entry)
+                })
+                .map(this.formatProperty)
+            }
+
+            return next(undefined, this.formatProperty(entry))
+          })
+        } else {
+          return next(undefined, this.formatProperty(entry))
+        }
+      }, cb)
+    })
+  }
+
+  catchAllDebugger (): Boolean | void {
+    const session: inspector.Session = this.inspectorService.createSession()
+    this.inspectorService.connect()
+    // trap exception so we can re-use them with the debugger 
+    process.on('uncaughtException', this.trapException('uncaughtException'))
+    process.on('unhandledRejection', this.trapException('unhandledRejection'))
+    // enable all the debugger options
     session.post('Debugger.enable')
-
+    session.post('Debugger.setAsyncCallStackDepth', {
+      maxDepth: process.env.PM2_APM_ASYNC_STACK_DEPTH || 50
+    })
     session.post('Debugger.setPauseOnExceptions', { state: 'uncaught' })
+    // register handler for paused event
     session.on('Debugger.paused', ({ params }) => {
+      params = params as inspector.Debugger.PausedEventDataType
+
       // should not happen but anyway
       if (params.reason !== 'exception' && params.reason !== 'promiseRejection') {
         return session.post('Debugger.resume')
       }
       if (!params.data) return session.post('Debugger.resume')
       const error: ErrorMetadata = params.data as ErrorMetadata
-      // only the current frame is interesting us
-      const frame = params.callFrames[0]
-      // inspect each scope to retrieve his context
-      map(frame.scopeChain, (scope: inspector.Debugger.Scope, next) => {
-        if (scope.type === 'global') return next()
+
+      // get only the current frame
+      const frame: inspector.Debugger.CallFrame = params.callFrames[0]
+      
+      // on each frame, dump all scopes
+      async.map(frame.scopeChain, (scope: inspector.Debugger.Scope, nextScope) => {
+        if (scope.type === 'global') return nextScope()
+        if (!scope.object.objectId) return nextScope()
         // get context of the scope
-        session.post('Runtime.getProperties', {
-          objectId: scope.object.objectId,
-          ownProperties: true
-        }, (err, data: inspector.Runtime.GetPropertiesReturnType) => {
-          const result: inspector.Runtime.PropertyDescriptor[] = data.result
-          return next(err, {
-            scope: scope.type,
-            name: scope.name,
-            startLocation: scope.startLocation,
-            endLocation: scope.endLocation,
-            context: result.map((entry: inspector.Runtime.PropertyDescriptor) => {
-              if (!entry.value) return {}
-              return {
-                name: entry.name,
-                type: entry.value.type,
-                value: entry.value.value ? entry.value.value : entry.value.description
-              }
-            })
-          })
+        return this.fetchObjectProperties(session, scope.object.objectId, (error, context) => {
+          return nextScope(error, Object.assign(scope, {
+            context,
+            object: undefined
+          }))
         })
-      }, (err: Error, scopes: inspector.Debugger.Scope[]) => {
-        if (err) return console.error(err)
+      }, (err: Error, scopes: ScopeMetadata[]) => {
+        if (err) {
+          console.error(err)
+          return session.post('Debugger.resume')
+        }
 
         // we can remove some scope so we want to remove null entry
         scopes = scopes.filter(scope => !!scope)
 
-        // okay so we want to get all of the script to attach it to the error
-        const scriptIds = scopes.map((scope: inspector.Debugger.Scope) => {
-          return scope.startLocation ? scope.startLocation.scriptId : null
-        }).filter(scriptId => !!scriptId)
-
-        map(scriptIds, (scriptId: String, next) => {
-          session.post('Debugger.getScriptSource', {
-            scriptId
-          }, (err, data: inspector.Debugger.GetScriptSourceReturnType) => {
-            return next(err, { id: scriptId, source: data.scriptSource })
-          })
-        }, (err, scripts) => {
-          if (err) return console.error(err)
-          // so now we want only to attach the script source that match each scope
-
-          map(scopes, (scope: inspector.Debugger.Scope, next) => {
-            if (!scope.startLocation || !scope.endLocation) return next()
-            // get the script for this scope
-            let script = scripts.find(script => {
-              if (!scope.startLocation) return false
-              return script.id === scope.startLocation.scriptId
-            })
-            script = script.source.split('\n')
-            // dont attach the whole script of the closure of the file
-            if (scope.startLocation.lineNumber === 0 && scope.endLocation.lineNumber + 1 === script.length) {
-              return next(null, { scope })
-            }
-            // remove the part before the scope
-            script.splice(0, scope.startLocation.lineNumber)
-            // remove the part after the scope
-            script.splice(scope.endLocation.lineNumber + 1, script.length - 1)
-            // then we can attach the source to the scope
-            return next(null, {
-              source: script,
-              scope
-            })
-          }, (err, scopes) => {
-            if (err) return console.error(err)
-
-            exceptionsTrapped.push({ error, scopes })
-            // continue execution
-            return session.post('Debugger.resume')
+        // inspect each scope to retrieve his context
+        this.exceptionsTrapped.push({
+          error,
+          asyncStackTrace: params.asyncStackTrace,
+          frame: Object.assign(frame, {
+            scopeChain: scopes
           })
         })
+        // continue execution
+        return session.post('Debugger.resume')
       })
     })
   }
