@@ -6,7 +6,7 @@ import {fork, exec} from 'child_process'
 
 describe('Worker', function () {
   this.timeout(5000)
-  it('should send all data with v8 heap info', (done) => {
+  it('should get worker/threads info', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/metrics/workerChild.js'))
 
     child.on('message', pck => {
