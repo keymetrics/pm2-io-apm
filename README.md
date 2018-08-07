@@ -306,8 +306,8 @@ io.init({
         gcPause: true                     // (default: true)  Duration of pause (in milliseconds)
       }
     },
-    
-    worker: true // default false
+    worker: true, // (default false) : get number of workers and threads
+    fileRequests: true // (default false) : get requests to file system
   },
   
   actions: {

@@ -6,7 +6,7 @@ import MetricConfig from '../utils/metricConfig'
 import EventLoopHandlesRequestsMetric from '../metrics/eventLoopHandlesRequests'
 import Transaction from '../metrics/transaction'
 import NetworkMetric from '../metrics/network'
-import WorkersMetric from '../metrics/workers'
+import MetricFromDump from '../metrics/metricFromDump'
 
 const debug = Debug('axm:metricService')
 
@@ -29,7 +29,11 @@ export default class MetricsService {
     this.services.set('eventLoopActive', new EventLoopHandlesRequestsMetric(metricsFeature))
     this.services.set('transaction', new Transaction(metricsFeature))
     this.services.set('network', new NetworkMetric(metricsFeature))
-    this.services.set('worker', new WorkersMetric(metricsFeature))
+    this.services.set('worker', new MetricFromDump(metricsFeature, [
+      { name: 'Child processes', property: 'ChildProcess' },
+      { name: 'Threads', property: 'MessagePort' }
+    ]))
+    this.services.set('fileRequests', new MetricFromDump(metricsFeature, { name: 'Files requests', property: 'FSReqWrap', parentProperty: 'requests' }))
   }
 
   init (config?, force?) {
