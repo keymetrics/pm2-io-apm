@@ -64,7 +64,7 @@ describe('Notify', () => {
       // dont run this test under node 8
       if (semver.satisfies(process.version, '< 8.0.0')) return done()
       const child = fork(SpecUtils.buildTestPath('fixtures/features/catchAllInspectorChild.js'), [], {
-        env: Object.assign(process.env, {
+        env: Object.assign({}, process.env, {
           CATCH_CONTEXT_ON_ERROR: 'true',
           FORCE_INSPECTOR: 1,
           DEBUG: 'axm:notify'

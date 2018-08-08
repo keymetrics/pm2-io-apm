@@ -18,5 +18,6 @@ server = http.listen(3001, function () {
 })
 
 process.on('SIGINT', function () {
+  notify.destroy()
   server.close()
 })

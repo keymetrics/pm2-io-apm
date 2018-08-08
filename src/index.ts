@@ -63,6 +63,8 @@ class PMX {
     if (this.metricsFeature) this.metricsFeature.destroy()
 
     if (this.actionsFeature) this.actionsFeature.destroy()
+
+    if (this.notifyFeature) this.notifyFeature.destroy()
   }
 
   notifyError (err: Error, context?) {
