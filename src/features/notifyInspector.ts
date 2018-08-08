@@ -38,8 +38,8 @@ export interface TrappedException {
   asyncStackTrace?: inspector.Runtime.StackTrace
 }
 
-export interface fetchObjectPropertiesReturnType {
-  (err?: Error, data?: PropertyMetadata[]) : void
+export interface FetchObjectPropertiesReturnType {
+  (err?: Error, data?: PropertyMetadata[]): void
 }
 
 export default class NotifyInspector {
@@ -99,7 +99,7 @@ export default class NotifyInspector {
     }
   }
 
-  isObjectInteresting (entry: PropertyMetadata) : Boolean {
+  isObjectInteresting (entry: PropertyMetadata): Boolean {
     if (!entry.value) return false
     if (!entry.value.objectId) return false
     if (entry.value.type !== 'object') return false
@@ -134,7 +134,7 @@ export default class NotifyInspector {
     return false
   }
 
-  isPropertyIntesting (entry: PropertyMetadata, parent?: PropertyMetadata) : Boolean {
+  isPropertyIntesting (entry: PropertyMetadata, parent?: PropertyMetadata): Boolean {
     if (!entry.value) return false
     if (entry.value.type === 'object' && entry.properties) return true
     if (parent && parent.name === 'headers') return true
@@ -154,9 +154,6 @@ export default class NotifyInspector {
         return true
       }
       case 'method': {
-        return true
-      }
-      case 'path': {
         return true
       }
       case 'ip': {
@@ -189,7 +186,7 @@ export default class NotifyInspector {
     }
   }
 
-  fetchObjectProperties (session: inspector.Session, object: String, cb: fetchObjectPropertiesReturnType) {
+  fetchObjectProperties (session: inspector.Session, object: String, cb: FetchObjectPropertiesReturnType) {
     session.post('Runtime.getProperties', {
       objectId: object,
       ownProperties: true
@@ -221,7 +218,7 @@ export default class NotifyInspector {
   catchAllDebugger (): Boolean | void {
     const session: inspector.Session = this.inspectorService.createSession()
     this.inspectorService.connect()
-    // trap exception so we can re-use them with the debugger 
+    // trap exception so we can re-use them with the debugger
     process.on('uncaughtException', this.trapException('uncaughtException'))
     process.on('unhandledRejection', this.trapException('unhandledRejection'))
     // enable all the debugger options
@@ -232,8 +229,6 @@ export default class NotifyInspector {
     session.post('Debugger.setPauseOnExceptions', { state: 'uncaught' })
     // register handler for paused event
     session.on('Debugger.paused', ({ params }) => {
-      params = params as inspector.Debugger.PausedEventDataType
-
       // should not happen but anyway
       if (params.reason !== 'exception' && params.reason !== 'promiseRejection') {
         return session.post('Debugger.resume')
@@ -243,7 +238,7 @@ export default class NotifyInspector {
 
       // get only the current frame
       const frame: inspector.Debugger.CallFrame = params.callFrames[0]
-      
+
       // on each frame, dump all scopes
       async.map(frame.scopeChain, (scope: inspector.Debugger.Scope, nextScope) => {
         if (scope.type === 'global') return nextScope()
