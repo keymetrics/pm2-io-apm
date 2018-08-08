@@ -5,7 +5,10 @@ export default class MiscUtils {
     return Math.random().toString(36).substr(2, 16)
   }
 
-  static getValueFromDump (property, parentProperty = 'handles'): number {
+  static getValueFromDump (property, parentProperty?): number {
+    if (!parentProperty) {
+      parentProperty = 'handles'
+    }
     const dump = ServiceManager.get('eventLoopService').inspector.dump()
     return dump[parentProperty].hasOwnProperty(property) ? dump[parentProperty][property].length : 0
   }
