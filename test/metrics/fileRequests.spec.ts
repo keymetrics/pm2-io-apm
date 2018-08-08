@@ -5,7 +5,7 @@ import SpecUtils from '../fixtures/utils'
 import {fork, exec} from 'child_process'
 
 describe('File requests', function () {
-  this.timeout(10000)
+  this.timeout(50000)
   it('should get number of file requests', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/metrics/FSChild.js'))
 

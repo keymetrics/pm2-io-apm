@@ -18,6 +18,7 @@ const timer = setInterval(function () {
   const funcs: Array<any> = []
   for (let i = 0; i < nbCalls; i++) funcs.push(readFile())
   async.parallel(funcs)
+  nbCalls++
 }, 10)
 
 process.on('SIGINT', function () {
