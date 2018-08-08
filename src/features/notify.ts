@@ -32,6 +32,7 @@ export class NotifyFeature implements Feature {
 
   private options: NotifyOptions = NotifyOptionsDefault
   private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+  private feature
 
   init (options?: NotifyOptions): Object {
     if (options) {
@@ -48,8 +49,8 @@ export class NotifyFeature implements Feature {
         (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
         debug('Enabling inspector based error reporting')
         const NotifyInspector = require('./notifyInspector').default
-        const feature = new NotifyInspector()
-        feature.init(options)
+        this.feature = new NotifyInspector()
+        this.feature.init(options)
       } else {
         this.catchAll()
       }
@@ -57,6 +58,12 @@ export class NotifyFeature implements Feature {
 
     return {
       notifyError: this.notifyError
+    }
+  }
+
+  destroy () {
+    if (this.feature) {
+      this.feature.destroy()
     }
   }
 
