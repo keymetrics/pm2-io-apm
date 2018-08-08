@@ -16,6 +16,7 @@ class PMX {
   private metricsFeature: MetricsFeature
   private actionsFeature: ActionsFeature
   private eventsFeature: EventFeature
+  public Entrypoint: Entrypoint
 
   constructor () {
     this.notifyFeature = new NotifyFeature()
@@ -29,7 +30,7 @@ class PMX {
     })
   }
 
-  init(config?, force?: boolean) {
+  init (config?, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
@@ -362,9 +363,10 @@ const IO_KEY = Symbol.for('@pm2/io')
 
 const globalSymbols = Object.getOwnPropertySymbols(global)
 const hasKey = (globalSymbols.indexOf(IO_KEY) > -1)
+let io: PMX
 
 if (!hasKey) {
-  global[IO_KEY] = new PMX()
+  io = global[IO_KEY] = new PMX()
 }
 
 class Entrypoint {
@@ -457,4 +459,6 @@ if (!hasKey) {
   Object.freeze(global[IO_KEY])
 }
 
-module.exports = global[IO_KEY]
+io = global[IO_KEY]
+
+export = io
