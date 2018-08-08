@@ -3,6 +3,7 @@ import { expect, assert } from 'chai'
 import 'mocha'
 import SpecUtils from '../fixtures/utils'
 import { NotifyFeature } from '../../src/features/notify'
+import * as semver from 'semver'
 
 describe('Notify', () => {
   describe('notify', () => {
@@ -60,17 +61,20 @@ describe('Notify', () => {
 
   describe('catchAll with v8 debugger', () => {
     it('should catch exception', (done) => {
+      // dont run this test under node 8
+      if (semver.satisfies(process.version, '< 8.0.0')) return done()
       const child = fork(SpecUtils.buildTestPath('fixtures/features/catchAllInspectorChild.js'), [], {
         env: Object.assign(process.env, {
           CATCH_CONTEXT_ON_ERROR: 'true',
-          FORCE_INSPECTOR: 1
+          FORCE_INSPECTOR: 1,
+          DEBUG: 'axm:notify'
         })
       })
       child.on('message', msg => {
         if (msg.type === 'process:exception') {
           expect(msg.type).to.equal('process:exception')
           expect(msg.data.message).to.equal('res.send is not a function')
-          assert(msg.data.stack.indexOf("bootstrap_node.js") > 0, 'should have async stacktrace')
+          assert(msg.data.stack.split('\n').length > 20, 'should have async stacktrace')
           assert(msg.data.frame.scopeChain.length > 0, 'should have attached scopes')
           child.kill('SIGINT')
           done()
