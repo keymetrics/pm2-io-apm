@@ -417,7 +417,7 @@ describe('API', function () {
               actionDone.push(pck.data.action_name)
             }
 
-            if (actionDone.length === 5) {
+            if (actionDone.length === 6) {
               expect(actionDone.indexOf('km:heap:sampling:start') > -1).to.equal(true)
               expect(actionDone.indexOf('km:heap:sampling:stop') > -1).to.equal(true)
               expect(actionDone.indexOf('km:cpu:profiling:start') > -1).to.equal(true)

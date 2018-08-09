@@ -10,6 +10,54 @@ import Debug from 'debug'
 import { ServiceManager } from './serviceManager'
 const debug = Debug('PM2-IO-APM')
 
+class TransactionConfig {
+  tracing: boolean
+  http: boolean
+}
+
+class MetricsConfig {
+  transaction: TransactionConfig
+  network: Object
+  v8: boolean
+  deepMetrics: boolean
+}
+
+class ActionsConfig {
+  profilingCpu: boolean
+  profilingHeap: boolean
+  eventLoopDump: boolean
+}
+
+class IOConfig {
+  level?: string
+  catchExceptions?: boolean
+  metrics: MetricsConfig
+  actions: ActionsConfig
+  network: boolean
+  ports: boolean
+  v8: boolean
+  transactions: boolean
+  http: boolean
+  deep_metrics: boolean // tslint:disable-line
+  event_loop_dump: boolean // tslint:disable-line
+  profiling: boolean
+}
+
+interface Context {
+  level?: string
+}
+
+interface ActionOpts {
+  name: string
+  opts: Object
+  action: Function
+}
+
+interface ConfigItem {
+  type: string
+  name: string
+}
+
 class PMX {
 
   private notifyFeature: NotifyFeature
@@ -30,12 +78,12 @@ class PMX {
     })
   }
 
-  init (config?, force?: boolean) {
+  init (config?: IOConfig, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
     if (!config) {
-      config = {}
+      config = new IOConfig()
     }
 
     if (config.level) {
@@ -68,7 +116,7 @@ class PMX {
     if (this.notifyFeature) this.notifyFeature.destroy()
   }
 
-  notifyError (err: Error, context?) {
+  notifyError (err: Error, context?: Context) {
     let level = 'info'
     if (context && context.level) {
       level = context.level
@@ -77,7 +125,7 @@ class PMX {
     this.notifyFeature.notifyError(err, level)
   }
 
-  metrics (metrics: Object | Array<any>): Object {
+  metrics (metrics: Object | Array<Object>): Object {
 
     const res: Object = {}
 
@@ -120,31 +168,31 @@ class PMX {
     return res
   }
 
-  histogram (config) {
+  histogram (config: Object) {
     config = Metriconfig.buildConfig(config)
 
     return this.metricsFeature['histogram'](config)
   }
 
-  metric (config) {
+  metric (config: Object) {
     config = Metriconfig.buildConfig(config)
 
     return this.metricsFeature['metric'](config)
   }
 
-  counter (config) {
+  counter (config: Object) {
     config = Metriconfig.buildConfig(config)
 
     return this.metricsFeature['counter'](config)
   }
 
-  meter (config) {
+  meter (config: Object) {
     config = Metriconfig.buildConfig(config)
 
     return this.metricsFeature['meter'](config)
   }
 
-  action (name, opts?, fn?) {
+  action (name: string | ActionOpts, opts?: Object, fn?: Function) {
     if (typeof name === 'object') {
       opts = name.opts
       fn = name.action
@@ -154,11 +202,11 @@ class PMX {
     this.actionsFeature.action(name, opts, fn)
   }
 
-  scopedAction (name, fn) {
+  scopedAction (name: string, fn: Function) {
     this.actionsFeature.scopedAction(name, fn)
   }
 
-  transpose (variableName, reporter) {
+  transpose (variableName: string, reporter: Function) {
     this.metricsFeature.transpose(variableName, reporter)
   }
 
@@ -196,13 +244,13 @@ class PMX {
     }
   }
 
-  emit (name, data) {
+  emit (name: string, data: any) {
     console.warn('Deprecated : emit() method will be removed in next major release !')
 
     this.eventsFeature.emit(name, data)
   }
 
-  notify (notification) {
+  notify (notification: Error | any) {
     console.warn('Deprecated : you should use io.notifyError() !')
 
     if (!(notification instanceof Error)) {
@@ -212,7 +260,7 @@ class PMX {
     this.notifyFeature.notifyError(notification)
   }
 
-  initModule (opts, cb) {
+  initModule (opts: any, cb: Function) {
     if (!opts) opts = {}
 
     opts = merge({
@@ -238,7 +286,7 @@ class PMX {
     return this.notifyFeature.expressErrorHandler()
   }
 
-  private genericBackwardConversion (object, type) {
+  private genericBackwardConversion (object: ConfigItem, type: string) {
     if (typeof object !== 'object') {
       console.error('Parameter should be an object')
       return null
@@ -251,7 +299,7 @@ class PMX {
     return this.metrics(object)[metricKey]
   }
 
-  private backwardConfigConversion (config) {
+  private backwardConfigConversion (config: IOConfig) {
 
     // ------------------------------------------
     // Network
@@ -290,7 +338,7 @@ class PMX {
     if (config.hasOwnProperty('transactions') || config.hasOwnProperty('http')) {
       this.initMetricsConf(config)
 
-      config.metrics.transaction = {}
+      config.metrics.transaction = new TransactionConfig()
 
       if (config.hasOwnProperty('transactions')) {
         config.metrics.transaction.tracing = config.transactions
@@ -329,23 +377,21 @@ class PMX {
     if (config.hasOwnProperty('profiling')) {
       this.initActionsConf(config)
 
-      config.actions = {
-        profilingCpu: config.profiling,
-        profilingHeap: config.profiling
-      }
+      config.actions.profilingHeap = config.profiling
+      config.actions.profilingHeap = config.profiling
       delete config.profiling
     }
   }
 
-  private initMetricsConf (config) {
+  private initMetricsConf (config: IOConfig) {
     if (!config.metrics) {
-      config.metrics = {}
+      config.metrics = new MetricsConfig()
     }
   }
 
-  private initActionsConf (config) {
+  private initActionsConf (config: IOConfig) {
     if (!config.actions) {
-      config.actions = {}
+      config.actions = new ActionsConfig()
     }
   }
 }
