@@ -3,6 +3,7 @@ import ActionsFeature from '../features/actions'
 import EventLoopInspector from '../actions/eventLoopInspector'
 import ProfilingHeapAction from '../actions/profilingHeap'
 import ProfilingCPUAction from '../actions/profilingCpu'
+import CoverageAction from '../actions/coverage'
 import MetricConfig from '../utils/metricConfig'
 
 const debug = Debug('axm:actionsService')
@@ -21,6 +22,7 @@ export default class ActionsService {
     this.services.set('eventLoopDump', new EventLoopInspector(actionsFeature))
     this.services.set('profilingCpu', new ProfilingCPUAction(actionsFeature))
     this.services.set('profilingHeap', new ProfilingHeapAction(actionsFeature))
+    this.services.set('coverage', new CoverageAction(actionsFeature))
   }
 
   init (config?, force?) {

@@ -97,7 +97,7 @@ describe('ProfilingAction', function () {
         if (res === 'initialized') {
           child.send({
             msg: 'km:cpu:profiling:start',
-            opts: {timeout: 500}
+            opts: { timeout: 500 }
           })
         }
       })
@@ -199,7 +199,7 @@ describe('ProfilingAction', function () {
       })
     })
 
-    it('should get heap profile data without timeout', (done) => {
+    it('should get heap profile data with timeout', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/actions/profilingHeapChild.js'))
       let uuid
 
@@ -230,7 +230,7 @@ describe('ProfilingAction', function () {
           setTimeout(function () {
             child.send({
               msg: 'km:heap:sampling:start',
-              opts: {timeout: 500}
+              opts: { timeout: 500 }
             })
           }, 100)
         }
