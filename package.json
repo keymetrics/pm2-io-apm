@@ -19,7 +19,7 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
     "lint": "tslint --project . src/**/*.ts",
-    "unit": "yarn build && yarn copy && nyc mocha -r ts-node/register ./test/**/*.spec.ts ./test/*.spec.ts --expose-gc",
+    "unit": "yarn build && yarn copy && nyc mocha -r ts-node/register ./test/**/coverage.spec.ts --expose-gc",
     "copy": "copyfiles test/**/*.json build/main/",
     "test": "yarn lint && yarn unit",
     "watch": "tsc -w",
