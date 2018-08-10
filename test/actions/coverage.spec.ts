@@ -26,10 +26,16 @@ function common (res, child, done) {
               if (func.isBlockCoverage) {
                 expect(func.ranges.length).to.equal(2)
                 expect(func.ranges[0].count).to.equal(1)
+                expect(func.ranges[0].startOffset).to.equal(535)
+                expect(func.ranges[0].endOffset).to.equal(788)
                 expect(func.ranges[1].count).to.equal(0)
+                expect(func.ranges[1].startOffset).to.equal(751)
+                expect(func.ranges[1].endOffset).to.equal(782)
               } else {
                 expect(func.ranges.length).to.equal(1)
                 expect(func.ranges[0].count).to.equal(1)
+                expect(func.ranges[0].startOffset).to.equal(535)
+                expect(func.ranges[0].endOffset).to.equal(788)
               }
             }
           })
