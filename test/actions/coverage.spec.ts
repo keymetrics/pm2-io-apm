@@ -50,126 +50,129 @@ function common (res, child, done) {
   }
 }
 
-describe('CoverageAction', function () {
-  this.timeout(20000)
+if (require('semver').satisfies(process.version, '>= 8.0.0')) {
 
-  it('should get coverage data with details', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [],{
-      env: Object.assign({}, process.env, {
-        FORCE_INSPECTOR: 1
+  describe('CoverageAction', function () {
+    this.timeout(20000)
+
+    it('should get coverage data with details', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [], {
+        env: Object.assign({}, process.env, {
+          FORCE_INSPECTOR: 1
+        })
+      })
+
+      child.on('message', res => {
+
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
+        if (res.type === 'axm:reply') {
+          common(res, child, done)
+        }
+
+        if (res === 'initialized') {
+          child.send({ msg: 'km:coverage:start', opts: { detailed: true } })
+
+          setTimeout(function () {
+            child.send('km:coverage:stop')
+          }, 1000)
+        }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
 
-    child.on('message', res => {
+    it('should get coverage data wihtout details', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [], {
+        env: Object.assign({}, process.env, {
+          FORCE_INSPECTOR: 1
+        })
+      })
 
-      if (res.type === 'axm:action') {
-        expect(res.data.action_type).to.equal('internal')
-      }
+      child.on('message', res => {
 
-      if (res.type === 'axm:reply') {
-        common(res, child, done)
-      }
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
 
-      if (res === 'initialized') {
-        child.send({ msg: 'km:coverage:start', opts: { detailed: true } })
+        if (res.type === 'axm:reply') {
+          common(res, child, done)
+        }
 
-        setTimeout(function () {
-          child.send('km:coverage:stop')
-        }, 1000)
-      }
-    })
+        if (res === 'initialized') {
+          child.send('km:coverage:start')
 
-    child.on('exit', function () {
-      done()
-    })
-  })
+          setTimeout(function () {
+            child.send('km:coverage:stop')
+          }, 1000)
+        }
+      })
 
-  it('should get coverage data wihtout details', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [],{
-      env: Object.assign({}, process.env, {
-        FORCE_INSPECTOR: 1
+      child.on('exit', function () {
+        done()
       })
     })
 
-    child.on('message', res => {
+    it('should get coverage data with timeout', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [], {
+        env: Object.assign({}, process.env, {
+          FORCE_INSPECTOR: 1
+        })
+      })
 
-      if (res.type === 'axm:action') {
-        expect(res.data.action_type).to.equal('internal')
-      }
+      child.on('message', res => {
 
-      if (res.type === 'axm:reply') {
-        common(res, child, done)
-      }
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
 
-      if (res === 'initialized') {
-        child.send('km:coverage:start')
+        if (res.type === 'axm:reply') {
+          common(res, child, done)
+        }
 
-        setTimeout(function () {
-          child.send('km:coverage:stop')
-        }, 1000)
-      }
-    })
+        if (res === 'initialized') {
+          child.send({ msg: 'km:coverage:start', opts: { detailed: true, timeout: 800 } })
+        }
+      })
 
-    child.on('exit', function () {
-      done()
-    })
-  })
-
-  it('should get coverage data with timeout', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [],{
-      env: Object.assign({}, process.env, {
-        FORCE_INSPECTOR: 1
+      child.on('exit', function () {
+        done()
       })
     })
 
-    child.on('message', res => {
+    it('should get coverage data with best effort', (done) => {
+      const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [], {
+        env: Object.assign({}, process.env, {
+          FORCE_INSPECTOR: 1
+        })
+      })
 
-      if (res.type === 'axm:action') {
-        expect(res.data.action_type).to.equal('internal')
-      }
+      child.on('message', res => {
 
-      if (res.type === 'axm:reply') {
-        common(res, child, done)
-      }
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
 
-      if (res === 'initialized') {
-        child.send({ msg: 'km:coverage:start', opts: { detailed: true, timeout: 800 } })
-      }
-    })
+        if (res.type === 'axm:reply') {
+          common(res, child, done)
+        }
 
-    child.on('exit', function () {
-      done()
-    })
-  })
+        if (res === 'initialized') {
+          child.send({ msg: 'km:coverage:start', opts: { method: 'getBestEffortCoverage', detailed: true } })
 
-  it('should get coverage data with best effort', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/actions/coverageChild.js'), [],{
-      env: Object.assign({}, process.env, {
-        FORCE_INSPECTOR: 1
+          setTimeout(function () {
+            child.send('km:coverage:stop')
+          }, 1000)
+        }
+      })
+
+      child.on('exit', function () {
+        done()
       })
     })
-
-    child.on('message', res => {
-
-      if (res.type === 'axm:action') {
-        expect(res.data.action_type).to.equal('internal')
-      }
-
-      if (res.type === 'axm:reply') {
-        common(res, child, done)
-      }
-
-      if (res === 'initialized') {
-        child.send({ msg: 'km:coverage:start', opts: { method: 'getBestEffortCoverage', detailed: true } })
-
-        setTimeout(function () {
-          child.send('km:coverage:stop')
-        }, 1000)
-      }
-    })
-
-    child.on('exit', function () {
-      done()
-    })
   })
-})
+}
