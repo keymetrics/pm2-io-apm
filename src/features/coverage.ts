@@ -2,6 +2,7 @@ import { Feature } from './featureTypes'
 import { InspectorService } from '../services/inspector'
 import { ServiceManager } from '../serviceManager'
 import FileUtils from '../utils/file'
+import * as semver from 'semver'
 
 import Debug from 'debug'
 const debug = Debug('axm:coveragefeature')
@@ -16,6 +17,14 @@ export default class CoverageFeature implements Feature {
   }
 
   init () {
+    if (semver.satisfies(process.version, '< 8.0.0') ||
+      (semver.satisfies(process.version, '< 10.0.0') && !process.env.FORCE_INSPECTOR)) {
+      return new Promise(resolve => {
+        debug(`Coverage feature is not available for node < 8.0.0 (force inspector : ${process.env.FORCE_INSPECTOR}), current version ${process.version}`)
+        resolve(`Coverage feature is not available for node < 8.0.0 (force inspector : ${process.env.FORCE_INSPECTOR}), current version ${process.version}`)
+      })
+    }
+
     this.inspectorService.createSession()
     this.inspectorService.connect()
     return this.inspectorService.post('Profiler.enable')
