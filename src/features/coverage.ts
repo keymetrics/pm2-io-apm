@@ -46,10 +46,10 @@ export default class CoverageFeature implements Feature {
   }
 
   private getInfo () {
-    const self = this
+    // const self = this
     return new Promise(async (resolve, reject) => {
       try {
-        const data = await this.inspectorService.post('Profiler.' + self.method)
+        const data = await this.inspectorService.post('Profiler.' + this.method)
         await this.inspectorService.post('Profiler.stopPreciseCoverage')
 
         return resolve(data)
