@@ -8,6 +8,7 @@ const debug = Debug('axm:network')
 
 export default class NetworkMetric implements MetricsInterface {
   private metricFeature: MetricsFeature
+  private timer
 
   private defaultConf = {
     ports: false,
@@ -31,6 +32,7 @@ export default class NetworkMetric implements MetricsInterface {
   }
 
   destroy () {
+    clearTimeout(this.timer)
     debug('NetworkMetric destroyed !')
   }
 
@@ -141,23 +143,28 @@ export default class NetworkMetric implements MetricsInterface {
       }
     }
 
-    if (config === true || config.download === true) {
-      const originalRead = netModule.Socket.prototype.read
+    if (config === true || config.download === true || Number.isInteger(config.download)) {
+      const delay = Number.isInteger(config.download) ? config.download : 500
 
-      netModule.Socket.prototype.read = function () {
+      this.timer = setTimeout(() => {
+        const originalRead = netModule.Socket.prototype.read
 
-        if (!this.monitored) {
-          this.monitored = true
+        netModule.Socket.prototype.read = function () {
+          if (!this.monitored) {
+            this.monitored = true
 
-          this.on('data', function (data) {
-            if (data.length) {
-              download += data.length
-            }
-          })
+            this.on('data', function (data) {
+              if (data.length) {
+                download += data.length
+              }
+            })
+          }
+
+          return originalRead.apply(this, arguments)
         }
+      }, delay)
 
-        return originalRead.apply(this, arguments)
-      }
+      this.timer.unref()
     }
   }
 }
