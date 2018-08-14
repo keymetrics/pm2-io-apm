@@ -5,7 +5,7 @@ import SpecUtils from '../fixtures/utils'
 import { fork, exec } from 'child_process'
 
 describe('Network', function () {
-  this.timeout(5000)
+  this.timeout(10000)
 
   it('should send network data', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/metrics/networkChild.js'))
@@ -55,6 +55,26 @@ describe('Network', function () {
         child.kill('SIGINT')
         done()
       }
+    })
+  })
+
+  it('should only send download data even with amqplib', (done) => {
+    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/networkWithAmqChild.js'))
+
+    setTimeout(() => {
+      child.on('message', pck => {
+
+        if (pck.type === 'axm:monitor' && pck.data['Network Download'].value !== '0 B/sec') {
+
+          expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
+
+          child.kill('SIGINT')
+        }
+      })
+    }, 1500)
+
+    child.on('exit', () => {
+      done()
     })
   })
 })
