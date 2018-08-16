@@ -1,4 +1,69 @@
-## 2.2.0 ( Fri Aug 03 2018 15:20:16 GMT+0200 (CEST) )
+# 2.3.0 ( Thu Aug 16 2018 13:06:16 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - #176 protect code when getHeapStatistics returns no metrics
+  ([f3858db9](https://github.com/keymetrics/pm2-io-apm/commit/f3858db990c38bc8e5e6c649d2c93efa72d84cf3))
+  - #176 protect code when getHeapStatistics returns no metric
+  ([3371d1a7](https://github.com/keymetrics/pm2-io-apm/commit/3371d1a796ca39a440360f67ae20be14c0bb6d95))
+  - delay network download patching to avoid conflict with amq lib
+  ([63078787](https://github.com/keymetrics/pm2-io-apm/commit/63078787b52e67b3ac032213f5d7a86731f856eb))
+
+
+
+
+## Features
+  - add coverage feature
+  ([1ed766d2](https://github.com/keymetrics/pm2-io-apm/commit/1ed766d2955acb31d7674642a9e943c71a97c3be))
+  - add file requests metrics + refactor metrics from dump
+  ([c4416c32](https://github.com/keymetrics/pm2-io-apm/commit/c4416c32f04727cd656088073e4732abd3449723))
+
+
+
+
+## Refactor
+  - return as soon as possible
+  ([15b4affb](https://github.com/keymetrics/pm2-io-apm/commit/15b4affbba641083440759d02af0fe357ae1483b))
+  - disable coverage if node version is not compatible
+  ([47f731f7](https://github.com/keymetrics/pm2-io-apm/commit/47f731f78375bddeb3cf29349c072fd33d78b569))
+  - change default parameter value to make it work with node 4
+  ([f01ecbfd](https://github.com/keymetrics/pm2-io-apm/commit/f01ecbfd138d86e3ec7ac32533690549f2f39ea0))
+
+
+
+
+## Test
+  - fix tests on node 10
+  ([47ae4c29](https://github.com/keymetrics/pm2-io-apm/commit/47ae4c29f7d5a315b8df186d11cf287005e17703))
+  - stabilize tests
+  ([a60d7406](https://github.com/keymetrics/pm2-io-apm/commit/a60d74067b5305f129137907c88e613dc0772763))
+  - stabilize test about file requests
+  ([7860ac18](https://github.com/keymetrics/pm2-io-apm/commit/7860ac187a0f4dd77ae6483005d88f08d74bfbe7))
+  - fix test on node 8
+  ([1161b1a5](https://github.com/keymetrics/pm2-io-apm/commit/1161b1a5f3c7e9ad91507e1c0c194277560b3d21))
+
+
+
+
+## Chore
+  - better usage of context
+  ([3cf7a364](https://github.com/keymetrics/pm2-io-apm/commit/3cf7a364a8e53b437db389c3e9f9bef3e8c0ca3b))
+  - enable all tests
+  ([5d96ed37](https://github.com/keymetrics/pm2-io-apm/commit/5d96ed377323a1f4a4e7db8ffaa90bf83b98a849))
+  - add typings for all public methods
+  ([d25f4f9b](https://github.com/keymetrics/pm2-io-apm/commit/d25f4f9bdd503855574024dab03573666c88ba5f))
+  - exports typings
+  ([dd81c1a1](https://github.com/keymetrics/pm2-io-apm/commit/dd81c1a14f4ae6d11fe779660c5a36f7b4129f44))
+  - upgrade version to 2.2.0
+  ([3844287d](https://github.com/keymetrics/pm2-io-apm/commit/3844287d496f5d56c2bf3d5de23aa14ae3d633c7))
+
+
+
+
+
+
+
+# 2.2.0 ( Fri Aug 03 2018 15:20:16 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
@@ -15,7 +80,7 @@
 
 
 
-## 2.1.3 ( Thu Jul 26 2018 17:58:05 GMT+0200 (CEST) )
+# 2.1.3 ( Thu Jul 26 2018 17:58:05 GMT+0200 (CEST) )
 
 
 ## Hot Fixes
@@ -25,7 +90,7 @@
 
 
 
-## 2.1.2 ( Wed Jul 25 2018 10:24:22 GMT+0200 (CEST) )
+# 2.1.2 ( Wed Jul 25 2018 10:24:22 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
@@ -43,7 +108,7 @@
 
 
 
-## 2.1.1 ( Mon Jul 23 2018 10:43:03 GMT+0200 (CEST) )
+# 2.1.1 ( Mon Jul 23 2018 10:43:03 GMT+0200 (CEST) )
 
 
 ## Hot Fixes
@@ -60,7 +125,7 @@
   
   
 
-## 2.1.0 ( Thu Jul 19 2018 16:53:33 GMT+0200 (CEST) )
+# 2.1.0 ( Thu Jul 19 2018 16:53:33 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
@@ -159,7 +224,7 @@
 
 
 
-## 2.0.3 ( Thu Jul 05 2018 17:43:57 GMT+0200 (CEST) )
+# 2.0.3 ( Thu Jul 05 2018 17:43:57 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
@@ -177,7 +242,7 @@
 
 
 
-## 2.0.2 ( Wed Jun 27 2018 12:05:52 GMT+0200 (CEST) )
+# 2.0.2 ( Wed Jun 27 2018 12:05:52 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
@@ -201,7 +266,7 @@
 
 
 
-## 2.0.1 ( Tue Jun 26 2018 10:21:19 GMT+0200 (CEST) )
+# 2.0.1 ( Tue Jun 26 2018 10:21:19 GMT+0200 (CEST) )
 
 
 ## Hot Fixes
@@ -210,7 +275,7 @@
 
 
 
-## 2.0.0 ( Tue Jun 19 2018 16:39:57 GMT+0200 (CEST) )
+# 2.0.0 ( Tue Jun 19 2018 16:39:57 GMT+0200 (CEST) )
 
 
 ## Bug Fixes
