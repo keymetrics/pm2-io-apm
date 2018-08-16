@@ -24,12 +24,11 @@ export default class MetricConfig {
   }
 
   static setProbesValue (allPossibleMetrics, metrics, probes, defaultUnit) {
-    if (metrics) {
-      for (let metricName in metrics) {
-        if (metrics.hasOwnProperty(metricName) && probes.hasOwnProperty(metricName)) {
-          const value = (allPossibleMetrics[metricName].unit === defaultUnit) ? Math.round(metrics[metricName] / 1000) : metrics[metricName]
-          probes[metricName].set(value)
-        }
+    if (!metrics) return
+    for (let metricName in metrics) {
+      if (metrics.hasOwnProperty(metricName) && probes.hasOwnProperty(metricName)) {
+        const value = (allPossibleMetrics[metricName].unit === defaultUnit) ? Math.round(metrics[metricName] / 1000) : metrics[metricName]
+        probes[metricName].set(value)
       }
     }
   }
