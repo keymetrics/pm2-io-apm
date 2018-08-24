@@ -7,6 +7,7 @@ import * as merge from 'deepmerge'
 import Configuration from './configuration'
 import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
+import * as fs from 'fs'
 import { ServiceManager } from './serviceManager'
 const debug = Debug('PM2-IO-APM')
 
@@ -223,8 +224,6 @@ class PMX {
   // -----------------------------------------------------------
 
   probe () {
-    console.warn('Deprecated : you should use io instead of io.probe() !')
-
     return {
       histogram: (histogram) => {
         return this.genericBackwardConversion(histogram, 'histogram')
@@ -258,6 +257,12 @@ class PMX {
     }
 
     this.notifyFeature.notifyError(notification)
+  }
+
+  getPID (file: string) {
+    if (typeof(file) === 'number')
+      return file
+    return parseInt(fs.readFileSync(file).toString())
   }
 
   initModule (opts: any, cb: Function) {
@@ -415,7 +420,7 @@ if (!hasKey) {
   io = global[IO_KEY] = new PMX()
 }
 
-class Entrypoint {
+class Entrypoint extends PMX {
 
   public defaultConf = {
     metrics: {
@@ -447,6 +452,8 @@ class Entrypoint {
   private io: PMX
 
   constructor () {
+    super()
+
     try {
       this.io = global[IO_KEY].init(this.conf())
 
@@ -456,8 +463,8 @@ class Entrypoint {
           debug(err)
         }
 
-        this.metrics()
-        this.actions()
+        this.sensors()
+        this.actuators()
 
         this.io.onExit((code, signal) => {
           this.onStop(err, () => {
@@ -477,12 +484,12 @@ class Entrypoint {
     }
   }
 
-  metrics () {
+  sensors () {
     debug('No metrics !')
   }
 
-  actions () {
-    debug('No actions !')
+  actuators () {
+    debug('No metrics !')
   }
 
   onStart (cb: Function) {
