@@ -268,9 +268,13 @@ class PMX {
   initModule (opts: any, cb: Function) {
     if (!opts) opts = {}
 
+    if (opts.reference) {
+      opts.name = opts.reference
+      delete opts.reference
+    }
+
     opts = merge({
-      alert_enabled    : true,
-      widget           : {}
+      widget: {}
     }, opts)
 
     opts.widget = merge({
@@ -413,12 +417,13 @@ const IO_KEY = Symbol.for('@pm2/io')
 // ------------------------------------------
 
 const globalSymbols = Object.getOwnPropertySymbols(global)
-const hasKey = (globalSymbols.indexOf(IO_KEY) > -1)
+const alreadyInstanciated = (globalSymbols.indexOf(IO_KEY) > -1)
 let io: PMX
 
-if (!hasKey) {
-  io = global[IO_KEY] = new PMX()
-}
+if (alreadyInstanciated)
+  global[IO_KEY].destroy()
+
+io = global[IO_KEY] = new PMX()
 
 class Entrypoint extends PMX {
 
@@ -458,7 +463,6 @@ class Entrypoint extends PMX {
       this.io = global[IO_KEY].init(this.conf())
 
       this.onStart(err => {
-
         if (err) {
           debug(err)
         }
@@ -505,13 +509,7 @@ class Entrypoint extends PMX {
   }
 }
 
-if (!hasKey) {
-  global[IO_KEY].Entrypoint = Entrypoint
 
-  // Freeze API, cannot be modified
-  Object.freeze(global[IO_KEY])
-}
+global[IO_KEY].Entrypoint = Entrypoint
 
-io = global[IO_KEY]
-
-export = io
+export = global[IO_KEY]
