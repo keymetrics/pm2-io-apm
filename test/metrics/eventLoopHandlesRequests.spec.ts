@@ -15,7 +15,7 @@ describe('EventLoopHandlesRequests', function () {
       if (pck.type === 'axm:monitor') {
         expect(pck.data['Active handles'].agg_type).to.equal('avg')
         expect(pck.data['Active handles'].historic).to.equal(true)
-        expect(pck.data['Active handles'].type).to.equal('Active handles')
+        expect(pck.data['Active handles'].type).to.equal('internal/libuv/handles')
 
         child.kill('SIGINT')
         done()

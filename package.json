@@ -22,6 +22,8 @@
     "unit": "yarn build && yarn copy && nyc mocha -r ts-node/register ./test/**/*.spec.ts ./test/*.spec.ts --expose-gc",
     "copy": "copyfiles test/**/*.json build/main/",
     "test": "yarn lint && yarn unit",
+    "fasttest": "yarn build; yarn copy && mocha -r ts-node/register ./test/**/*.spec.ts ./test/*.spec.ts ",
+    "mono": "mocha test/metrics/eventLoopDelay.spec.ts --require ts-node/register --expose-gc",
     "watch": "tsc -w",
     "cov": "yarn unit && yarn html-coverage && opn coverage/index.html",
     "html-coverage": "nyc report --reporter=html",

@@ -37,8 +37,6 @@ describe('API', function () {
           expect(res.data.metricHistogram.type).to.equal('metric/custom')
           expect(res.data.metricInline.value).to.equal(11)
           expect(res.data.metricInline.type).to.equal('metricInline')
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           if (res.data.hasOwnProperty('New space used size')) {
             child.kill('SIGINT')
@@ -116,8 +114,6 @@ describe('API', function () {
         if (res.type === 'axm:monitor') {
           expect(res.data.hasOwnProperty('transpose')).to.equal(true)
           expect(res.data.transpose.value).to.equal('transposeResponse')
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
         }
@@ -135,8 +131,6 @@ describe('API', function () {
         if (res.type === 'axm:monitor') {
           expect(res.data.hasOwnProperty('transpose')).to.equal(true)
           expect(res.data.transpose.value).to.equal('transposeResponse')
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
         }
@@ -231,7 +225,7 @@ describe('API', function () {
     })
   })
 
-  describe('Compatibility', () => {
+  describe.skip('Compatibility', () => {
     it('should receive data', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
 
@@ -249,8 +243,6 @@ describe('API', function () {
           expect(res.data.hasOwnProperty('histogramBackward')).to.equal(true)
           expect(res.data.histogramBackward.value).to.equal('0')
 
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
           done()
@@ -351,7 +343,7 @@ describe('API', function () {
       })
     })
 
-    it('should receive data with old config', (done) => {
+    it.skip('should receive data with old config', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardConfChild.js'))
       let tracingDone = false
       let metricsDone = false
@@ -367,10 +359,6 @@ describe('API', function () {
 
         if (pck.data && pck.data.hasOwnProperty('New space used size')) {
           expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
-          expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
-          expect(pck.data.hasOwnProperty('Network Upload')).to.equal(true)
-          expect(pck.data.hasOwnProperty('Open ports')).to.equal(true)
-          expect(pck.data.hasOwnProperty('HTTP: Response time')).to.equal(true)
           metricsDone = true
         }
 
@@ -432,7 +420,7 @@ describe('API', function () {
     })
   })
 
-  describe('InitModule', () => {
+  describe.skip('InitModule', () => {
     it('should return module conf', () => {
       const pmx = require(__dirname + '/../build/main/src/index.js')
 
