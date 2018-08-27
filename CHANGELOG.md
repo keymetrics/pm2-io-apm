@@ -1,3 +1,15 @@
+# 2.3.1 ( Mon Aug 27 2018 17:09:07 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - #178 fix TypeError when promise reject with a string
+  ([9e78dca5](https://github.com/keymetrics/pm2-io-apm/commit/9e78dca56a2ceaf8a2f001933dccf8e17d2eb275))
+
+
+
+
+
+
 # 2.3.0 ( Thu Aug 16 2018 13:06:16 GMT+0200 (CEST) )
 
 
