@@ -111,11 +111,6 @@ export class NotifyFeature implements Feature {
       return function uncaughtListener (err) {
         let error = err && err.stack ? err.stack : err
 
-        if (err && err.length) {
-          err._length = err.length
-          delete err.length
-        }
-
         if (listener === 'unhandledRejection') {
           console.log('You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:')
         }
