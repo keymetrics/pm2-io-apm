@@ -225,7 +225,7 @@ describe('API', function () {
     })
   })
 
-  describe.skip('Compatibility', () => {
+  describe('Compatibility', () => {
     it('should receive data', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
 
@@ -242,7 +242,6 @@ describe('API', function () {
 
           expect(res.data.hasOwnProperty('histogramBackward')).to.equal(true)
           expect(res.data.histogramBackward.value).to.equal('0')
-
 
           child.kill('SIGINT')
           done()
@@ -343,7 +342,7 @@ describe('API', function () {
       })
     })
 
-    it.skip('should receive data with old config', (done) => {
+    it('should receive data with old config', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardConfChild.js'))
       let tracingDone = false
       let metricsDone = false
@@ -420,7 +419,7 @@ describe('API', function () {
     })
   })
 
-  describe.skip('InitModule', () => {
+  describe('InitModule', () => {
     it('should return module conf', () => {
       const pmx = require(__dirname + '/../build/main/src/index.js')
 
@@ -498,6 +497,26 @@ describe('API', function () {
           done()
         }
       })
+    })
+  })
+
+  describe('Multiple instantiation', () => {
+    it('should retrieve config of the previous instantiation', () => {
+      let pmx = require(__dirname + '/../build/main/src/index.js')
+
+      pmx.init({ metrics: { v8: true } })
+      let conf = pmx.getInitialConfig()
+      expect(conf.metrics.v8).to.equal(true)
+      expect(conf.metrics.transaction).to.equal(undefined)
+
+      pmx = require(__dirname + '/../build/main/src/index.js')
+      pmx.init({ metrics: { transaction: { http: false } } })
+      conf = pmx.getInitialConfig()
+
+      expect(conf.metrics.v8).to.equal(true)
+      expect(conf.metrics.transaction.http).to.equal(false)
+
+      pmx.destroy()
     })
   })
 })

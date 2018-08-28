@@ -7,7 +7,7 @@ import { fork, exec } from 'child_process'
 describe('Network', function () {
   this.timeout(10000)
 
-  it.skip('should send network data', (done) => {
+  it('should send network data', (done) => {
     const child = fork(SpecUtils.buildTestPath('fixtures/metrics/networkChild.js'))
 
     child.on('message', pck => {

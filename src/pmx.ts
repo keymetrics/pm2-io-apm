@@ -68,6 +68,7 @@ export default class PMX {
   private actionsFeature: ActionsFeature
   private eventsFeature: EventFeature
   public Entrypoint: Entrypoint
+  private initialConfig: IOConfig
 
   constructor () {
     this.notifyFeature = new NotifyFeature()
@@ -81,9 +82,21 @@ export default class PMX {
     })
   }
 
+  getInitialConfig (): IOConfig {
+    return this.initialConfig
+  }
+
+  setInitialConfig (conf) {
+    this.initialConfig = conf
+  }
+
   init (config?: IOConfig, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
+
+    if (this.initialConfig) {
+      config = merge(this.initialConfig, config)
+    }
 
     if (!config) {
       config = new IOConfig()
@@ -108,6 +121,7 @@ export default class PMX {
     this.actionsFeature.init(config.actions, force)
 
     Configuration.init(config)
+    this.initialConfig = config
     return this
   }
 
@@ -262,9 +276,8 @@ export default class PMX {
   }
 
   getPID (file: string) {
-    if (typeof(file) === 'number')
-      return file
-    return parseInt(fs.readFileSync(file).toString())
+    if (typeof(file) === 'number') return file
+    return parseInt(fs.readFileSync(file).toString(), 10)
   }
 
   initModule (opts: any, cb: Function) {
