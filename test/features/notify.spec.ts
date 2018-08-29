@@ -67,7 +67,8 @@ describe('Notify', () => {
         env: Object.assign({}, process.env, {
           CATCH_CONTEXT_ON_ERROR: 'true',
           FORCE_INSPECTOR: 1,
-          DEBUG: 'axm:notify'
+          DEBUG: 'axm:notify',
+          PM2_APM_ASYNC_STACK_DEPTH: 50
         })
       })
       child.on('message', msg => {
