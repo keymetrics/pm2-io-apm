@@ -1,3 +1,21 @@
+## 2.3.2 ( Wed Aug 29 2018 11:33:27 GMT+0200 (CEST) )
+
+
+## Performance improvement
+  - disable async stracktrace by default
+  ([a2640e59](https://github.com/keymetrics/pm2-io-apm/commit/a2640e59658e56abc21d3ddd27a9b9412c601554))
+
+
+
+
+## Chore
+  - fix lint
+  ([b0534451](https://github.com/keymetrics/pm2-io-apm/commit/b0534451c8592fe1be73226540d5950cb0384e91))
+  
+  
+  
+
+
 # 2.3.1 ( Mon Aug 27 2018 17:09:07 GMT+0200 (CEST) )
 
 
