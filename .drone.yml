@@ -38,11 +38,6 @@ pipeline:
       - yarn build
     when:
       event: [ tag ]
-  publish:
-    image: plugins/npm
-    secrets: [ npm_username, npm_password, npm_email ]
-    when:
-      event: [ tag ]
 matrix:
   NODE_VERSION:
     - 4
