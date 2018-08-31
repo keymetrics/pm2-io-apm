@@ -1,3 +1,17 @@
+## 2.3.3 ( Fri Aug 31 2018 15:20:19 GMT+0200 (CEST) )
+
+
+## Chore
+  - upgrade event-loop-inspector to 1.2.0
+  ([609bdde8](https://github.com/keymetrics/pm2-io-apm/commit/609bdde8fd57df42103ede5d4cb31258ee2e8e1c))
+  - disable auto publish
+  ([eacf9251](https://github.com/keymetrics/pm2-io-apm/commit/eacf9251597937884f980ae5452e072cca33e8d0))
+
+
+
+
+
+
 ## 2.3.2 ( Wed Aug 29 2018 11:33:27 GMT+0200 (CEST) )
 
 
