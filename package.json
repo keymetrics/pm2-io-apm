@@ -83,7 +83,7 @@
     "debug": "3.1.0",
     "deep-metrics": "0.0.2",
     "deepmerge": "2.1.1",
-    "event-loop-inspector": "1.1.0",
+    "event-loop-inspector": "^1.2.0",
     "json-stringify-safe": "5.0.1",
     "semver": "5.5.0",
     "signal-exit": "3.0.2",
