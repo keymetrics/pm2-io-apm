@@ -1,3 +1,47 @@
+## 2.3.3 ( Fri Aug 31 2018 15:20:19 GMT+0200 (CEST) )
+
+
+## Chore
+  - upgrade event-loop-inspector to 1.2.0
+  ([609bdde8](https://github.com/keymetrics/pm2-io-apm/commit/609bdde8fd57df42103ede5d4cb31258ee2e8e1c))
+  - disable auto publish
+  ([eacf9251](https://github.com/keymetrics/pm2-io-apm/commit/eacf9251597937884f980ae5452e072cca33e8d0))
+
+
+
+
+
+
+## 2.3.2 ( Wed Aug 29 2018 11:33:27 GMT+0200 (CEST) )
+
+
+## Performance improvement
+  - disable async stracktrace by default
+  ([a2640e59](https://github.com/keymetrics/pm2-io-apm/commit/a2640e59658e56abc21d3ddd27a9b9412c601554))
+
+
+
+
+## Chore
+  - fix lint
+  ([b0534451](https://github.com/keymetrics/pm2-io-apm/commit/b0534451c8592fe1be73226540d5950cb0384e91))
+  
+  
+  
+
+
+# 2.3.1 ( Mon Aug 27 2018 17:09:07 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - #178 fix TypeError when promise reject with a string
+  ([9e78dca5](https://github.com/keymetrics/pm2-io-apm/commit/9e78dca56a2ceaf8a2f001933dccf8e17d2eb275))
+
+
+
+
+
+
 # 2.3.0 ( Thu Aug 16 2018 13:06:16 GMT+0200 (CEST) )
 
 

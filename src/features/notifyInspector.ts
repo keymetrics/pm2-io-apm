@@ -223,9 +223,10 @@ export default class NotifyInspector {
     process.on('unhandledRejection', this.trapException('unhandledRejection'))
     // enable all the debugger options
     session.post('Debugger.enable')
-    session.post('Debugger.setAsyncCallStackDepth', {
-      maxDepth: process.env.PM2_APM_ASYNC_STACK_DEPTH || 50
-    })
+    const maxDepth = parseInt(process.env.PM2_APM_ASYNC_STACK_DEPTH || '', 10)
+    if (!isNaN(maxDepth)) {
+      session.post('Debugger.setAsyncCallStackDepth', { maxDepth })
+    }
     session.post('Debugger.setPauseOnExceptions', { state: 'uncaught' })
     // register handler for paused event
     session.on('Debugger.paused', ({ params }) => {
