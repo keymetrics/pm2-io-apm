@@ -91,7 +91,7 @@ export default class PMX {
     this.initialConfig = conf
   }
 
-  init (config: IOConfig, force?: boolean) {
+  init (config?: IOConfig, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
@@ -101,6 +101,10 @@ export default class PMX {
 
     if (this.initialConfig) {
       config = merge(this.initialConfig, config)
+    }
+
+    if (!config) {
+      config = new IOConfig()
     }
 
     if (config.level) {
