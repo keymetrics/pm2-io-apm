@@ -37,8 +37,6 @@ describe('API', function () {
           expect(res.data.metricHistogram.type).to.equal('metric/custom')
           expect(res.data.metricInline.value).to.equal(11)
           expect(res.data.metricInline.type).to.equal('metricInline')
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           if (res.data.hasOwnProperty('New space used size')) {
             child.kill('SIGINT')
@@ -116,8 +114,6 @@ describe('API', function () {
         if (res.type === 'axm:monitor') {
           expect(res.data.hasOwnProperty('transpose')).to.equal(true)
           expect(res.data.transpose.value).to.equal('transposeResponse')
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
         }
@@ -135,8 +131,6 @@ describe('API', function () {
         if (res.type === 'axm:monitor') {
           expect(res.data.hasOwnProperty('transpose')).to.equal(true)
           expect(res.data.transpose.value).to.equal('transposeResponse')
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
         }
@@ -248,9 +242,6 @@ describe('API', function () {
 
           expect(res.data.hasOwnProperty('histogramBackward')).to.equal(true)
           expect(res.data.histogramBackward.value).to.equal('0')
-
-          expect(res.data.hasOwnProperty('Loop delay')).to.equal(true)
-          expect(res.data.hasOwnProperty('Active handles')).to.equal(true)
 
           child.kill('SIGINT')
           done()
@@ -367,10 +358,6 @@ describe('API', function () {
 
         if (pck.data && pck.data.hasOwnProperty('New space used size')) {
           expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
-          expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
-          expect(pck.data.hasOwnProperty('Network Upload')).to.equal(true)
-          expect(pck.data.hasOwnProperty('Open ports')).to.equal(true)
-          expect(pck.data.hasOwnProperty('HTTP: Response time')).to.equal(true)
           metricsDone = true
         }
 
@@ -510,6 +497,26 @@ describe('API', function () {
           done()
         }
       })
+    })
+  })
+
+  describe('Multiple instantiation', () => {
+    it('should retrieve config of the previous instantiation', () => {
+      let pmx = require(__dirname + '/../build/main/src/index.js')
+
+      pmx.init({ metrics: { v8: true } })
+      let conf = pmx.getInitialConfig()
+      expect(conf.metrics.v8).to.equal(true)
+      expect(conf.metrics.transaction).to.equal(undefined)
+
+      pmx = require(__dirname + '/../build/main/src/index.js')
+      pmx.init({ metrics: { transaction: { http: false } } })
+      conf = pmx.getInitialConfig()
+
+      expect(conf.metrics.v8).to.equal(true)
+      expect(conf.metrics.transaction.http).to.equal(false)
+
+      pmx.destroy()
     })
   })
 })

@@ -16,8 +16,8 @@ export default class EventLoopDelayMetric implements MetricsInterface {
     let oldTime = process.hrtime()
 
     const histogram = this.metricFeature.histogram({
-      name: 'Loop delay',
-      type: 'libuv/latency',
+      name: 'Event Loop Latency',
+      type: 'internal/libuv/latency',
       measurement: 'mean',
       unit: 'ms'
     })

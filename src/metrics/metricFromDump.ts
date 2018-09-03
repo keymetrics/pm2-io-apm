@@ -22,6 +22,7 @@ export default class MetricFromDump implements MetricsInterface {
       (function (index) {
         self.metricFeature.metric({
           name: self.conf[index].name,
+          type: `internal/libuv/${self.conf[index].name}`,
           value: () => {
             return MiscUtils.getValueFromDump(self.conf[index].property, self.conf[index].parentProperty)
           }

@@ -16,11 +16,11 @@ describe('HttpWrapper', function () {
       }
 
       if (pck.type === 'axm:monitor' && pck.data.HTTP.value !== '0req/min') {
-        expect(pck.data.HTTP.type).to.equal('HTTP')
+        expect(pck.data.HTTP.type).to.equal('internal/http/builtin/reqs')
         expect(pck.data.HTTP.agg_type).to.equal('avg')
         expect(pck.data.HTTP.unit).to.equal('req/min')
 
-        expect(pck.data['pmx:http:latency'].type).to.equal('pmx:http:latency')
+        expect(pck.data['pmx:http:latency'].type).to.equal('internal/http/builtin/latency')
         expect(pck.data['pmx:http:latency'].agg_type).to.equal('avg')
         expect(pck.data['pmx:http:latency'].unit).to.equal('ms')
 

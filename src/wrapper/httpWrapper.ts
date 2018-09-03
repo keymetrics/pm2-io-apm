@@ -19,12 +19,14 @@ export default class HttpWrapper {
     glMeter = this.metricFeature.meter({
       name: opts.name.toUpperCase(),
       samples: 60,
+      type: 'internal/http/builtin/reqs',
       unit: 'req/min'
     })
 
     glLatency = this.metricFeature.histogram({
       measurement: 'mean',
       name: `pmx:${opts.name}:latency`,
+      type: 'internal/http/builtin/latency',
       unit: 'ms'
     })
 

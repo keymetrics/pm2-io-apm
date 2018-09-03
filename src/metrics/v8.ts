@@ -18,85 +18,85 @@ export default class V8Metric implements MetricsInterface {
   private allPossibleMetrics = {
     new_space: {
       name: 'New space used size',
-      type: 'v8/heap/space/new',
+      type: 'internal/v8/heap/space/new',
       unit: this.unitKB,
       historic: true
     },
     old_space: {
       name: 'Old space used size',
-      type: 'v8/heap/space/old',
+      type: 'internal/v8/heap/space/old',
       unit: this.unitKB,
       historic: true
     },
     map_space: {
       name: 'Map space used size',
-      type: 'v8/heap/space/map',
+      type: 'internal/v8/heap/space/map',
       unit: this.unitKB,
       historic: false
     },
     code_space: {
       name: 'Code space used size',
-      type: 'v8/heap/space/code',
+      type: 'internal/v8/heap/space/code',
       unit: this.unitKB,
       historic: false
     },
     large_object_space: {
       name: 'Large object space used size',
-      type: 'v8/heap/space/large',
+      type: 'internal/v8/heap/space/large',
       unit: this.unitKB,
       historic: false
     },
     total_physical_size: {
       name: 'Heap physical size',
-      type: 'v8/heap/physical',
+      type: 'internal/v8/heap/physical',
       unit: 'kB',
       historic: false
     },
     total_heap_size: {
       name: 'Heap size',
-      type: 'v8/heap/used',
+      type: 'internal/v8/heap/used',
       unit: 'kB',
       historic: true
     },
     total_available_size: {
       name: 'Heap available size',
-      type: 'v8/heap/available',
+      type: 'internal/v8/heap/available',
       unit: 'kB',
       historic: true
     },
     total_heap_size_executable: {
       name: 'Heap size executable',
-      type: 'v8/heap/executable',
+      type: 'internal/v8/heap/executable',
       unit: this.unitKB,
       historic: false
     },
     used_heap_size: {
       name: 'Used heap size',
-      type: 'v8/heap/used',
+      type: 'internal/v8/heap/used',
       unit: this.unitKB,
       historic: true
     },
     heap_size_limit: {
       name: 'Heap size limit',
-      type: 'v8/heap/limit',
+      type: 'internal/v8/heap/limit',
       unit: this.unitKB,
       historic: true
     },
     malloced_memory: {
       name: 'Malloced memory',
-      type: 'v8/heap/malloced',
+      type: 'internal/v8/heap/malloced',
       unit: this.unitKB,
       historic: false
     },
     peak_malloced_memory: {
       name: 'Peak malloced memory',
-      type: 'v8/heap/peakmalloced',
+      type: 'internal/v8/heap/peakmalloced',
       unit: this.unitKB,
       historic: false
     },
     does_zap_garbage: {
       name: 'Zap garbage',
-      type: 'v8/heap/zapgarbage',
+      type: 'internal/v8/heap/zapgarbage',
       unit: '',
       historic: false
     }
@@ -105,60 +105,60 @@ export default class V8Metric implements MetricsInterface {
   private allPossibleMetricsGC = {
     totalHeapSize: {
       name: 'GC Heap size',
-      type: 'v8/gc/heap/size',
+      type: 'internal/v8/gc/heap/size',
       unit: this.unitKB,
       historic: true
     },
     totalHeapExecutableSize: {
       name: 'GC Executable heap size',
-      type: 'v8/gc/heap/executable',
+      type: 'internal/v8/gc/heap/executable',
       unit: this.unitKB,
       historic: false
     },
     usedHeapSize: {
       name: 'GC Used heap size',
-      type: 'v8/gc/heap/used',
+      type: 'internal/v8/gc/heap/used',
       unit: this.unitKB,
       historic: true
     },
     heapSizeLimit: {
       name: 'GC heap size limit',
-      type: 'v8/gc/heap/limit',
+      type: 'internal/v8/gc/heap/limit',
       unit: this.unitKB,
       historic: false
     },
     totalPhysicalSize: {
       name: 'GC physical size',
-      type: 'v8/gc/heap/physical',
+      type: 'internal/v8/gc/heap/physical',
       unit: this.unitKB,
       historic: false
     },
     totalAvailableSize: {
       name: 'GC available size',
-      type: 'v8/gc/heap/available',
+      type: 'internal/v8/gc/heap/available',
       unit: this.unitKB,
       historic: false
     },
     mallocedMemory: {
       name: 'GC malloced memory',
-      type: 'v8/gc/heap/malloced',
+      type: 'internal/v8/gc/heap/malloced',
       unit: this.unitKB,
       historic: false
     },
     peakMallocedMemory: {
       name: 'GC peak malloced memory',
-      type: 'v8/gc/heap/peakmalloced',
+      type: 'internal/v8/gc/heap/peakmalloced',
       unit: this.unitKB,
       historic: false
     },
     gcType: {
       name: 'GC Type',
-      type: 'v8/gc/type',
+      type: 'internal/v8/gc/type',
       historic: false
     },
     gcPause: {
       name: 'GC Pause',
-      type: 'v8/gc/pause',
+      type: 'internal/v8/gc/pause',
       unit: 'ms',
       historic: false
     }

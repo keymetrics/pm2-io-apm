@@ -277,7 +277,7 @@ io.init({
       "http-outbound": true,   // (default: true) Http outbound requests monitoring
       "https-outbound": true   // (default: true) Https outbound requests monitoring
     },
-  
+
     v8: {
       new_space: true,                    // (default: true) New objects space size
       old_space: true,                    // (default: true) Old objects space size
@@ -309,7 +309,7 @@ io.init({
     worker: true, // (default false) : get number of workers and threads
     fileRequests: true // (default false) : get requests to file system
   },
-  
+
   actions: {
     eventLoopDump: false, // (default: false) Enable event loop dump action
     profilingCpu: true,   // (default: true) Enable CPU profiling actions
@@ -401,7 +401,7 @@ const io = require('@pm2/io')
 class MyEntrypoint extends io.Entrypoint {
 
     ...
-    
+
     conf() {
       return {
         ...
@@ -429,7 +429,7 @@ class MyEntrypoint extends io.Entrypoint {
       app.get('/ok', function(req, res) {
         res.send('Ok')
       });
-      
+
       const counter = this.io.counter('start')
 
       http.listen(process.env.PORT || 3000, () => {
@@ -454,7 +454,7 @@ const io = require('@pm2/io')
 class MyEntrypoint extends io.Entrypoint {
 
     ...
-    
+
     actions() {
       this.io.action('db:clean', (cb) => {
         clean.db(() => {
@@ -465,7 +465,7 @@ class MyEntrypoint extends io.Entrypoint {
         });
       })
     }
-    
+
     metrics() {
       this.myMetric = io.metric('Inline');
     }
@@ -481,6 +481,24 @@ To auto rebuild on file change:
 ```bash
 $ npm install
 $ npm run watch
+```
+
+To test only one file:
+
+```bash
+$ npm run unit <typescript-file-to-test.ts>
+```
+
+Run transpilation + test + coverage:
+
+```bash
+$ npm run test
+```
+
+Run transpilation + test only:
+
+```bash
+$ npm run unit <test>
 ```
 
 ## Publishing

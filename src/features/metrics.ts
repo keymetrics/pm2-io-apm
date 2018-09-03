@@ -180,7 +180,7 @@ export default class MetricsFeature implements Feature {
         return value
       },
       set : function (dt) {
-        self._var.get(opts.name).value = dt
+        if (self._var.get(opts.name)) self._var.get(opts.name).value = dt
       }
     }
   }

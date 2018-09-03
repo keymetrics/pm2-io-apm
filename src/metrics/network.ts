@@ -41,8 +41,9 @@ export default class NetworkMetric implements MetricsInterface {
     let openedPorts = 'N/A'
 
     this.metricFeature.metric({
-      name    : 'Open ports',
-      value   : function () { return openedPorts }
+      name: 'Open ports',
+      type: 'internal/network/open-ports',
+      value: function () { return openedPorts }
     })
 
     const originalListen = netModule.Server.prototype.listen
@@ -114,7 +115,8 @@ export default class NetworkMetric implements MetricsInterface {
 
     if (config === true || config.download === true) {
       this.metricFeature.metric({
-        name: 'Network Download',
+        name: 'Network In',
+        type: 'internal/network/in',
         agg_type: 'sum',
         value: function () {
           return down
@@ -124,7 +126,8 @@ export default class NetworkMetric implements MetricsInterface {
 
     if (config === true || config.upload === true) {
       this.metricFeature.metric({
-        name: 'Network Upload',
+        name: 'Network Out',
+        type: 'internal/network/out',
         agg_type: 'sum',
         value: function () {
           return up

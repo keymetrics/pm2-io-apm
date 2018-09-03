@@ -15,6 +15,7 @@ export default class EventLoopHandlesRequestsMetric implements MetricsInterface 
     if (typeof this.getProcess()._getActiveRequests === 'function') {
       this.metricFeature.metric({
         name : 'Active requests',
+        type: 'internal/libuv/requests',
         value: () => { return this.getProcess()._getActiveRequests().length }
       })
     }
@@ -22,6 +23,7 @@ export default class EventLoopHandlesRequestsMetric implements MetricsInterface 
     if (typeof this.getProcess()._getActiveHandles === 'function') {
       this.metricFeature.metric({
         name : 'Active handles',
+        type: 'internal/libuv/handles',
         value: () => { return this.getProcess()._getActiveHandles().length }
       })
     }

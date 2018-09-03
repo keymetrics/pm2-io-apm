@@ -12,126 +12,126 @@ export default class DeepMetricsTracer {
     http: {
       histogram: {
         name: 'HTTP: Response time',
-        type: 'http/inbound/latency',
+        type: 'internal/http/inbound/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'HTTP: Throughput',
         samples: 60,
-        type: 'http/inbound/throughput',
+        type: 'internal/http/inbound/throughput',
         unit: 'req/min'
       }
     },
     https: {
       histogram: {
         name: 'HTTPS: Response time',
-        type: 'https/inbound/latency',
+        type: 'internal/https/inbound/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'HTTPS: Throughput',
         samples: 60,
-        type: 'https/inbound/throughput',
+        type: 'internal/https/inbound/throughput',
         unit: 'req/min'
       }
     },
     'http-outbound': {
       histogram: {
         name: 'HTTP out: Response time',
-        type: 'http/outbound/latency',
+        type: 'internal/http/outbound/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'HTTP out: Throughput',
         samples: 60,
-        type: 'http/outbound/throughput',
+        type: 'internal/http/outbound/throughput',
         unit: 'req/min'
       }
     },
     'https-outbound': {
       histogram: {
         name: 'HTTPS out: Response time',
-        type: 'https/outbound/latency',
+        type: 'internal/https/outbound/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'HTTPS out: Throughput',
         samples: 60,
-        type: 'https/outbound/throughput',
+        type: 'internal/https/outbound/throughput',
         unit: 'req/min'
       }
     },
     mysql: {
       histogram: {
         name: 'MYSQL: Response time',
-        type: 'mysql/latency',
+        type: 'internal/mysql/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'MYSQL: Throughput',
         samples: 60,
-        type: 'mysql/throughput',
+        type: 'internal/mysql/throughput',
         unit: 'req/min'
       }
     },
     mongo: {
       histogram: {
         name: 'Mongo: Response time',
-        type: 'mongodb/latency',
+        type: 'internal/mongodb/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'Mongo: Throughput',
         samples: 60,
-        type: 'mongodb/throughput',
+        type: 'internal/mongodb/throughput',
         unit: 'req/min'
       }
     },
     mqtt: {
       histogram: {
         name: 'MQTT: Response time',
-        type: 'mqtt/latency',
+        type: 'internal/mqtt/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'MQTT: Throughput',
         samples: 60,
-        type: 'mqtt/throughput',
+        type: 'internal/mqtt/throughput',
         unit: 'req/min'
       }
     },
     socketio: {
       histogram: {
         name: 'WS: Response time',
-        type: 'socketio/latency',
+        type: 'internal/socketio/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'WS: Throughput',
         samples: 60,
-        type: 'socketio/throughput',
+        type: 'internal/socketio/throughput',
         unit: 'req/min'
       }
     },
     redis: {
       histogram: {
         name: 'Redis: Response time',
-        type: 'redis/latency',
+        type: 'internal/redis/latency',
         measurement: 'mean',
         unit: 'ms'
       },
       meter: {
         name: 'Redis: Throughput',
         samples: 60,
-        type: 'redis/throughput',
+        type: 'internal/redis/throughput',
         unit: 'req/min'
       }
     }
