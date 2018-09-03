@@ -171,7 +171,7 @@ export default class MetricsFeature implements Feature {
 
     return {
       val : function () {
-        let value = self._var.get(opts.name).value
+        let value = self._var.get(opts.name) ? self._var.get(opts.name).value : null
 
         if (typeof(value) === 'function') {
           value = value()
