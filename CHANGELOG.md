@@ -1,3 +1,45 @@
+## 2.3.4 ( Mon Sep 03 2018 16:55:21 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - protect code if metric is not found
+  ([7473d482](https://github.com/keymetrics/pm2-io-apm/commit/7473d4828f2438af878d205a4155560e976a3f17))
+  - protect code if metric is not found
+  ([ee9f4d1e](https://github.com/keymetrics/pm2-io-apm/commit/ee9f4d1ee28e47a31cdc72e0c305540e4ff67445))
+  - do not autoexit if using cluster
+  ([37867105](https://github.com/keymetrics/pm2-io-apm/commit/378671052022ebb94d3761daaa47ab19951f8171))
+
+
+
+
+## Features
+  - reuse configuration if multiple apm instantiation
+  ([9881f61d](https://github.com/keymetrics/pm2-io-apm/commit/9881f61d861ca41d8594c601eab4d18a49301e9b))
+  - prefix all internal metrics
+  ([02d5613d](https://github.com/keymetrics/pm2-io-apm/commit/02d5613d6745c444b6cb819d59094c64b10185cc))
+  - add get PID + Entrypoint extends PMX
+  ([a8f4455b](https://github.com/keymetrics/pm2-io-apm/commit/a8f4455b35deee58b225b9e0949d7e877d5fa619))
+
+
+
+
+## Refactor
+  - separate entrypoint and pmx classes
+  ([c3754c9e](https://github.com/keymetrics/pm2-io-apm/commit/c3754c9e38017a4c4d1109a2bdf2d5fcc431dc65))
+
+
+
+
+## Chore
+  - add example of module with entrypoint
+  ([ec2b215b](https://github.com/keymetrics/pm2-io-apm/commit/ec2b215b966ecb522b230ee50f855f40a1ffde39))
+
+
+
+
+## Branchs merged
+  - Merge branch 'development'
+  ([90a24f9e](https://github.com/keymetrics/pm2-io-apm/commit/90a24f9e4158f00ae0d623ae1738ddbeaa78c10c))
 ## 2.3.3 ( Fri Aug 31 2018 15:20:19 GMT+0200 (CEST) )
 
 
