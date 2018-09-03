@@ -8,6 +8,7 @@ import Configuration from './configuration'
 import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
 import { ServiceManager } from './serviceManager'
+import * as cluster from 'cluster'
 const debug = Debug('PM2-IO-APM')
 
 class TransactionConfig {
@@ -69,7 +70,7 @@ class PMX {
   constructor () {
     this.notifyFeature = new NotifyFeature()
     this.metricsFeature = new MetricsFeature()
-    this.actionsFeature = new ActionsFeature(true)
+    this.actionsFeature = new ActionsFeature(!cluster.isWorker)
     this.eventsFeature = new EventFeature()
 
     const eventLoopInspector = require('event-loop-inspector')(true)
