@@ -8,6 +8,7 @@ import Configuration from './configuration'
 import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
 import * as fs from 'fs'
+import * as cluster from 'cluster'
 import { ServiceManager } from './serviceManager'
 import Entrypoint from './features/entrypoint'
 
@@ -73,7 +74,7 @@ export default class PMX {
   constructor () {
     this.notifyFeature = new NotifyFeature()
     this.metricsFeature = new MetricsFeature()
-    this.actionsFeature = new ActionsFeature(true)
+    this.actionsFeature = new ActionsFeature(!cluster.isWorker)
     this.eventsFeature = new EventFeature()
 
     const eventLoopInspector = require('event-loop-inspector')(true)
