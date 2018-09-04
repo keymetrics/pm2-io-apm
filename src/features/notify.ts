@@ -39,21 +39,23 @@ export class NotifyFeature implements Feature {
       this.options = options
     }
 
-    if (this.options && this.options.catchExceptions) {
-      if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && (semver.satisfies(process.version, '< 8.0.0') ||
-          (semver.satisfies(process.version, '< 10.0.0') && !process.env.FORCE_INSPECTOR))) {
-        debug(`Inspector is not available on node version ${process.version} !`)
-      }
+    Configuration.configureModule({
+      error : true
+    })
 
-      if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 10.0.0') ||
+    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && (semver.satisfies(process.version, '< 8.0.0') ||
+          (semver.satisfies(process.version, '< 10.0.0') && !process.env.FORCE_INSPECTOR))) {
+      debug(`Inspector is not available on node version ${process.version} !`)
+    }
+
+    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 10.0.0') ||
         (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
-        debug('Enabling inspector based error reporting')
-        const NotifyInspector = require('./notifyInspector').default
-        this.feature = new NotifyInspector()
-        this.feature.init(options)
-      } else {
-        this.catchAll()
-      }
+      debug('Enabling inspector based error reporting')
+      const NotifyInspector = require('./notifyInspector').default
+      this.feature = new NotifyInspector()
+      this.feature.init(options)
+    } else {
+      this.catchAll()
     }
 
     return {
@@ -92,14 +94,9 @@ export class NotifyFeature implements Feature {
   }
 
   catchAll (opts?: any): Boolean | void {
-
     if (opts === undefined) {
       opts = { errors: true }
     }
-
-    Configuration.configureModule({
-      error : opts.errors
-    })
 
     if (process.env.exec_mode === 'cluster_mode') {
       return false
