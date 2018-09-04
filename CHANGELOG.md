@@ -1,3 +1,15 @@
+## 2.3.5 ( Tue Sep 04 2018 11:02:31 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - make configuration optional
+  ([11757e55](https://github.com/keymetrics/pm2-io-apm/commit/11757e55c1af5301b6baa61c383935616720bffd))
+  - fix exception if no configuration is set to init
+  ([c1d1c8b6](https://github.com/keymetrics/pm2-io-apm/commit/c1d1c8b68276da7c228c3b3f156f0065a7e29a9f))
+
+
+
+
 ## 2.3.4 ( Mon Sep 03 2018 16:55:21 GMT+0200 (CEST) )
 
 
