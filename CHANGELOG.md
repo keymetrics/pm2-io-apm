@@ -1,3 +1,15 @@
+## 2.3.6 ( Tue Sep 04 2018 12:05:52 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - set error flag by default
+  ([05516adb](https://github.com/keymetrics/pm2-io-apm/commit/05516adb86655e009b4f215ab366fc4295eefd4b))
+
+
+
+
+
+
 ## 2.3.5 ( Tue Sep 04 2018 11:02:31 GMT+0200 (CEST) )
 
 

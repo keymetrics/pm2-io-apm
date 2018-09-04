@@ -4,8 +4,8 @@
     "intro": "",
     "branch" : "master",
     "repo_url": "https://github.com/keymetrics/pm2-io-apm",
-    "version_name" : "2.3.5",
-    "tag": "2.3.3",
+    "version_name" : "2.3.6",
+    "tag": "2.3.5",
     "file": "currentTagChangelog.md",
     "template": "changelogTemplate.md",
     "sections": [
