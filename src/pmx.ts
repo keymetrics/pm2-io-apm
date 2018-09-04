@@ -69,7 +69,6 @@ export default class PMX {
   private actionsFeature: ActionsFeature
   private eventsFeature: EventFeature
   public Entrypoint: Entrypoint
-  private initialConfig: IOConfig
 
   constructor () {
     this.notifyFeature = new NotifyFeature()
@@ -83,25 +82,22 @@ export default class PMX {
     })
   }
 
-  getInitialConfig (): IOConfig {
-    return this.initialConfig
-  }
-
-  setInitialConfig (conf) {
-    this.initialConfig = conf
-  }
-
   init (config?: IOConfig, force?: boolean) {
+
+    const IO_KEY = Symbol.for('@pm2/io')
+    const IO_KEY_TMP = Symbol.for('@pm2/io/tmp')
+    this.destroy()
+
+    if (global[IO_KEY_TMP]) {
+      console.log('second init')
+      global[IO_KEY] = new global[IO_KEY_TMP].io()
+      global[IO_KEY].Entrypoint = global[IO_KEY_TMP].entrypoint
+      global[IO_KEY_TMP] = null
+      return global[IO_KEY].init(config, force)
+    }
+
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
-
-    if (!config) {
-      config = new IOConfig()
-    }
-
-    if (this.initialConfig) {
-      config = merge(this.initialConfig, config)
-    }
 
     if (!config) {
       config = new IOConfig()
@@ -126,7 +122,7 @@ export default class PMX {
     this.actionsFeature.init(config.actions, force)
 
     Configuration.init(config)
-    this.initialConfig = config
+
     return this
   }
 

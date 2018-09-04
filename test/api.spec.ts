@@ -502,20 +502,18 @@ describe('API', function () {
 
   describe('Multiple instantiation', () => {
     it('should retrieve config of the previous instantiation', () => {
-      let pmx = require(__dirname + '/../build/main/src/index.js')
+      const pmx = require(__dirname + '/../build/main/src/index.js')
 
-      pmx.init({ metrics: { v8: true } })
-      let conf = pmx.getInitialConfig()
-      expect(conf.metrics.v8).to.equal(true)
-      expect(conf.metrics.transaction).to.equal(undefined)
+      const initReturn = pmx.init({ metrics: { v8: true } })
 
-      pmx = require(__dirname + '/../build/main/src/index.js')
-      pmx.init({ metrics: { transaction: { http: false } } })
-      conf = pmx.getInitialConfig()
+      delete require.cache[require.resolve(__dirname + '/../build/main/src/index.js')]
+      const pmx2 = require(__dirname + '/../build/main/src/index.js')
+      const init2Return = pmx2.init({ metrics: { transaction: { http: false } } })
 
-      expect(conf.metrics.v8).to.equal(true)
-      expect(conf.metrics.transaction.http).to.equal(false)
+      expect(pmx2).to.equal(pmx)
+      expect(initReturn).not.to.equal(init2Return)
 
+      pmx2.destroy()
       pmx.destroy()
     })
   })

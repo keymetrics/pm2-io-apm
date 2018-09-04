@@ -7,6 +7,7 @@ import Entrypoint from './features/entrypoint'
 // -----------------------------------
 
 const IO_KEY = Symbol.for('@pm2/io')
+const IO_KEY_TMP = Symbol.for('@pm2/io/tmp')
 
 // ------------------------------------------
 // check if the global object has this symbol
@@ -16,14 +17,14 @@ const IO_KEY = Symbol.for('@pm2/io')
 const globalSymbols = Object.getOwnPropertySymbols(global)
 const alreadyInstanciated = (globalSymbols.indexOf(IO_KEY) > -1)
 
-let conf
-if (alreadyInstanciated) {
-  conf = global[IO_KEY].getInitialConfig()
-  global[IO_KEY].destroy()
+if (!alreadyInstanciated) {
+  global[IO_KEY] = new PMX()
+  global[IO_KEY].Entrypoint = Entrypoint
+} else {
+  global[IO_KEY_TMP] = {
+    io: PMX,
+    entrypoint: Entrypoint
+  }
 }
-
-global[IO_KEY] = new PMX()
-global[IO_KEY].setInitialConfig(conf)
-global[IO_KEY].Entrypoint = Entrypoint
 
 export = global[IO_KEY]
