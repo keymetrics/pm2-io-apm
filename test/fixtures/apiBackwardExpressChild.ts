@@ -11,6 +11,10 @@ app.get('/error', function (req, res, next) {
   next(new Error('toto'))
 })
 
+pmx.onExit(() => {
+  pmx.destroy()
+})
+
 app.use(pmx.expressErrorHandler())
 
 app.listen(3003, () => {
