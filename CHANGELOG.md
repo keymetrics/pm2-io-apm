@@ -1,3 +1,28 @@
+ 
+## 2.3.7 ( Wed Sep 05 2018 15:33:50 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - adapt test
+  ([136eee9e](https://github.com/keymetrics/pm2-io-apm/commit/136eee9e50fce1e7a22b6609dcca50caed53e55f))
+  - fix with auto init required
+  ([3888f742](https://github.com/keymetrics/pm2-io-apm/commit/3888f742377a91aa4455baada222fdaa1a6cea98))
+  - destroy previous pmx on new init
+  ([6cbf0787](https://github.com/keymetrics/pm2-io-apm/commit/6cbf0787997d28e4a2549642744cd7a07ca20948))
+
+
+
+
+## Test
+  - fix test dependencies
+  ([3136c553](https://github.com/keymetrics/pm2-io-apm/commit/3136c553372b0c9d4d4510863f11a3ed9278889d))
+
+
+
+
+
+
+
 ## 2.3.6 ( Tue Sep 04 2018 12:05:52 GMT+0200 (CEST) )
 
 
