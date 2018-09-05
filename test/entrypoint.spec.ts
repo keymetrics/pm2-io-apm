@@ -2,8 +2,6 @@ import SpecUtils from './fixtures/utils'
 import { assert, expect } from 'chai'
 import { exec, fork } from 'child_process'
 import 'mocha'
-const pmx = require(__dirname + '/../build/main/src/index.js')
-const Entrypoint = pmx.Entrypoint
 
 describe('Entrypoint', function () {
   this.timeout(20000)
@@ -11,6 +9,8 @@ describe('Entrypoint', function () {
   describe('Empty class', () => {
     it('should fail cause no onStart method', () => {
       try {
+        const pmx = require(__dirname + '/../build/main/src/index.js')
+        const Entrypoint = pmx.Entrypoint
         const entrypoint = new Entrypoint()
       } catch (e) {
         expect(e.message).to.equal('Entrypoint onStart() not specified')
