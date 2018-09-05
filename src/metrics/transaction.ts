@@ -105,7 +105,12 @@ export default class Transaction implements MetricsInterface {
         } else {
           return function (file) {
             if (file === 'http' || file === 'https') {
-              return new SimpleHttpWrap(self.metricFeature).init(opts, load.__axm_original.apply(this, arguments))
+              // initialize transaction metrics only once
+              if (!ServiceManager.get('wrapper')[file]) {
+                opts.name = file
+                ServiceManager.get('wrapper')[file] = new SimpleHttpWrap(self.metricFeature).init(opts, load.__axm_original.apply(this, arguments))
+              }
+              return ServiceManager.get('wrapper')[file]
             } else {
               return load.__axm_original.apply(this, arguments)
             }
