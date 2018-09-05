@@ -55,9 +55,7 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsChild.js'))
 
       child.on('message', res => {
-
-        if (res.type === 'axm:action') {
-          expect(res.data.action_name).to.equal('testAction')
+        if (res.type === 'axm:action' && res.data.action_name == 'testAction') {
           child.send(res.data.action_name)
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('testAction')
@@ -73,8 +71,7 @@ describe('API', function () {
 
       child.on('message', res => {
 
-        if (res.type === 'axm:action') {
-          expect(res.data.action_name).to.equal('testScopedAction')
+        if (res.type === 'axm:action' && res.data.action_name == 'testScopedAction') {
           child.send(res.data.action_name)
           child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:scoped_action:stream') {
@@ -92,8 +89,7 @@ describe('API', function () {
 
       child.on('message', res => {
 
-        if (res.type === 'axm:action') {
-          expect(res.data.action_name).to.equal('testActionWithConf')
+        if (res.type === 'axm:action' && res.data.action_name == 'testActionWithConf') {
           child.send(res.data.action_name)
           child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:reply') {
@@ -199,8 +195,8 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitChild.js'))
 
       child.on('message', res => {
-        expect(res).to.equal('callback')
-        done()
+        if (res == 'callback')
+          done()
       })
 
       setTimeout(function () {
@@ -219,8 +215,8 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitExceptionChild.js'))
 
       child.on('message', res => {
-        expect(res).to.equal('callback')
-        done()
+        if (res == 'callback')
+          done()
       })
     })
   })
@@ -396,6 +392,7 @@ describe('API', function () {
       it('should receive data from default actions', (done) => {
         const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardActionsChild.js'))
         const actionDone: Array<string> = []
+        var isDone = false
 
         child.on('message', pck => {
 
@@ -411,7 +408,11 @@ describe('API', function () {
               expect(actionDone.indexOf('km:cpu:profiling:stop') > -1).to.equal(true)
               expect(actionDone.indexOf('km:heapdump') > -1).to.equal(true)
               child.kill('SIGINT')
-              done()
+
+              if (isDone == false) {
+                isDone = true
+                done()
+              }
             }
           }
         })
@@ -487,9 +488,8 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiInitModuleChild.js'))
 
       child.on('message', pck => {
-        if (pck.type === 'axm:option:configuration') {
+        if (pck.type === 'axm:option:configuration' && pck.data.module_name == 'fixtures') {
           const conf = pck.data
-          expect(conf.module_name).to.equal('fixtures')
           expect(conf.module_version).to.equal('0.0.1')
           expect(typeof conf.module_name).to.equal('string')
           expect(typeof conf.pmx_version).to.equal('string')
