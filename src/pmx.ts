@@ -94,18 +94,20 @@ export default class PMX {
       config = new IOConfig()
     }
 
-    const IO_KEY = Symbol.for('@pm2/io')
-    const globalSymbols = Object.getOwnPropertySymbols(global)
-    const alreadyInstanciated = (globalSymbols.indexOf(IO_KEY) > -1)
+    if (process.env.PMX_FORCE_UPDATE) {
+      const IO_KEY = Symbol.for('@pm2/io')
+      const globalSymbols = Object.getOwnPropertySymbols(global)
+      const alreadyInstanciated = (globalSymbols.indexOf(IO_KEY) > -1)
 
-    if (alreadyInstanciated) {
-      global[IO_KEY].destroy()
-    }
+      if (alreadyInstanciated) {
+        global[IO_KEY].destroy()
+      }
 
-    global[IO_KEY] = this
+      global[IO_KEY] = this
 
-    if (this.initialConfig) {
-      config = merge(this.initialConfig, config)
+      if (this.initialConfig) {
+        config = merge(this.initialConfig, config)
+      }
     }
 
     if (!config) {
