@@ -1,4 +1,30 @@
  
+## 2.3.10 ( Fri Sep 07 2018 13:53:50 GMT+0200 (CEST) )
+
+
+## Bug Fixes
+  - do not destroy previous pmx instance of not update forced
+  ([c694f622](https://github.com/keymetrics/pm2-io-apm/commit/c694f6225ea8cda2a45eeaad59ff06ba84c60392))
+
+
+
+
+## Features
+  - allow reinstanciation of PMX via PMX_FORCE_UPDATE
+  ([056b2df7](https://github.com/keymetrics/pm2-io-apm/commit/056b2df7d5e661c5a5cf97929d02ec32fd294e4b))
+
+
+
+
+## Chore
+  - do not merge prev conf
+  ([ff07e05f](https://github.com/keymetrics/pm2-io-apm/commit/ff07e05f16056270accf85d2a571cc9e5b70b762))
+
+
+
+
+
+ 
 ## 2.3.9 ( Fri Sep 07 2018 11:00:14 GMT+0200 (CEST) )
 
 
