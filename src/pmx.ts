@@ -2,7 +2,6 @@ import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/n
 import MetricsFeature from './features/metrics'
 import ActionsFeature from './features/actions'
 import EventFeature from './features/events'
-import Inspector from './actions/eventLoopInspector'
 import * as merge from 'deepmerge'
 import Configuration from './configuration'
 import Metriconfig from './utils/metricConfig'
@@ -85,10 +84,6 @@ export default class PMX {
 
   getInitialConfig (): IOConfig {
     return this.initialConfig
-  }
-
-  setInitialConfig (conf) {
-    this.initialConfig = conf
   }
 
   init (config?: IOConfig, force?: boolean) {
