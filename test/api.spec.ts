@@ -500,7 +500,7 @@ describe('API', function () {
     })
   })
 
-  describe('Multiple instantiation', () => {
+  describe.skip('Multiple instantiation', () => {
     it('should retrieve config of the previous instantiation', () => {
       let pmx = require(__dirname + '/../build/main/src/index.js')
 

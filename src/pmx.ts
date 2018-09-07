@@ -104,10 +104,6 @@ export default class PMX {
       }
 
       global[IO_KEY] = this
-
-      if (this.initialConfig) {
-        config = merge(this.initialConfig, config)
-      }
     }
 
     if (!config) {
