@@ -1,4 +1,16 @@
  
+## 2.3.9 ( Fri Sep 07 2018 11:00:14 GMT+0200 (CEST) )
+
+
+## Chore
+  - clean unused import
+  ([7e54f7f5](https://github.com/keymetrics/pm2-io-apm/commit/7e54f7f5048e3769f98da3738f1e911a4eecfeb2))
+
+
+
+
+
+ 
 ## 2.3.8 ( Wed Sep 05 2018 17:37:26 GMT+0200 (CEST) )
 
 
