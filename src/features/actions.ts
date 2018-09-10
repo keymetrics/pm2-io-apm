@@ -14,7 +14,6 @@ export default class ActionsFeature implements Feature {
   constructor (autoExit?: boolean) {
     ServiceManager.set('actionsService', new ActionsService(this))
     this.actionsService = ServiceManager.get('actionsService')
-    process.on('message', this.listener)
 
     if (autoExit) {
       // clean listener if event loop is empty
@@ -50,19 +49,19 @@ export default class ActionsFeature implements Feature {
 
     if (actionData) {
       // In case 2 arguments has been set but no options has been transmitted
-      if (fn.length === 2 && typeof(data) === 'string' && data === actionName) {
+      if (fn.length === 2 && typeof(data) === 'string') {
         return fn({}, reply)
       }
 
       // In case 1 arguments has been set but options has been transmitted
-      if (fn.length === 1 && typeof(data) === 'object' && data.msg === actionName) {
+      if (fn.length === 1) {
         return fn(reply)
       }
 
       /**
        * Classical call
        */
-      if (typeof(data) === 'string' && data === actionName) {
+      if (typeof(data) === 'string') {
         return fn(reply)
       }
 
@@ -70,7 +69,7 @@ export default class ActionsFeature implements Feature {
        * If data is an object == v2 protocol
        * Pass the opts as first argument
        */
-      if (typeof(data) === 'object' && data.msg === actionName) {
+      if (typeof(data) === 'object') {
         return fn(data.opts, reply)
       }
     }
@@ -87,34 +86,58 @@ export default class ActionsFeature implements Feature {
     if (data.action_name === actionName) {
       const res = {
         send : (dt) => {
-          Transport.send({
-            type        : 'axm:scoped_action:stream',
-            data        : {
-              data        : dt,
-              uuid        : data.uuid,
-              action_name : actionName
-            }
-          })
+          if (ServiceManager.get('transport')) {
+            ServiceManager.get('transport').send('axm:scoped_action:stream', {
+              data: dt,
+              uuid: data.uuid,
+              action_name: actionName
+            })
+          } else {
+            Transport.send({
+              type        : 'axm:scoped_action:stream',
+              data        : {
+                data        : dt,
+                uuid        : data.uuid,
+                action_name : actionName
+              }
+            })
+          }
         },
         error : (dt) => {
-          Transport.send({
-            type        : 'axm:scoped_action:error',
-            data        : {
-              data        : dt,
-              uuid        : data.uuid,
-              action_name : actionName
-            }
-          })
+          if (ServiceManager.get('transport')) {
+            ServiceManager.get('transport').send('axm:scoped_action:error', {
+              data: dt,
+              uuid: data.uuid,
+              action_name: actionName
+            })
+          } else {
+            Transport.send({
+              type        : 'axm:scoped_action:error',
+              data        : {
+                data        : dt,
+                uuid        : data.uuid,
+                action_name : actionName
+              }
+            })
+          }
         },
         end : (dt) => {
-          Transport.send({
-            type        : 'axm:scoped_action:end',
-            data        : {
-              data        : dt,
-              uuid        : data.uuid,
-              action_name : actionName
-            }
-          })
+          if (ServiceManager.get('transport')) {
+            ServiceManager.get('transport').send('axm:scoped_action:end', {
+              data: dt,
+              uuid: data.uuid,
+              action_name: actionName
+            })
+          } else {
+            Transport.send({
+              type        : 'axm:scoped_action:end',
+              data        : {
+                data        : dt,
+                uuid        : data.uuid,
+                action_name : actionName
+              }
+            })
+          }
         }
       }
 
@@ -133,8 +156,15 @@ export default class ActionsFeature implements Feature {
     }
   }
 
-  init (conf?, force?): Object {
+  initListener () {
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').transport.on('trigger:*', this.listener.bind(this))
+    } else {
+      process.on('message', this.listener)
+    }
+  }
 
+  init (conf?, force?): Object {
     this.actionsService.init(conf, force)
 
     return {
@@ -167,25 +197,38 @@ export default class ActionsFeature implements Feature {
       type = 'internal'
     }
 
-    // Notify the action
-    Transport.send({
-      type : 'axm:action',
-      data : {
-        action_name : actionName,
-        action_type : type,
-        opts        : opts,
-        arity       : fn.length
-      }
-    })
-
-    const reply = (data) => {
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').addAction({
+        action_name: actionName, action_type: type, opts
+      })
+    } else {
+      // Notify the action
       Transport.send({
-        type        : 'axm:reply',
-        data        : {
-          return      : data,
-          action_name : actionName
+        type : 'axm:action',
+        data : {
+          action_name : actionName,
+          action_type : type,
+          opts        : opts,
+          arity       : fn.length
         }
       })
+    }
+
+    const reply = (data) => {
+      if (ServiceManager.get('transport')) {
+        ServiceManager.get('transport').send('axm:reply', {
+          at: new Date().getTime(),
+          data: {action_name: actionName, data}
+        })
+      } else {
+        Transport.send({
+          type        : 'axm:reply',
+          data        : {
+            return      : data,
+            action_name : actionName
+          }
+        })
+      }
     }
 
     ServiceManager.get('actions').set(actionName, { fn: fn, reply: reply })
@@ -199,13 +242,19 @@ export default class ActionsFeature implements Feature {
     }
 
     // Notify the action
-    Transport.send({
-      type : 'axm:action',
-      data : {
-        action_name : actionName,
-        action_type : 'scoped'
-      }
-    })
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').addAction({
+        action_name: actionName, action_type: 'scoped'
+      })
+    } else {
+      Transport.send({
+        type : 'axm:action',
+        data : {
+          action_name : actionName,
+          action_type : 'scoped'
+        }
+      })
+    }
 
     ServiceManager.get('actionsScoped').set(actionName, { fn: fn })
   }
@@ -217,11 +266,6 @@ export default class ActionsFeature implements Feature {
     }
     if (!fn) {
       console.error('[PMX] callback is missing')
-      return false
-    }
-
-    if (!process.send) {
-      debug('Process not running within PM2')
       return false
     }
 

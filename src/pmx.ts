@@ -10,6 +10,7 @@ import * as fs from 'fs'
 import * as cluster from 'cluster'
 import { ServiceManager } from './serviceManager'
 import Entrypoint from './features/entrypoint'
+import TransportService from './services/transport'
 
 const debug = Debug('PM2-IO-APM')
 
@@ -44,6 +45,10 @@ class IOConfig {
   deep_metrics: boolean // tslint:disable-line
   event_loop_dump: boolean // tslint:disable-line
   profiling: boolean
+  standalone: boolean
+  publicKey?: string
+  secretKey?: string
+  appName?: string
 }
 
 interface Context {
@@ -80,6 +85,7 @@ export default class PMX {
     ServiceManager.set('eventLoopService', {
       inspector: eventLoopInspector
     })
+    ServiceManager.set('transport', new TransportService())
   }
 
   getInitialConfig (): IOConfig {
@@ -106,10 +112,6 @@ export default class PMX {
       global[IO_KEY] = this
     }
 
-    if (!config) {
-      config = new IOConfig()
-    }
-
     if (config.level) {
       notifyOptions.level = config.level
     }
@@ -128,8 +130,21 @@ export default class PMX {
 
     this.actionsFeature.init(config.actions, force)
 
-    Configuration.init(config)
+    const conf = Configuration.init(config, config.standalone)
     this.initialConfig = config
+    if (config.standalone && config.publicKey && config.secretKey) {
+      ServiceManager.get('transport').init({
+        publicKey: config.publicKey,
+        secretKey: config.secretKey,
+        appName: config.appName
+      }, _ => {
+        this.actionsFeature.initListener()
+      })
+      ServiceManager.get('transport').setOptions(conf)
+    } else {
+      this.actionsFeature.initListener()
+    }
+
     return this
   }
 

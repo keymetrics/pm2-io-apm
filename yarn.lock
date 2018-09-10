@@ -1045,9 +1045,9 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
 
-event-loop-inspector@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/event-loop-inspector/-/event-loop-inspector-1.0.1.tgz#ef3632b90e716b2aa14372cb01d1263f51520188"
+event-loop-inspector@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/event-loop-inspector/-/event-loop-inspector-1.2.0.tgz#144d50c08c2dc52e4699de25af32216b8af7e7b2"
 
 execa@^0.4.0:
   version "0.4.0"
