@@ -5,7 +5,6 @@ import ActionsFeature from '../features/actions'
 import ProfilingFeature from '../features/profiling'
 import ActionsInterface from './actionsInterface'
 import MiscUtils from '../utils/miscellaneous'
-import FileUtils from '../utils/file'
 import { ServiceManager } from '../serviceManager'
 
 export default class ProfilingHeapAction implements ActionsInterface {
@@ -42,20 +41,13 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
   private async stopProfiling (reply) {
     try {
-      const dumpFile = await this.profilings.heapProfiling.stop()
-
-      let size
-      try {
-        size = await FileUtils.getFileSize(dumpFile)
-      } catch (err) {
-        size = -1
-      }
+      const data = await this.profilings.heapProfiling.stop()
 
       return reply({
         success     : true,
         heapprofile  : true,
-        dump_file   : dumpFile,
-        dump_file_size: size,
+        dump_file   : data,
+        dump_file_size: data.length,
         uuid: this.uuid
       })
 
@@ -110,12 +102,12 @@ export default class ProfilingHeapAction implements ActionsInterface {
     // -------------------------------------
     this.actionFeature.action('km:heapdump', async (reply) => {
       try {
-        const dumpFile = await this.profilings.heapProfiling.takeSnapshot()
+        const data = await this.profilings.heapProfiling.takeSnapshot()
 
         return reply({
           success     : true,
           heapdump    : true,
-          dump_file   : dumpFile
+          dump_file   : data
         })
       } catch (err) {
         return reply({

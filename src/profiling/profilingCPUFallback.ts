@@ -1,7 +1,6 @@
 import Debug from 'debug'
 const debug = Debug('axm:profiling')
 import ProfilingType from './profilingType'
-import FileUtils from '../utils/file'
 import utils from '../utils/module'
 import Configuration from '../configuration'
 
@@ -54,6 +53,6 @@ export default class ProfilingCPUFallback implements ProfilingType {
   private getProfileInfo () {
     const cpu = this.profiler.stopProfiling(this.nsCpuProfiling)
 
-    return FileUtils.writeDumpFile(JSON.stringify(cpu))
+    return JSON.stringify(cpu)
   }
 }

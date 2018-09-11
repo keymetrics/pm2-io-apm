@@ -1,7 +1,6 @@
 import Debug from 'debug'
 const debug = Debug('axm:profiling')
 import ProfilingType from './profilingType'
-import FileUtils from '../utils/file'
 import MetricConfig from '../utils/metricConfig'
 import { InspectorService } from '../services/inspector'
 import { ServiceManager } from '../serviceManager'
@@ -53,7 +52,7 @@ export default class ProfilingHeap implements ProfilingType {
       reportProgress: false
     })
 
-    return FileUtils.writeDumpFile(chunks.join(''), '.heapdump')
+    return chunks.join('')
   }
 
   private getProfileInfo () {
@@ -66,7 +65,7 @@ export default class ProfilingHeap implements ProfilingType {
         return reject(err)
       }
 
-      resolve(FileUtils.writeDumpFile(JSON.stringify(data.profile), '.heapprofile'))
+      resolve(JSON.stringify(data.profile))
     })
   }
 }

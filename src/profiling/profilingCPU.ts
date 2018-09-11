@@ -1,7 +1,6 @@
 import Debug from 'debug'
 const debug = Debug('axm:profiling')
 import ProfilingType, { CustomProfile } from './profilingType'
-import FileUtils from '../utils/file'
 import { ServiceManager } from '../serviceManager'
 import { InspectorService } from '../services/inspector'
 
@@ -87,7 +86,7 @@ export default class ProfilingCPU implements ProfilingType {
           data.timeDeltas = []
         }
 
-        return resolve(FileUtils.writeDumpFile(JSON.stringify({
+        return resolve(JSON.stringify({
           head: nodes,
           typeId: 'CPU',
           uid: '1',
@@ -96,7 +95,7 @@ export default class ProfilingCPU implements ProfilingType {
           endTime: Math.floor(data.endTime / 1000000),
           samples: data.samples,
           timestamps: this._convertTimeDeltas(data)
-        })))
+        }))
 
       } catch (err) {
         debug('Cpu profiling stopped !')

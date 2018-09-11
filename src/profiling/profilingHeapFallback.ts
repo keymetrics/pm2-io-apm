@@ -1,7 +1,6 @@
 import Debug from 'debug'
 const debug = Debug('axm:profiling')
 import ProfilingType from './profilingType'
-import FileUtils from '../utils/file'
 import utils from '../utils/module'
 import Configuration from '../configuration'
 
@@ -70,7 +69,7 @@ export default class ProfilingHeapFallback implements ProfilingType {
         }
       )
     }).then((buffer) => {
-      return FileUtils.writeDumpFile(buffer, '.heapprofile')
+      return buffer
     })
   }
 }

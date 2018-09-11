@@ -5,7 +5,6 @@ import ActionsFeature from '../features/actions'
 import ProfilingFeature from '../features/profiling'
 import ActionsInterface from './actionsInterface'
 import MiscUtils from '../utils/miscellaneous'
-import FileUtils from '../utils/file'
 import { ServiceManager } from '../serviceManager'
 
 export default class ProfilingCPUAction implements ActionsInterface {
@@ -37,20 +36,13 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
   private async stopProfiling (reply) {
     try {
-      const dumpFile = await this.profilings.cpuProfiling.stop()
-
-      let size
-      try {
-        size = await FileUtils.getFileSize(dumpFile)
-      } catch (err) {
-        size = -1
-      }
+      const data = await this.profilings.cpuProfiling.stop()
 
       return reply({
         success     : true,
         cpuprofile  : true,
-        dump_file   : dumpFile,
-        dump_file_size : size,
+        dump_file   : data,
+        dump_file_size : data.length,
         uuid        : this.uuid
       })
     } catch (err) {
