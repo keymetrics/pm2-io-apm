@@ -72,7 +72,6 @@ describe('API', function () {
       child.on('message', res => {
 
         if (res.type === 'axm:action' && res.data.action_name == 'testScopedAction') {
-          child.send(res.data.action_name)
           child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:scoped_action:stream') {
           expect(res.data.uuid).to.equal(1000)
@@ -88,10 +87,8 @@ describe('API', function () {
       const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsJsonChild.js'))
 
       child.on('message', res => {
-
         if (res.type === 'axm:action' && res.data.action_name == 'testActionWithConf') {
           child.send(res.data.action_name)
-          child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('testActionWithConf')
           expect(res.data.return.data).to.equal('testActionWithConfReply')

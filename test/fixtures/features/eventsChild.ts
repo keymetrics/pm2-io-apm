@@ -1,4 +1,10 @@
 import EventsFeature from '../../../src/features/events'
+import TransportService from '../../../src/services/transport'
+import { ServiceManager } from '../../../src/serviceManager'
+
+const transport = new TransportService()
+transport.init()
+ServiceManager.set('transport', transport)
 
 const events = new EventsFeature()
 

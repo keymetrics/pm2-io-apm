@@ -1,4 +1,10 @@
 import Metric from '../../../src/features/metrics'
+import TransportService from '../../../src/services/transport'
+import { ServiceManager } from '../../../src/serviceManager'
+
+const transport = new TransportService()
+transport.init()
+ServiceManager.set('transport', transport)
 
 const metric = new Metric()
 metric.init({ network: { ports: true } }, true)

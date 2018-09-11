@@ -1,6 +1,12 @@
 'use strict'
 
 import { NotifyFeature } from '../../../src/features/notify'
+import TransportService from '../../../src/services/transport'
+import { ServiceManager } from '../../../src/serviceManager'
+
+const transport = new TransportService()
+transport.init()
+ServiceManager.set('transport', transport)
 
 const http = require('http').Server((req, res) => {
   const toto = 'yolo'

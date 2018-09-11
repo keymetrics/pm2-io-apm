@@ -245,10 +245,12 @@ export default class PMX {
     }
 
     this.actionsFeature.action(name, opts, fn)
+    this.actionsFeature.initListener()
   }
 
   scopedAction (name: string, fn: Function) {
     this.actionsFeature.scopedAction(name, fn)
+    this.actionsFeature.initListener()
   }
 
   transpose (variableName: string, reporter: Function) {

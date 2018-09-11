@@ -7,6 +7,7 @@ export default class ActionsFeature implements Feature {
 
   private actionsService: ActionsService
   private timer
+  private listenerInitiated: Boolean = false
 
   constructor (autoExit?: boolean) {
     ServiceManager.set('actionsService', new ActionsService(this))
@@ -46,29 +47,10 @@ export default class ActionsFeature implements Feature {
 
     if (actionData) {
       // In case 2 arguments has been set but no options has been transmitted
-      if (fn.length === 2 && typeof(data) === 'string') {
-        return fn({}, reply)
+      if (fn.length === 2) {
+        return fn(data.opts || {}, reply)
       }
-
-      // In case 1 arguments has been set but options has been transmitted
-      if (fn.length === 1) {
-        return fn(reply)
-      }
-
-      /**
-       * Classical call
-       */
-      if (typeof(data) === 'string') {
-        return fn(reply)
-      }
-
-      /**
-       * If data is an object == v2 protocol
-       * Pass the opts as first argument
-       */
-      if (typeof(data) === 'object') {
-        return fn(data.opts, reply)
-      }
+      return fn(reply)
     }
 
     // -----------------------------------------------------------
@@ -121,11 +103,13 @@ export default class ActionsFeature implements Feature {
   }
 
   initListener () {
+    if (this.listenerInitiated) return
     if (ServiceManager.get('transport').transport) {
-      ServiceManager.get('transport').transport.on('trigger:*', this.listener.bind(this))
+      ServiceManager.get('transport').transport.on('trigger:*', this.listener)
     } else {
       process.on('message', this.listener)
     }
+    this.listenerInitiated = true
   }
 
   init (conf?, force?): Object {
@@ -163,14 +147,15 @@ export default class ActionsFeature implements Feature {
 
     if (ServiceManager.get('transport')) {
       ServiceManager.get('transport').addAction({
-        action_name: actionName, action_type: type, opts
+        action_name: actionName, action_type: type, opts, arity: fn.length
       })
     }
 
     const reply = (data) => {
       ServiceManager.get('transport').send('axm:reply', {
         at: new Date().getTime(),
-        data: { action_name: actionName, return: data }
+        action_name: actionName,
+        return: data
       })
     }
 
