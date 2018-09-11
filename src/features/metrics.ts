@@ -44,8 +44,8 @@ export default class MetricsFeature implements Feature {
         const data = self._cookData(self._getVar())
 
         // don't send empty data
-        if (Object.keys(data).length !== 0) {
-          ServiceManager.get('transport').send('axm:monitor', data)
+        if (Object.keys(data).length !== 0 && ServiceManager.get('transport')) {
+          ServiceManager.get('transport').setMetrics(data)
         }
       }, constants.METRIC_INTERVAL)
 

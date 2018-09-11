@@ -123,27 +123,31 @@ export default class PMX {
       configMetrics = config.metrics
     }
 
-    this.backwardConfigConversion(config)
+    const next = config => {
+       // Configuration
+      this.backwardConfigConversion(config)
 
-    this.notifyFeature.init(notifyOptions)
-    this.metricsFeature.init(config.metrics, force)
+      this.notifyFeature.init(notifyOptions)
+      this.metricsFeature.init(config.metrics, force)
+      this.actionsFeature.init(config.actions, force)
+      this.actionsFeature.initListener()
 
-    this.actionsFeature.init(config.actions, force)
+      Configuration.init(config)
+      this.initialConfig = config
+    }
 
-    const conf = Configuration.init(config, config.standalone)
-    this.initialConfig = config
+    // Transport
     if (config.standalone && config.publicKey && config.secretKey) {
       ServiceManager.get('transport').initStandalone({
         publicKey: config.publicKey,
         secretKey: config.secretKey,
         appName: config.appName
       }, _ => {
-        this.actionsFeature.initListener()
+        return next(config)
       })
-      ServiceManager.get('transport').setOptions(conf)
     } else {
       ServiceManager.get('transport').init()
-      this.actionsFeature.initListener()
+      next(config)
     }
 
     return this

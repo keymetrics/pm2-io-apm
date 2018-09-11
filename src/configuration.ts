@@ -1,7 +1,7 @@
 import Debug from 'debug'
 const debug = Debug('axm:configuration')
 
-import Transport from './utils/transport'
+import { ServiceManager } from './serviceManager'
 import Autocast from './utils/autocast'
 import * as path from 'path'
 import * as fs from 'fs'
@@ -13,10 +13,7 @@ const pkg = require(prefix + '/package.json')
 export default class Configuration {
 
   static configureModule (opts) {
-    Transport.send({
-      type : 'axm:option:configuration',
-      data : opts
-    })
+    if (ServiceManager.get('transport')) ServiceManager.get('transport').setOptions(opts)
   }
 
   static findPackageJson () {

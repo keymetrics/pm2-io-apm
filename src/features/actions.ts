@@ -1,6 +1,4 @@
 import * as domain from 'domain'
-import Debug from 'debug'
-const debug = Debug('axm:actions')
 import { ServiceManager } from '../serviceManager'
 import { Feature } from './featureTypes'
 import ActionsService from '../services/actions'
@@ -123,7 +121,7 @@ export default class ActionsFeature implements Feature {
   }
 
   initListener () {
-    if (ServiceManager.get('transport')) {
+    if (ServiceManager.get('transport').transport) {
       ServiceManager.get('transport').transport.on('trigger:*', this.listener.bind(this))
     } else {
       process.on('message', this.listener)
@@ -163,18 +161,20 @@ export default class ActionsFeature implements Feature {
       type = 'internal'
     }
 
-    ServiceManager.get('transport').addAction({
-      action_name: actionName, action_type: type, opts
-    })
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').addAction({
+        action_name: actionName, action_type: type, opts
+      })
+    }
 
     const reply = (data) => {
       ServiceManager.get('transport').send('axm:reply', {
         at: new Date().getTime(),
-        data: {action_name: actionName, return: data}
+        data: { action_name: actionName, return: data }
       })
     }
 
-    ServiceManager.get('actions').set(actionName, { fn: fn, reply: reply })
+    ServiceManager.get('actions').set(actionName, { fn, reply })
   }
 
   scopedAction (actionName, fn) {
@@ -185,9 +185,11 @@ export default class ActionsFeature implements Feature {
     }
 
     // Notify the action
-    ServiceManager.get('transport').addAction({
-      action_name: actionName, action_type: 'scoped'
-    })
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').addAction({
+        action_name: actionName, action_type: 'scoped'
+      })
+    }
 
     ServiceManager.get('actionsScoped').set(actionName, { fn: fn })
   }

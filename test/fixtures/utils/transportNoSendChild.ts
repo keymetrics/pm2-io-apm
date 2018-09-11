@@ -1,8 +1,10 @@
-import Transport from '../../../src/utils/transport'
+import TransportService from '../../../src/services/transport'
+const transport = new TransportService()
+transport.init()
 
 const old = process.send
 delete process.send
-const res = Transport.send(new Error())
+const res = transport.send('test', new Error())
 
 process.send = old
 

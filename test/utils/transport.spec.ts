@@ -1,4 +1,3 @@
-import Transport from '../../src/utils/transport'
 import SpecUtils from '../fixtures/utils'
 import { expect } from 'chai'
 import * as chai from 'chai'

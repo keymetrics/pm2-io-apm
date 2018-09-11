@@ -10,16 +10,16 @@ class TransportConfig {
 }
 
 class Actions {
-  action_name: string
-  action_type: string
+  action_name: string // tslint:disable-line
+  action_type: string // tslint:disable-line
   opts?: Object
 }
 
 class Process {
-  axm_actions: Actions[]
-  axm_monitor: Object
-  axm_options: Object
-  axm_dynamic?: Object
+  axm_actions: Actions[] // tslint:disable-line
+  axm_monitor: Object // tslint:disable-line
+  axm_options: Object // tslint:disable-line
+  axm_dynamic?: Object // tslint:disable-line
   interpreter?: string
   versionning?: Object
 }
@@ -58,9 +58,9 @@ export default class TransportService {
       axm_monitor: {}
     }
     this.agent = new Agent({
-      publicKey: config.publicKey,
-      secretKey: config.secretKey,
-      appName: config.appName
+      publicKey: this.config.publicKey,
+      secretKey: this.config.secretKey,
+      appName: this.config.appName
     }, this.process, (err) => {
       if (err) {
         console.error(err)
@@ -72,18 +72,26 @@ export default class TransportService {
     })
   }
 
+  setMetrics (metrics) {
+    if (this.isStandalone) return this.process.axm_monitor = metrics
+    this.send('axm:monitor', metrics)
+  }
+
   addAction (action) {
+    debug(`Add action: ${action.action_name}:${action.action_type}`)
     if (this.isStandalone) return this.process.axm_actions.push(action)
     return this.send('axm:action', action)
   }
 
   setOptions (options) {
-    this.process.axm_options = options
+    debug(`Set options: [${Object.keys(options).join(',')}]`)
+    if (this.isStandalone) return this.process.axm_options = Object.assign(this.process.axm_options, options)
+    return this.send('axm:option:configuration', options)
   }
 
   send (channel, payload) {
-    if (this.isStandalone) return this.agent.send(channel, payload)
-    if (!process.send) return false
+    if (this.isStandalone) return this.agent.send(channel, payload) ? 0 : -1
+    if (!process.send) return -1
     try {
       process.send(JSON.parse(stringify({
         type: channel,
@@ -94,9 +102,11 @@ export default class TransportService {
       debug(e.stack || e)
       process.exit(1)
     }
+    return 0
   }
 
   destroy () {
+    if (this.isStandalone) return
     this.transport.disconnect()
   }
 }

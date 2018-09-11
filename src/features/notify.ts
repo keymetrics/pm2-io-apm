@@ -76,11 +76,11 @@ export class NotifyFeature implements Feature {
       return -1
     }
 
-    if (!level || this.levels.indexOf(level) === -1) {
+    if (!level || this.levels.indexOf(level) === -1 && ServiceManager.get('transport')) {
       return ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
     }
 
-    if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level)) {
+    if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level) && ServiceManager.get('transport')) {
       return ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
     }
 
@@ -113,7 +113,9 @@ export class NotifyFeature implements Feature {
           errObj = self._interpretError(err)
         }
 
-        ServiceManager.get('transport').send('process:exception', errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' })
+        if (ServiceManager.get('transport')) {
+          ServiceManager.get('transport').send('process:exception', errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' })
+        }
 
         if (!process.listeners(listener).filter(function (listener) {
           return listener !== uncaughtListener
@@ -150,7 +152,9 @@ export class NotifyFeature implements Feature {
       err.params = req.body
       err.session = req.session
 
-      ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
+      if (ServiceManager.get('transport')) {
+        ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
+      }
       return next(err)
     }
   }
