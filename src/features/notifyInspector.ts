@@ -2,7 +2,6 @@ import async from 'async'
 import * as inspector from 'inspector'
 import JsonUtils from '../utils/json'
 import { ServiceManager } from '../serviceManager'
-import Transport from '../utils/transport'
 import { InspectorService } from '../services/inspector'
 
 export interface ErrorMetadata {
@@ -90,10 +89,7 @@ export default class NotifyInspector {
       }
       error.frame = context ? context.frame : undefined
       // send it
-      Transport.send({
-        type: 'process:exception',
-        data: error
-      })
+      ServiceManager.get('transport').send('process:exception', error)
       // at this point the process should exit
       process.exit(1)
     }

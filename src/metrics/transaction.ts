@@ -5,7 +5,6 @@ import Proxy from '../utils/proxy'
 import SimpleHttpWrap from '../wrapper/httpWrapper'
 import Debug from 'debug'
 const debug = Debug('axm:tracing')
-import Transport from '../utils/transport'
 import Configuration from '../configuration'
 import MetricsInterface from './metricsInterface'
 import MetricConfig from '../utils/metricConfig'
@@ -60,10 +59,7 @@ export default class Transaction implements MetricsInterface {
 
     // broadcast to pm2 aggregator
     this.tracer.getBus().on('transaction', (data) => {
-      Transport.send({
-        type: 'axm:trace',
-        data: data
-      })
+      ServiceManager.get('transport').send('axm:trace', data)
     })
   }
 

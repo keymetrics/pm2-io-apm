@@ -133,7 +133,7 @@ export default class PMX {
     const conf = Configuration.init(config, config.standalone)
     this.initialConfig = config
     if (config.standalone && config.publicKey && config.secretKey) {
-      ServiceManager.get('transport').init({
+      ServiceManager.get('transport').initStandalone({
         publicKey: config.publicKey,
         secretKey: config.secretKey,
         appName: config.appName
@@ -142,6 +142,7 @@ export default class PMX {
       })
       ServiceManager.get('transport').setOptions(conf)
     } else {
+      ServiceManager.get('transport').init()
       this.actionsFeature.initListener()
     }
 

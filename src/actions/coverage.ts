@@ -5,7 +5,7 @@ import ActionsFeature from '../features/actions'
 import CoverageFeature from '../features/coverage'
 import ActionsInterface from './actionsInterface'
 import MiscUtils from '../utils/miscellaneous'
-import Transport from '../utils/transport'
+import { ServiceManager } from '../serviceManager'
 import FileUtils from '../utils/file'
 
 export default class CoverageAction implements ActionsInterface {
@@ -76,12 +76,9 @@ export default class CoverageAction implements ActionsInterface {
 
         if (opts.timeout && typeof opts.timeout === 'number') {
           setTimeout(async _ => {
-            const reply = (data) => Transport.send({
-              type        : 'axm:reply',
-              data        : {
-                return      : data,
-                action_name : 'km:coverage:stop'
-              }
+            const reply = (data) => ServiceManager.get('transport').send('axm:reply', {
+              return: data,
+              action_name: 'km:coverage:stop'
             })
             await this.stopCoverage(reply)
           }, opts.timeout)

@@ -6,7 +6,7 @@ import ProfilingFeature from '../features/profiling'
 import ActionsInterface from './actionsInterface'
 import MiscUtils from '../utils/miscellaneous'
 import FileUtils from '../utils/file'
-import Transport from '../utils/transport'
+import { ServiceManager } from '../serviceManager'
 
 export default class ProfilingCPUAction implements ActionsInterface {
 
@@ -77,12 +77,9 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
         if (opts.timeout && typeof opts.timeout === 'number') {
           setTimeout(async _ => {
-            const reply = (data) => Transport.send({
-              type        : 'axm:reply',
-              data        : {
-                return      : data,
-                action_name : 'km:cpu:profiling:stop'
-              }
+            const reply = (data) => ServiceManager.get('transport').send('axm:reply', {
+              return: data,
+              action_name: 'km:cpu:profiling:stop'
             })
             await this.stopProfiling(reply)
           }, opts.timeout)

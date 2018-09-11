@@ -3,7 +3,6 @@ import Meter from '../utils/metrics/meter'
 import Counter from '../utils/metrics/counter'
 import Histogram from '../utils/metrics/histogram'
 import { ServiceManager } from '../serviceManager'
-import Transport from '../utils/transport'
 import constants from '../constants'
 import MetricsService from '../services/metrics'
 
@@ -46,10 +45,7 @@ export default class MetricsFeature implements Feature {
 
         // don't send empty data
         if (Object.keys(data).length !== 0) {
-          Transport.send({
-            type: 'axm:monitor',
-            data: data
-          })
+          ServiceManager.get('transport').send('axm:monitor', data)
         }
       }, constants.METRIC_INTERVAL)
 

@@ -1,4 +1,5 @@
 import Debug from 'debug'
+import * as stringify from 'json-stringify-safe'
 
 const debug = Debug('axm:transportService')
 
@@ -40,8 +41,14 @@ export default class TransportService {
   private agent: Agent
   private transport: Transport
   private process: Process
+  private isStandalone: Boolean
 
-  init (config: TransportConfig, cb: Function) {
+  init () {
+    this.isStandalone = false
+  }
+
+  initStandalone (config: TransportConfig, cb: Function) {
+    this.isStandalone = true
     const Agent = require('/Users/valentin/Work/Keymetrics/pm2-io-agent-node')
     debug('Init new transport service')
     this.config = config
@@ -66,7 +73,8 @@ export default class TransportService {
   }
 
   addAction (action) {
-    this.process.axm_actions.push(action)
+    if (this.isStandalone) return this.process.axm_actions.push(action)
+    return this.send('axm:action', action)
   }
 
   setOptions (options) {
@@ -74,10 +82,21 @@ export default class TransportService {
   }
 
   send (channel, payload) {
-    this.agent.send(channel, payload)
+    if (this.isStandalone) return this.agent.send(channel, payload)
+    if (!process.send) return false
+    try {
+      process.send(JSON.parse(stringify({
+        type: channel,
+        data: payload
+      })))
+    } catch (e) {
+      debug('Process disconnected from parent !')
+      debug(e.stack || e)
+      process.exit(1)
+    }
   }
 
   destroy () {
-    this.agent.transport.disconnect()
+    this.transport.disconnect()
   }
 }

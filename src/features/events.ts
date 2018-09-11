@@ -1,5 +1,4 @@
-import Transport from '../utils/transport'
-
+import { ServiceManager } from '../serviceManager'
 import * as stringify from 'json-stringify-safe'
 import { Feature } from './featureTypes'
 
@@ -29,10 +28,7 @@ export default class Events implements Feature {
 
     inflightObj.__name = name
 
-    Transport.send({
-      type : 'human:event',
-      data : inflightObj
-    })
+    ServiceManager.get('transport').send('human:event', inflightObj)
     return false
   }
 }

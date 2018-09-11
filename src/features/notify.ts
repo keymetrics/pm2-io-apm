@@ -4,7 +4,7 @@ import { Feature } from './featureTypes'
 import * as semver from 'semver'
 import JsonUtils from '../utils/json'
 import Configuration from '../configuration'
-import Transport from '../utils/transport'
+import { ServiceManager } from '../serviceManager'
 
 import Debug from 'debug'
 const debug = Debug('axm:notify')
@@ -77,17 +77,11 @@ export class NotifyFeature implements Feature {
     }
 
     if (!level || this.levels.indexOf(level) === -1) {
-      return Transport.send({
-        type : 'process:exception',
-        data : JsonUtils.jsonize(err)
-      })
+      return ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
     }
 
     if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level)) {
-      return Transport.send({
-        type : 'process:exception',
-        data : JsonUtils.jsonize(err)
-      })
+      return ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
     }
 
     return null
@@ -119,10 +113,7 @@ export class NotifyFeature implements Feature {
           errObj = self._interpretError(err)
         }
 
-        Transport.send({
-          type : 'process:exception',
-          data : errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' }
-        })
+        ServiceManager.get('transport').send('process:exception', errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' })
 
         if (!process.listeners(listener).filter(function (listener) {
           return listener !== uncaughtListener
@@ -159,10 +150,7 @@ export class NotifyFeature implements Feature {
       err.params = req.body
       err.session = req.session
 
-      Transport.send({
-        type  : 'process:exception',
-        data  : JsonUtils.jsonize(err)
-      })
+      ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
       return next(err)
     }
   }
