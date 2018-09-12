@@ -6,7 +6,6 @@ import CoverageFeature from '../features/coverage'
 import ActionsInterface from './actionsInterface'
 import MiscUtils from '../utils/miscellaneous'
 import { ServiceManager } from '../serviceManager'
-import FileUtils from '../utils/file'
 
 export default class CoverageAction implements ActionsInterface {
 
@@ -38,18 +37,11 @@ export default class CoverageAction implements ActionsInterface {
     try {
       const dumpFile = await this.coverageFeature.stop()
 
-      let size
-      try {
-        size = await FileUtils.getFileSize(dumpFile)
-      } catch (err) {
-        size = -1
-      }
-
       return reply({
         success     : true,
         coverage    : true,
         dump_file   : dumpFile,
-        dump_file_size : size,
+        dump_file_size : dumpFile.length,
         uuid        : this.uuid
       })
     } catch (err) {

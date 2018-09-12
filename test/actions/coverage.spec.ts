@@ -14,39 +14,35 @@ function common (res, child, done) {
 
   if (res.data.action_name === 'km:coverage:stop') {
 
-    fs.readFile(res.data.return.dump_file, 'utf8',function (err, data) {
-      if (err) console.log(err)
+    const json = JSON.parse(res.data.return.dump_file)
 
-      const json = JSON.parse(data)
-
-      json.result.forEach(item => {
-        if (item.url.indexOf('coverageChild.js') > 0) {
-          item.functions.forEach(func => {
-            if (func.functionName === 'mytimeout') {
-              if (func.isBlockCoverage) {
-                expect(func.ranges.length).to.equal(2)
-                expect(func.ranges[0].count).to.equal(1)
-                expect(func.ranges[0].startOffset).to.equal(811)
-                expect(func.ranges[0].endOffset).to.equal(1064)
-                expect(func.ranges[1].count).to.equal(0)
-                expect(func.ranges[1].startOffset).to.equal(1027)
-                expect(func.ranges[1].endOffset).to.equal(1058)
-              } else {
-                expect(func.ranges.length).to.equal(1)
-                expect(func.ranges[0].count).to.equal(1)
-                expect(func.ranges[0].startOffset).to.equal(811)
-                expect(func.ranges[0].endOffset).to.equal(1064)
-              }
+    json.result.forEach(item => {
+      if (item.url.indexOf('coverageChild.js') > 0) {
+        item.functions.forEach(func => {
+          if (func.functionName === 'mytimeout') {
+            if (func.isBlockCoverage) {
+              expect(func.ranges.length).to.equal(2)
+              expect(func.ranges[0].count).to.equal(1)
+              expect(func.ranges[0].startOffset).to.equal(811)
+              expect(func.ranges[0].endOffset).to.equal(1064)
+              expect(func.ranges[1].count).to.equal(0)
+              expect(func.ranges[1].startOffset).to.equal(1027)
+              expect(func.ranges[1].endOffset).to.equal(1058)
+            } else {
+              expect(func.ranges.length).to.equal(1)
+              expect(func.ranges[0].count).to.equal(1)
+              expect(func.ranges[0].startOffset).to.equal(811)
+              expect(func.ranges[0].endOffset).to.equal(1064)
             }
-          })
-        }
-      })
-
-      expect(res.data.return.coverage).to.equal(true)
-      expect(res.data.return.uuid).to.equal(uuid)
-
-      child.kill('SIGINT')
+          }
+        })
+      }
     })
+
+    expect(res.data.return.coverage).to.equal(true)
+    expect(res.data.return.uuid).to.equal(uuid)
+
+    child.kill('SIGINT')
   }
 }
 

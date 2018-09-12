@@ -1,7 +1,6 @@
 import { Feature } from './featureTypes'
 import { InspectorService } from '../services/inspector'
 import { ServiceManager } from '../serviceManager'
-import FileUtils from '../utils/file'
 import * as semver from 'semver'
 
 import Debug from 'debug'
@@ -42,7 +41,7 @@ export default class CoverageFeature implements Feature {
 
   async stop () {
     const data = await this.getInfo()
-    return FileUtils.writeDumpFile(JSON.stringify(data), '.coverageprofile')
+    return JSON.stringify(data)
   }
 
   private getInfo () {
