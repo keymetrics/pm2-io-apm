@@ -1,4 +1,5 @@
 import Debug from 'debug'
+import * as AgentNode from '@pm2/agent-node'
 import * as stringify from 'json-stringify-safe'
 
 const debug = Debug('axm:transportService')
@@ -33,6 +34,7 @@ export class Transport {
 export class Agent {
   transport: Transport
   send: Function
+  start: Function
 }
 
 export default class TransportService {
@@ -49,10 +51,9 @@ export default class TransportService {
     this.isStandalone = false
   }
 
-  initStandalone (config: TransportConfig, cb: Function) {
+  async initStandalone (config: TransportConfig) {
     this.isStandalone = true
     this.initiated = true
-    const Agent = require('/Users/valentin/Work/Keymetrics/pm2-io-agent-node')
     debug('Init new transport service')
     this.config = config
     this.process = {
@@ -60,19 +61,20 @@ export default class TransportService {
       axm_options: {},
       axm_monitor: {}
     }
-    this.agent = new Agent({
+    this.agent = new AgentNode({
       publicKey: this.config.publicKey,
       secretKey: this.config.secretKey,
       appName: this.config.appName
-    }, this.process, (err) => {
-      if (err) {
-        console.error(err)
-        process.exit(1)
-      }
-      this.transport = this.agent.transport
-      debug('Agent launched')
-      return cb()
-    })
+    }, this.process)
+
+    try {
+      await this.agent.start()
+    } catch (err) {
+      console.error(err)
+      process.exit(1)
+    }
+    this.transport = this.agent.transport
+    return debug('Agent launched')
   }
 
   setMetrics (metrics) {

@@ -82,6 +82,14 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
+"@pm2/agent-node@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.0.1.tgz#775667980009205c7b21e7942feb5237b364a084"
+  dependencies:
+    debug "^3.1.0"
+    eventemitter2 "^5.0.1"
+    ws "^6.0.0"
+
 "@sindresorhus/df@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@sindresorhus/df/-/df-1.0.1.tgz#c69b66f52f6fcdd287c807df210305dbaf78500d"
@@ -303,6 +311,10 @@ assertion-error@^1.0.1:
 assign-symbols@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/assign-symbols/-/assign-symbols-1.0.0.tgz#59667f41fadd4f20ccbc2bb96b8d4f7f78ec0367"
+
+async-limiter@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.0.tgz#78faed8c3d074ab81f22b4e985d79e8738f720f8"
 
 async-listener@^0.6.0:
   version "0.6.9"
@@ -1048,6 +1060,10 @@ etag@~1.8.1:
 event-loop-inspector@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/event-loop-inspector/-/event-loop-inspector-1.2.0.tgz#144d50c08c2dc52e4699de25af32216b8af7e7b2"
+
+eventemitter2@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-5.0.1.tgz#6197a095d5fb6b57e8942f6fd7eaad63a09c9452"
 
 execa@^0.4.0:
   version "0.4.0"
@@ -3913,6 +3929,12 @@ write-file-atomic@^2.0.0:
     graceful-fs "^4.1.11"
     imurmurhash "^0.1.4"
     slide "^1.1.5"
+
+ws@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-6.0.0.tgz#eaa494aded00ac4289d455bac8d84c7c651cef35"
+  dependencies:
+    async-limiter "~1.0.0"
 
 xdg-basedir@^1.0.0:
   version "1.0.1"

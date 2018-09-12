@@ -92,7 +92,7 @@ export default class PMX {
     return this.initialConfig
   }
 
-  init (config?: IOConfig, force?: boolean) {
+  async init (config?: IOConfig, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
@@ -123,32 +123,27 @@ export default class PMX {
       configMetrics = config.metrics
     }
 
-    const next = config => {
-       // Configuration
-      this.backwardConfigConversion(config)
-
-      this.notifyFeature.init(notifyOptions)
-      this.metricsFeature.init(config.metrics, force)
-      this.actionsFeature.init(config.actions, force)
-      this.actionsFeature.initListener()
-
-      Configuration.init(config)
-      this.initialConfig = config
-    }
-
     // Transport
     if (config.standalone && config.publicKey && config.secretKey && config.appName) {
-      ServiceManager.get('transport').initStandalone({
+      await ServiceManager.get('transport').initStandalone({
         publicKey: config.publicKey,
         secretKey: config.secretKey,
         appName: config.appName
-      }, _ => {
-        return next(config)
       })
     } else {
       ServiceManager.get('transport').init()
-      next(config)
     }
+
+    // Configuration
+    this.backwardConfigConversion(config)
+
+    this.notifyFeature.init(notifyOptions)
+    this.metricsFeature.init(config.metrics, force)
+    this.actionsFeature.init(config.actions, force)
+    this.actionsFeature.initListener()
+
+    Configuration.init(config)
+    this.initialConfig = config
 
     return this
   }
