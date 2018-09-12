@@ -67,9 +67,14 @@ export default class ProfilingHeapAction implements ActionsInterface {
     // -------------------------------------
     const profilingReply = (data) => ServiceManager.get('transport').send('profiling', {
       data: data.dump_file,
+      at: data.at,
+      initiated: data.initiated || 'manual',
+      duration: data.duration || null,
       type: 'heapprofile'
     })
+    let startTime: Date | null  = null
     this.actionFeature.action('km:heap:sampling:start', async (opts, reply) => {
+      startTime = new Date()
       if (!reply) {
         reply = opts
         opts = {}
@@ -82,7 +87,12 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
         if (opts.timeout && typeof opts.timeout === 'number') {
           setTimeout(async _ => {
-            await this.stopProfiling(profilingReply)
+            await this.stopProfiling(data => profilingReply({
+              at: startTime,
+              initiated: opts.initiated,
+              duration: startTime ? new Date().getTime() - startTime.getTime() : null,
+              ...data
+            }))
           }, opts.timeout)
         }
       } catch (err) {
@@ -95,17 +105,26 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
     })
 
-    this.actionFeature.action('km:heap:sampling:stop', this.stopProfiling.bind(this, profilingReply))
+    this.actionFeature.action('km:heap:sampling:stop', this.stopProfiling.bind(this, data => profilingReply({
+      at: startTime,
+      initiated: 'manual',
+      duration: startTime ? new Date().getTime() - startTime.getTime() : null,
+      ...data
+    })))
 
     // -------------------------------------
     // Heap dump
     // -------------------------------------
-    this.actionFeature.action('km:heapdump', async (reply) => {
+    this.actionFeature.action('km:heapdump', async (opts, reply) => {
+      const startTime = new Date()
       try {
         const data = await this.profilings.heapProfiling.takeSnapshot()
 
         return ServiceManager.get('transport').send('profiling', {
-          data: data.dump_file,
+          data,
+          at: startTime,
+          initiated: opts.initiated || 'manual',
+          duration: new Date().getTime() - startTime.getTime(),
           type: 'heapdump'
         })
       } catch (err) {
