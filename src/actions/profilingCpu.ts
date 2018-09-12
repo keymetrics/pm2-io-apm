@@ -63,7 +63,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
       duration: data.duration || null,
       type: 'cpuprofile'
     })
-    let startTime: Date | null  = null
+    let startTime: Date | null = null
     this.actionFeature.action('km:cpu:profiling:start', async (opts, reply) => {
       startTime = new Date()
       if (!reply) {

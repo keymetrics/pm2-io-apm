@@ -4,7 +4,6 @@ import 'mocha'
 import SpecUtils from '../fixtures/utils'
 import ProfilingFeature from '../../src/features/profiling'
 import * as semver from 'semver'
-import * as fs from 'fs'
 
 const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
 
@@ -98,7 +97,7 @@ describe('ProfilingFeature', function () {
       await profiling.heapProfiling.init()
       const res = await profiling.heapProfiling.takeSnapshot()
 
-      const content = JSON.parse(fs.readFileSync(res, 'utf8'))
+      const content = JSON.parse(res)
 
       if (semver.satisfies(process.version, '>= 10.0.0') ||
         (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
@@ -126,7 +125,7 @@ function setTimeoutHeapProfile (profiling) {
     setTimeout(async () => {
       const res = await profiling.heapProfiling.stop()
 
-      const content = JSON.parse(fs.readFileSync(res, 'utf8'))
+      const content = JSON.parse(res)
 
       if (semver.satisfies(process.version, '>= 10.0.0')) {
         expect(typeof content).to.equal('object')
@@ -147,7 +146,7 @@ function setTimeoutCPUProfile (profiling) {
     setTimeout(async () => {
       const res = await profiling.cpuProfiling.stop()
 
-      const content = JSON.parse(fs.readFileSync(res, 'utf8'))
+      const content = JSON.parse(res)
 
       expect(typeof content).to.equal('object')
       expect(content.typeId).to.equal('CPU')
@@ -165,7 +164,7 @@ function setTimeoutProfile (profiling) {
     setTimeout(async () => {
       const res = await profiling.heapProfiling.takeSnapshot()
 
-      const content = JSON.parse(fs.readFileSync(res, 'utf8'))
+      const content = JSON.parse(res)
 
       expect(typeof content).to.equal('object')
       expect(content.hasOwnProperty('snapshot')).to.equal(true)

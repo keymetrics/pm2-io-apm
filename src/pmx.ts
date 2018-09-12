@@ -137,7 +137,7 @@ export default class PMX {
     }
 
     // Transport
-    if (config.standalone && config.publicKey && config.secretKey) {
+    if (config.standalone && config.publicKey && config.secretKey && config.appName) {
       ServiceManager.get('transport').initStandalone({
         publicKey: config.publicKey,
         secretKey: config.secretKey,

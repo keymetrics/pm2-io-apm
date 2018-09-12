@@ -3,19 +3,19 @@ import * as stringify from 'json-stringify-safe'
 
 const debug = Debug('axm:transportService')
 
-class TransportConfig {
+export class TransportConfig {
   publicKey: string
   secretKey: string
   appName: string
 }
 
-class Actions {
+export class Actions {
   action_name: string // tslint:disable-line
   action_type: string // tslint:disable-line
   opts?: Object
 }
 
-class Process {
+export class Process {
   axm_actions: Actions[] // tslint:disable-line
   axm_monitor: Object // tslint:disable-line
   axm_options: Object // tslint:disable-line
@@ -24,13 +24,13 @@ class Process {
   versionning?: Object
 }
 
-class Transport {
+export class Transport {
   send: Function
   disconnect: Function
   on: Function
 }
 
-class Agent {
+export class Agent {
   transport: Transport
   send: Function
 }
@@ -73,24 +73,32 @@ export default class TransportService {
   }
 
   setMetrics (metrics) {
-    if (this.isStandalone) return this.process.axm_monitor = metrics
+    if (this.isStandalone) {
+      return this.process.axm_monitor = metrics
+    }
     this.send('axm:monitor', metrics)
   }
 
   addAction (action) {
     debug(`Add action: ${action.action_name}:${action.action_type}`)
-    if (this.isStandalone) return this.process.axm_actions.push(action)
+    if (this.isStandalone) {
+      return this.process.axm_actions.push(action)
+    }
     return this.send('axm:action', action)
   }
 
   setOptions (options) {
     debug(`Set options: [${Object.keys(options).join(',')}]`)
-    if (this.isStandalone) return this.process.axm_options = Object.assign(this.process.axm_options, options)
+    if (this.isStandalone) {
+      return this.process.axm_options = Object.assign(this.process.axm_options, options)
+    }
     return this.send('axm:option:configuration', options)
   }
 
   send (channel, payload) {
-    if (this.isStandalone) return this.agent.send(channel, payload) ? 0 : -1
+    if (this.isStandalone) {
+      return this.agent.send(channel, payload) ? 0 : -1
+    }
     if (!process.send) return -1
     try {
       process.send(JSON.parse(stringify({
@@ -100,13 +108,13 @@ export default class TransportService {
     } catch (e) {
       debug('Process disconnected from parent !')
       debug(e.stack || e)
-      process.exit(1)
+      return process.exit(1)
     }
     return 0
   }
 
   destroy () {
-    if (this.isStandalone) return
+    if (!this.isStandalone) return
     this.transport.disconnect()
   }
 }

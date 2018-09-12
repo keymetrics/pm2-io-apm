@@ -72,7 +72,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
       duration: data.duration || null,
       type: 'heapprofile'
     })
-    let startTime: Date | null  = null
+    let startTime: Date | null = null
     this.actionFeature.action('km:heap:sampling:start', async (opts, reply) => {
       startTime = new Date()
       if (!reply) {
