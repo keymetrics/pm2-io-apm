@@ -1,5 +1,5 @@
 import Debug from 'debug'
-import * as AgentNode from '@pm2/agent-node'
+import * as semver from 'semver'
 import * as stringify from 'json-stringify-safe'
 
 const debug = Debug('axm:transportService')
@@ -54,6 +54,11 @@ export default class TransportService {
   }
 
   async initStandalone (config: TransportConfig) {
+    if (!semver.satisfies(process.version, '>= 8.0.0')) {
+      this.init()
+      return console.error('[STANDALONE MODE] Unable to set standalone mode with node < 8.0.0')
+    }
+    const AgentNode = require('@pm2/agent-node')
     this.isStandalone = true
     this.initiated = true
     debug('Init new transport service')
