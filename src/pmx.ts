@@ -49,6 +49,7 @@ class IOConfig {
   publicKey?: string
   secretKey?: string
   appName?: string
+  sendLogs?: Boolean
 }
 
 interface Context {
@@ -128,7 +129,8 @@ export default class PMX {
       await ServiceManager.get('transport').initStandalone({
         publicKey: config.publicKey,
         secretKey: config.secretKey,
-        appName: config.appName
+        appName: config.appName,
+        sendLogs: config.sendLogs
       })
     } else {
       ServiceManager.get('transport').init()

@@ -8,6 +8,7 @@ export class TransportConfig {
   publicKey: string
   secretKey: string
   appName: string
+  sendLogs: Boolean
 }
 
 export class Actions {
@@ -35,6 +36,7 @@ export class Agent {
   transport: Transport
   send: Function
   start: Function
+  sendLogs: Boolean
 }
 
 export default class TransportService {
@@ -44,7 +46,7 @@ export default class TransportService {
   private transport: Transport
   private process: Process
   private isStandalone: Boolean = false
-  private initiated: Boolean = false
+  private initiated: Boolean = false // tslint:disable-line
 
   init () {
     this.initiated = true
@@ -66,6 +68,7 @@ export default class TransportService {
       secretKey: this.config.secretKey,
       appName: this.config.appName
     }, this.process)
+    this.agent.sendLogs = config.sendLogs || false
 
     try {
       await this.agent.start()
