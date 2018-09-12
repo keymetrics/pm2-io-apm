@@ -40,22 +40,19 @@ describe('ProfilingAction', function () {
 
         if (res.type === 'axm:reply') {
           expect(res.data.return.success).to.equal(true)
-
           if (res.data.action_name === 'km:cpu:profiling:start') {
             uuid = res.data.return.uuid
           }
-
-          if (res.data.action_name === 'km:cpu:profiling:stop') {
-            expect(typeof res.data.return.dump_file).to.equal('string')
-            expect(typeof res.data.return.dump_file_size).to.equal('number')
-
-            expect(res.data.return.cpuprofile).to.equal(true)
-            expect(res.data.return.uuid).to.equal(uuid)
-
-            child.kill('SIGINT')
-            done()
-          }
         }
+        if (res.type === 'profiling') {
+          expect(typeof res.data.data).to.equal('string')
+
+          expect(res.data.type).to.equal('cpuprofile')
+
+          child.kill('SIGINT')
+          done()
+        }
+
         if (res === 'initialized') {
           child.send('km:cpu:profiling:start')
 
@@ -77,23 +74,20 @@ describe('ProfilingAction', function () {
         }
 
         if (res.type === 'axm:reply') {
-          expect(res.data.return.success).to.equal(true)
-
           if (res.data.action_name === 'km:cpu:profiling:start') {
+            expect(res.data.return.success).to.equal(true)
             uuid = res.data.return.uuid
           }
-
-          if (res.data.action_name === 'km:cpu:profiling:stop') {
-            expect(typeof res.data.return.dump_file).to.equal('string')
-            expect(typeof res.data.return.dump_file_size).to.equal('number')
-
-            expect(res.data.return.cpuprofile).to.equal(true)
-            expect(res.data.return.uuid).to.equal(uuid)
-
-            child.kill('SIGINT')
-            done()
-          }
         }
+        if (res.type === 'profiling') {
+          expect(typeof res.data.data).to.equal('string')
+
+          expect(res.data.type).to.equal('cpuprofile')
+
+          child.kill('SIGINT')
+          done()
+        }
+
         if (res === 'initialized') {
           child.send({
             msg: 'km:cpu:profiling:start',
@@ -116,22 +110,18 @@ describe('ProfilingAction', function () {
 
           if (res.type === 'axm:reply') {
             expect(res.data.return.success).to.equal(true)
-
             if (res.data.action_name === 'km:cpu:profiling:start') {
               uuid = res.data.return.uuid
             }
-
-            if (res.data.action_name === 'km:cpu:profiling:stop') {
-              expect(typeof res.data.return.dump_file).to.equal('string')
-              expect(typeof res.data.return.dump_file_size).to.equal('number')
-
-              expect(res.data.return.cpuprofile).to.equal(true)
-              expect(res.data.return.uuid).to.equal(uuid)
-
-              child.kill('SIGINT')
-              done()
-            }
           }
+          if (res.type === 'profiling') {
+            expect(typeof res.data.data).to.equal('string')
+            expect(res.data.type).to.equal('cpuprofile')
+
+            child.kill('SIGINT')
+            done()
+          }
+
           if (res === 'initialized') {
             child.send('km:cpu:profiling:start')
 
@@ -168,19 +158,15 @@ describe('ProfilingAction', function () {
 
         if (res.type === 'axm:reply') {
           expect(res.data.return.success).to.equal(true)
-
           if (res.data.action_name === 'km:heap:sampling:start') {
             uuid = res.data.return.uuid
           }
+        }
+        if (res.type === 'profiling') {
+          expect(typeof res.data.data).to.equal('string')
 
-          if (res.data.action_name === 'km:heap:sampling:stop') {
-            expect(typeof res.data.return.dump_file).to.equal('string')
-            expect(typeof res.data.return.dump_file_size).to.equal('number')
-
-            expect(res.data.return.heapprofile).to.equal(true)
-            expect(res.data.return.uuid).to.equal(uuid)
-            child.kill('SIGINT')
-          }
+          expect(res.data.type).to.equal('heapprofile')
+          child.kill('SIGINT')
         }
 
         if (res === 'initialized') {
@@ -215,15 +201,12 @@ describe('ProfilingAction', function () {
           if (res.data.action_name === 'km:heap:sampling:start') {
             uuid = res.data.return.uuid
           }
+        }
+        if (res.type === 'profiling') {
+          expect(typeof res.data.data).to.equal('string')
 
-          if (res.data.action_name === 'km:heap:sampling:stop') {
-            expect(typeof res.data.return.dump_file).to.equal('string')
-            expect(typeof res.data.return.dump_file_size).to.equal('number')
-
-            expect(res.data.return.heapprofile).to.equal(true)
-            expect(res.data.return.uuid).to.equal(uuid)
-            child.kill('SIGINT')
-          }
+          expect(res.data.type).to.equal('heapprofile')
+          child.kill('SIGINT')
         }
 
         if (res === 'initialized') {
@@ -253,13 +236,12 @@ describe('ProfilingAction', function () {
         if (res.type === 'axm:reply') {
 
           expect(res.data.return.success).to.equal(true)
+        }
+        if (res.type === 'profiling') {
+          expect(res.data.type).to.equal('heapdump')
+          expect(typeof res.data.data).to.equal('string')
 
-          if (res.data.action_name === 'km:heapdump') {
-            expect(res.data.return.heapdump).to.equal(true)
-            expect(typeof res.data.return.dump_file).to.equal('string')
-
-            child.kill('SIGINT')
-          }
+          child.kill('SIGINT')
         }
 
         if (res === 'initialized') {

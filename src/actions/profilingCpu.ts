@@ -56,6 +56,10 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
   private exposeActions () {
 
+    const profilingReply = (data) => ServiceManager.get('transport').send('profiling', {
+      data: data.dump_file,
+      type: 'cpuprofile'
+    })
     this.actionFeature.action('km:cpu:profiling:start', async (opts, reply) => {
       if (!reply) {
         reply = opts
@@ -69,11 +73,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
         if (opts.timeout && typeof opts.timeout === 'number') {
           setTimeout(async _ => {
-            const reply = (data) => ServiceManager.get('transport').send('axm:reply', {
-              return: data,
-              action_name: 'km:cpu:profiling:stop'
-            })
-            await this.stopProfiling(reply)
+            await this.stopProfiling(profilingReply)
           }, opts.timeout)
         }
       } catch (err) {
@@ -85,6 +85,6 @@ export default class ProfilingCPUAction implements ActionsInterface {
       }
     })
 
-    this.actionFeature.action('km:cpu:profiling:stop', this.stopProfiling.bind(this))
+    this.actionFeature.action('km:cpu:profiling:stop', this.stopProfiling.bind(this, profilingReply))
   }
 }

@@ -65,6 +65,10 @@ export default class ProfilingHeapAction implements ActionsInterface {
     // -------------------------------------
     // Heap sampling
     // -------------------------------------
+    const profilingReply = (data) => ServiceManager.get('transport').send('profiling', {
+      data: data.dump_file,
+      type: 'heapprofile'
+    })
     this.actionFeature.action('km:heap:sampling:start', async (opts, reply) => {
       if (!reply) {
         reply = opts
@@ -78,11 +82,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
         if (opts.timeout && typeof opts.timeout === 'number') {
           setTimeout(async _ => {
-            const reply = (data) => ServiceManager.get('transport').send('axm:reply', {
-              return: data,
-              action_name: 'km:heap:sampling:stop'
-            })
-            await this.stopProfiling(reply)
+            await this.stopProfiling(profilingReply)
           }, opts.timeout)
         }
       } catch (err) {
@@ -95,7 +95,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
 
     })
 
-    this.actionFeature.action('km:heap:sampling:stop', this.stopProfiling.bind(this))
+    this.actionFeature.action('km:heap:sampling:stop', this.stopProfiling.bind(this, profilingReply))
 
     // -------------------------------------
     // Heap dump
@@ -104,10 +104,9 @@ export default class ProfilingHeapAction implements ActionsInterface {
       try {
         const data = await this.profilings.heapProfiling.takeSnapshot()
 
-        return reply({
-          success     : true,
-          heapdump    : true,
-          dump_file   : data
+        return ServiceManager.get('transport').send('profiling', {
+          data: data.dump_file,
+          type: 'heapdump'
         })
       } catch (err) {
         return reply({
