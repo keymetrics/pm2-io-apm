@@ -70,6 +70,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
         reply = opts
         opts = {}
       }
+      if (!opts) opts = {}
 
       try {
         this.uuid = MiscUtils.generateUUID()

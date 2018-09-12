@@ -79,6 +79,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
         reply = opts
         opts = {}
       }
+      if (!opts) opts = {}
 
       try {
         this.uuid = MiscUtils.generateUUID()
@@ -116,6 +117,12 @@ export default class ProfilingHeapAction implements ActionsInterface {
     // Heap dump
     // -------------------------------------
     this.actionFeature.action('km:heapdump', async (opts, reply) => {
+      if (!reply) {
+        reply = opts
+        opts = {}
+      }
+      if (!opts) opts = {}
+
       const startTime = new Date()
       try {
         const data = await this.profilings.heapProfiling.takeSnapshot()
