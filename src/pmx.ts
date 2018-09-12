@@ -93,7 +93,7 @@ export default class PMX {
     return this.initialConfig
   }
 
-  async init (config?: IOConfig, force?: boolean) {
+  init (config?: IOConfig, force?: boolean) {
     let notifyOptions: NotifyOptions = NotifyOptionsDefault
     let configMetrics = {}
 
@@ -124,28 +124,30 @@ export default class PMX {
       configMetrics = config.metrics
     }
 
-    // Transport
-    if (config.standalone && config.publicKey && config.secretKey && config.appName) {
-      await ServiceManager.get('transport').initStandalone({
-        publicKey: config.publicKey,
-        secretKey: config.secretKey,
-        appName: config.appName,
-        sendLogs: config.sendLogs
-      })
-    } else {
-      ServiceManager.get('transport').init()
-    }
+    (async _ => {
+      // Transport
+      if (config.standalone && config.publicKey && config.secretKey && config.appName) {
+        await ServiceManager.get('transport').initStandalone({
+          publicKey: config.publicKey,
+          secretKey: config.secretKey,
+          appName: config.appName,
+          sendLogs: config.sendLogs
+        })
+      } else {
+        ServiceManager.get('transport').init()
+      }
 
-    // Configuration
-    this.backwardConfigConversion(config)
+      // Configuration
+      this.backwardConfigConversion(config)
 
-    this.notifyFeature.init(notifyOptions)
-    this.metricsFeature.init(config.metrics, force)
-    this.actionsFeature.init(config.actions, force)
-    this.actionsFeature.initListener()
+      this.notifyFeature.init(notifyOptions)
+      this.metricsFeature.init(config.metrics, force)
+      this.actionsFeature.init(config.actions, force)
+      this.actionsFeature.initListener()
 
-    Configuration.init(config)
-    this.initialConfig = config
+      Configuration.init(config)
+      this.initialConfig = config
+    })()
 
     return this
   }
