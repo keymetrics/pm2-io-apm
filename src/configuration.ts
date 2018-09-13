@@ -49,6 +49,7 @@ export default class Configuration {
     if (!conf.module_conf) {
       conf.module_conf = {}
     }
+    conf.pmx_version = pkg.version || null
 
     if (conf.isModule === true) {
       /**
@@ -60,11 +61,6 @@ export default class Configuration {
         conf.module_version = packageJson.version
         conf.module_name = packageJson.name
         conf.description = packageJson.description
-        conf.pmx_version = null
-
-        if (pkg.version) {
-          conf.pmx_version = pkg.version
-        }
 
         if (packageJson.config) {
           conf = util['_extend'](conf, packageJson.config)
@@ -79,9 +75,6 @@ export default class Configuration {
         packageJson = require(packageFilepath || '')
 
         conf.module_version = packageJson.version
-        conf.pmx_version = null
-
-        if (pkg.version) conf.pmx_version = pkg.version
 
         if (packageJson.config) {
           conf = util['_extend'](conf, packageJson.config)
