@@ -1,4 +1,4 @@
-## 2.3.12 ( Thu Sep 13 2018 10:03:35 GMT+0200 (CEST) )
+## 2.4.0 ( Thu Sep 13 2018 10:03:35 GMT+0200 (CEST) )
 
 
 ## Features

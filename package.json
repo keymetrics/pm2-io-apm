@@ -1,6 +1,6 @@
 {
   "name": "@pm2/io",
-  "version": "2.3.12",
+  "version": "2.4.0",
   "description": "",
   "main": "build/main/src/index.js",
   "typings": "build/main/src/index.d.ts",
