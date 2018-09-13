@@ -56,7 +56,7 @@ export default class ProfilingCPUAction implements ActionsInterface {
 
   private exposeActions () {
 
-    const profilingReply = (data) => ServiceManager.get('transport').send('profiling', {
+    const profilingReply = (data) => ServiceManager.get('transport').send('profilings', {
       data: data.dump_file,
       at: data.at,
       initiated: data.initiated || 'manual',

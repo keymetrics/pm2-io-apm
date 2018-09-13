@@ -65,7 +65,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
     // -------------------------------------
     // Heap sampling
     // -------------------------------------
-    const profilingReply = (data) => ServiceManager.get('transport').send('profiling', {
+    const profilingReply = (data) => ServiceManager.get('transport').send('profilings', {
       data: data.dump_file,
       at: data.at,
       initiated: data.initiated || 'manual',
@@ -127,7 +127,7 @@ export default class ProfilingHeapAction implements ActionsInterface {
       try {
         const data = await this.profilings.heapProfiling.takeSnapshot()
 
-        return ServiceManager.get('transport').send('profiling', {
+        return ServiceManager.get('transport').send('profilings', {
           data,
           at: startTime,
           initiated: opts.initiated || 'manual',
