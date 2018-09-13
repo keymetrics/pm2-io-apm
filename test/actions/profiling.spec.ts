@@ -44,7 +44,7 @@ describe('ProfilingAction', function () {
             uuid = res.data.return.uuid
           }
         }
-        if (res.type === 'profiling') {
+        if (res.type === 'profilings') {
           expect(typeof res.data.data).to.equal('string')
 
           expect(res.data.type).to.equal('cpuprofile')
@@ -79,7 +79,7 @@ describe('ProfilingAction', function () {
             uuid = res.data.return.uuid
           }
         }
-        if (res.type === 'profiling') {
+        if (res.type === 'profilings') {
           expect(typeof res.data.data).to.equal('string')
 
           expect(res.data.type).to.equal('cpuprofile')
@@ -114,7 +114,7 @@ describe('ProfilingAction', function () {
               uuid = res.data.return.uuid
             }
           }
-          if (res.type === 'profiling') {
+          if (res.type === 'profilings') {
             expect(typeof res.data.data).to.equal('string')
             expect(res.data.type).to.equal('cpuprofile')
 
@@ -162,7 +162,7 @@ describe('ProfilingAction', function () {
             uuid = res.data.return.uuid
           }
         }
-        if (res.type === 'profiling') {
+        if (res.type === 'profilings') {
           expect(typeof res.data.data).to.equal('string')
 
           expect(res.data.type).to.equal('heapprofile')
@@ -202,7 +202,7 @@ describe('ProfilingAction', function () {
             uuid = res.data.return.uuid
           }
         }
-        if (res.type === 'profiling') {
+        if (res.type === 'profilings') {
           expect(typeof res.data.data).to.equal('string')
 
           expect(res.data.type).to.equal('heapprofile')
@@ -237,7 +237,7 @@ describe('ProfilingAction', function () {
 
           expect(res.data.return.success).to.equal(true)
         }
-        if (res.type === 'profiling') {
+        if (res.type === 'profilings') {
           expect(res.data.type).to.equal('heapdump')
           expect(typeof res.data.data).to.equal('string')
 
