@@ -1,4 +1,46 @@
+## 2.3.12 ( Thu Sep 13 2018 10:03:35 GMT+0200 (CEST) )
+
+
+## Features
+  - add duration/starttime/initiated to profilings
+  ([814f8b64](https://github.com/keymetrics/pm2-io-apm/commit/814f8b64d5fde6f8f4b5291dec9c7c897d5cf84c))
+  - use pm2-io-agent-node
+  ([ccf5e91f](https://github.com/keymetrics/pm2-io-apm/commit/ccf5e91f5c4ebf07a6751c6a42cc49bc31725dc8))
+
+
+
+
+## Improvements
+  - add node < 8 compatibility
+  ([60bc74ca](https://github.com/keymetrics/pm2-io-apm/commit/60bc74ca87e17cf141c2d1507b5810c60f2d1990))
+  - fix pmx init
+  ([4a1346c0](https://github.com/keymetrics/pm2-io-apm/commit/4a1346c04a4f62a60fd2fbeb27d5ff9815cca26a))
+  - update agent-node and add option to send logs
+  ([93c0465f](https://github.com/keymetrics/pm2-io-apm/commit/93c0465f5e134b542db96a9364280a587d2d714a))
+  - use @pm2/agent-node and async
+  ([8786ecd2](https://github.com/keymetrics/pm2-io-apm/commit/8786ecd25b0873a299557baa16253ffe2985ba24))
+  - some fixs
+  ([45503e30](https://github.com/keymetrics/pm2-io-apm/commit/45503e307b4e049e3d7b2c9ce2cceb76611584a5))
+  - some improvments
+  ([220a77ad](https://github.com/keymetrics/pm2-io-apm/commit/220a77ad2c0743c921f6458c73ab8bc2e69f31db))
+  - stop storing coverage files
+  ([a02ef3c6](https://github.com/keymetrics/pm2-io-apm/commit/a02ef3c626edc62d1fe941442042b094580b03bc))
+  - send profiling via profiling event (bypass agent)
+  ([fb1dbbb4](https://github.com/keymetrics/pm2-io-apm/commit/fb1dbbb4ae30c6aee0216fbd403d9d41d289e990))
+  - don't store profiling in files #192
+  ([96385909](https://github.com/keymetrics/pm2-io-apm/commit/9638590982e291effe959c6bcef7443c7d4f2a87))
+  - fix some tests
+  ([fe95ba2e](https://github.com/keymetrics/pm2-io-apm/commit/fe95ba2e3b266c5b0e46002a84702b83e35d479d))
+  - use service manager everywhere
+  ([78d01d1e](https://github.com/keymetrics/pm2-io-apm/commit/78d01d1eb9e6567f14e62f972f5119ba1cf11a59))
+  - use service manager for transport
+  ([ee4df6a3](https://github.com/keymetrics/pm2-io-apm/commit/ee4df6a3ad81482f69c1260e77d4753d30344fd9))
+
+
+
+
  
+
 ## 2.3.11 ( Fri Sep 07 2018 13:53:50 GMT+0200 (CEST) )
 
 

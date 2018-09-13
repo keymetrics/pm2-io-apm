@@ -4,8 +4,8 @@
     "intro": "",
     "branch" : "master",
     "repo_url": "https://github.com/keymetrics/pm2-io-apm",
-    "version_name" : "2.3.10",
-    "tag": "2.3.9",
+    "version_name" : "2.3.12",
+    "tag": "2.3.10",
     "file": "currentTagChangelog.md",
     "template": "changelogTemplate.md",
     "sections": [
@@ -20,6 +20,14 @@
         {
             "title": "Features",
             "grep": "^feature"
+        },
+        {
+            "title": "Features",
+            "grep": "^feat"
+        },
+        {
+            "title": "Improvements",
+            "grep": "^improv"
         },
         {
             "title": "Documentation",
