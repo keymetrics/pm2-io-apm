@@ -1,3 +1,17 @@
+## 2.4.1 ( Thu Sep 13 2018 15:28:01 GMT+0200 (CEST) )
+
+
+## Improvements
+  - fix pmx version
+  ([59a584e9](https://github.com/keymetrics/pm2-io-apm/commit/59a584e91e5b0951c9d02ab11dcf13d0a7421448))
+  - fix channel for profiling
+  ([48ad1e77](https://github.com/keymetrics/pm2-io-apm/commit/48ad1e77690cb05aa4c0c8115d59bdc074d28b84))
+
+
+
+
+
+
 ## 2.4.0 ( Thu Sep 13 2018 10:03:35 GMT+0200 (CEST) )
 
 
