@@ -1,4 +1,3 @@
-import * as domain from 'domain'
 import { ServiceManager } from '../serviceManager'
 import { Feature } from './featureTypes'
 import ActionsService from '../services/actions'
@@ -91,18 +90,7 @@ export default class ActionsFeature implements Feature {
         }
       }
 
-      const d = domain.create()
-
-      d.on('error', function (err) {
-        res.error(err.message || err.stack || err)
-        setTimeout(function () {
-          process.exit(1)
-        }, 300)
-      })
-
-      d.run(function () {
-        actionData.fn(data.opts || null, res)
-      })
+      actionData.fn(data.opts || null, res)
     }
   }
 
