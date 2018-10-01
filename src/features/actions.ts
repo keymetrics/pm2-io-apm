@@ -48,7 +48,7 @@ export default class ActionsFeature implements Feature {
       // In case 2 arguments has been set but no options has been transmitted
       if (fn.length === 2) {
         let params = {}
-        if (typeof data === 'object' && typeof data.opts === 'object') {
+        if (typeof data === 'object') {
           params = data.opts
         }
         return fn(params, reply)
