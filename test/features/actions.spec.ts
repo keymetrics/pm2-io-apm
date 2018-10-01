@@ -152,7 +152,7 @@ describe('ActionsFeature', () => {
       })
     })
 
-    it('should failed cause domain error', (done) => {
+    it.skip('should failed cause domain error', (done) => {
       const child = fork(SpecUtils.buildTestPath('fixtures/features/actionsScopedDomainErrorChild.js'))
       child.on('message', res => {
         if (res.type === 'axm:action') {
