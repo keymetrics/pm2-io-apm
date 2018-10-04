@@ -82,9 +82,9 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@pm2/agent-node@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.0.2.tgz#ac80ebf08ae4396ea14287418afe42e266e837b3"
+"@pm2/agent-node@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.0.5.tgz#5eac0cb088c00a6908b1967290c699e4bbbd1d18"
   dependencies:
     debug "^3.1.0"
     eventemitter2 "^5.0.1"
