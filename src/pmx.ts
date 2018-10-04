@@ -49,6 +49,7 @@ class IOConfig {
   publicKey?: string
   secretKey?: string
   appName?: string
+  serverName?: string
   sendLogs?: Boolean
 }
 
@@ -131,6 +132,7 @@ export default class PMX {
           publicKey: config.publicKey,
           secretKey: config.secretKey,
           appName: config.appName,
+          serverName: config.serverName,
           sendLogs: config.sendLogs
         })
       } else {

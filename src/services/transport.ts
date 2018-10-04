@@ -8,6 +8,7 @@ export class TransportConfig {
   publicKey: string
   secretKey: string
   appName: string
+  serverName?: string
   sendLogs: Boolean
 }
 
@@ -71,7 +72,8 @@ export default class TransportService {
     this.agent = new AgentNode({
       publicKey: this.config.publicKey,
       secretKey: this.config.secretKey,
-      appName: this.config.appName
+      appName: this.config.appName,
+      serverName: this.config.serverName
     }, this.process)
     this.agent.sendLogs = config.sendLogs || false
 
