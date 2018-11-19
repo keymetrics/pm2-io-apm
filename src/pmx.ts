@@ -128,7 +128,7 @@ export default class PMX {
     (async _ => {
       // Transport
       if (config.standalone && config.publicKey && config.secretKey && config.appName) {
-        ServiceManager.get('transport').initStandalone({
+        await ServiceManager.get('transport').initStandalone({
           publicKey: config.publicKey,
           secretKey: config.secretKey,
           appName: config.appName,
