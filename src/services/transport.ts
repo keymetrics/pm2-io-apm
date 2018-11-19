@@ -57,7 +57,8 @@ export default class TransportService {
   async initStandalone (config: TransportConfig) {
     if (!semver.satisfies(process.version, '>= 6.0.0')) {
       this.init()
-      return console.error('[STANDALONE MODE] Unable to set standalone mode with node < 6.0.0')
+      console.error('[STANDALONE MODE] Unable to set standalone mode with node < 6.0.0')
+      return process.exit(1)
     }
     const AgentNode = require('@pm2/agent-node')
     this.isStandalone = true
