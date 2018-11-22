@@ -2,7 +2,7 @@ import { exec, fork } from 'child_process'
 import { expect, assert } from 'chai'
 import 'mocha'
 import SpecUtils from '../fixtures/utils'
-import ProfilingFeature from '../../src/features/profiling'
+import ProfilingFeature from './profiling'
 import * as semver from 'semver'
 
 const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'

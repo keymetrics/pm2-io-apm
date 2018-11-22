@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 
-import ActionsService from '../../src/services/actions'
-import ActionsFeature from '../../src/features/actions'
-import EventLoopInspector from '../../src/actions/eventLoopInspector'
+import ActionsService from '../features/actions'
+import ActionsFeature from './actions'
+import EventLoopInspector from '../features/eventLoopInspector'
 
 describe('ActionsService', () => {
 

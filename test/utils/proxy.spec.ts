@@ -1,4 +1,4 @@
-import Proxy from '../../src/utils/proxy'
+import Proxy from './proxy'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import 'mocha'

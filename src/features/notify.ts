@@ -1,93 +1,73 @@
 import * as util from 'util'
-
-import { Feature } from './featureTypes'
-import * as semver from 'semver'
-import JsonUtils from '../utils/json'
+import { Feature } from '../featureManager'
 import Configuration from '../configuration'
 import { ServiceManager } from '../serviceManager'
-
 import Debug from 'debug'
-const debug = Debug('axm:notify')
+import { Transport } from '../services/transport';
 
 export class NotifyOptions {
-  level: string
   catchExceptions: boolean
 }
 
-export const NotifyOptionsDefault = {
-  level: 'info',
-  catchExceptions: true
+export class ErrorContext {
+  http?: Object
+  custom?: Object
+  level?: string
 }
 
-export interface ErrorMetadata {
-  type: String,
-  subtype: String,
-  className: String,
-  description: String,
-  objectId: String,
-  uncaught: Boolean
+const optionsDefault: NotifyOptions = {
+  catchExceptions: true
 }
 
 export class NotifyFeature implements Feature {
 
-  private options: NotifyOptions = NotifyOptionsDefault
-  private levels: Array<string> = ['fatal', 'error', 'warn', 'info', 'debug', 'trace']
-  private feature
+  private logger: Function = Debug('axm:features:notify')
+  private transport: Transport | undefined
 
-  init (options?: NotifyOptions): Object {
-    if (options) {
-      this.options = options
+  init (options?: NotifyOptions) {
+    if (options === undefined) {
+      options = optionsDefault
+    }
+    this.logger('init')
+    this.transport = ServiceManager.get('transport')
+    if (this.transport === undefined) {
+      return this.logger(`Failed to load transporter service`)
     }
 
     Configuration.configureModule({
       error : true
     })
-
-    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && (semver.satisfies(process.version, '< 8.0.0') ||
-          (semver.satisfies(process.version, '< 10.0.0') && !process.env.FORCE_INSPECTOR))) {
-      debug(`Inspector is not available on node version ${process.version} !`)
-    }
-
-    if (process.env.CATCH_CONTEXT_ON_ERROR === 'true' && semver.satisfies(process.version, '>= 10.0.0') ||
-        (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
-      debug('Enabling inspector based error reporting')
-      const NotifyInspector = require('./notifyInspector').default
-      this.feature = new NotifyInspector()
-      this.feature.init(options)
-    } else {
-      this.catchAll()
-    }
-
-    return {
-      notifyError: this.notifyError
-    }
+    if (options.catchExceptions === false) return
+    this.logger('Registering hook to catch unhandled exception/rejection')
+    this.catchAll()
   }
 
   destroy () {
-    if (this.feature) {
-      this.feature.destroy()
-    }
+    this.logger('destroy')
   }
 
-  notifyError (err: Error, level?: string) {
-
+  notifyError (err: Error, context?: ErrorContext) {
+    // set default context
+    if (typeof context !== 'object') {
+      context = { }
+    }
+  
     if (!(err instanceof Error)) {
-      console.trace('[PM2-IO-APM] You should use notify with an Error object')
+      console.trace('[PM2-IO-APM] You should use notifyError with an Error object')
       return -1
     }
 
-    if (!level || this.levels.indexOf(level) === -1 && ServiceManager.get('transport')) {
-      return ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
+    if (this.transport === undefined) {
+      return this.logger(`Tried to send error without having transporter available`)
     }
 
-    if (this.levels.indexOf(this.options.level) >= this.levels.indexOf(level) && ServiceManager.get('transport')) {
-      return ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
-    }
+    const payload = this.jsonize(err)
+    payload.metadata = context
 
-    return null
+    return this.transport.send('process:exception', payload)
   }
 
-  catchAll (opts?: any): Boolean | void {
+  private catchAll (opts?: any): Boolean | void {
     if (opts === undefined) {
       opts = { errors: true }
     }
@@ -153,7 +133,7 @@ export class NotifyFeature implements Feature {
       err.session = req.session
 
       if (ServiceManager.get('transport')) {
-        ServiceManager.get('transport').send('process:exception', JsonUtils.jsonize(err))
+        ServiceManager.get('transport').send('process:exception', this.jsonize(err))
       }
       return next(err)
     }
@@ -174,6 +154,10 @@ export class NotifyFeature implements Feature {
       sErr.stack = err
     }
 
-    return JsonUtils.jsonize(sErr)
+    return this.jsonize(sErr)
+  }
+
+  private jsonize (obj: Object) {
+    return JSON.parse(JSON.stringify(obj))
   }
 }

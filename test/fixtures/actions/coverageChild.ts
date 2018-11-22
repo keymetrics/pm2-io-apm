@@ -1,7 +1,7 @@
-import Action from '../../../src/features/actions'
-import CoverageAction from '../../../src/actions/coverage'
-import TransportService from '../../../src/services/transport'
-import { ServiceManager } from '../../../src/serviceManager'
+import Action from '../../services/actions'
+import CoverageAction from '../../actions/coverage'
+import TransportService from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 
 const transport = new TransportService()
 transport.init()

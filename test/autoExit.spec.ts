@@ -3,7 +3,7 @@ import { assert, expect } from 'chai'
 import 'mocha'
 
 import { exec, fork } from 'child_process'
-import Histogram from '../src/utils/metrics/histogram'
+import Histogram from './utils/metrics/histogram'
 
 describe('API', function () {
   this.timeout(10000)

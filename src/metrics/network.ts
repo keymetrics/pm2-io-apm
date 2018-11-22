@@ -1,173 +1,144 @@
 import * as netModule from 'net'
-import MetricsFeature from '../features/metrics'
-import MetricsInterface from './metricsInterface'
-import MetricConfig from '../utils/metricConfig'
+import { MetricService, MetricType } from '../services/metrics'
+import { MetricInterface } from '../features/metrics'
+import * as Debug from 'debug'
+import Meter from '../utils/metrics/meter'
+import * as shimmer from 'shimmer'
 
-import Debug from 'debug'
-const debug = Debug('axm:network')
+export class NetworkTrafficConfig {
+  upload: boolean
+  download: boolean
+}
 
-export default class NetworkMetric implements MetricsInterface {
-  private metricFeature: MetricsFeature
-  private timer
+export class NetworkMetricConfig {
+  traffic: boolean | NetworkTrafficConfig
+}
 
-  private defaultConf = {
-    ports: false,
-    traffic: true
+const defaultConfig: NetworkMetricConfig = {
+  traffic: {
+    upload: false,
+    download: false
   }
+}
 
-  constructor (metricFeature: MetricsFeature) {
-    this.metricFeature = metricFeature
+const allEnabled: NetworkMetricConfig = {
+  traffic: {
+    upload: true,
+    download: true
   }
+}
 
-  init (config?) {
-    config = MetricConfig.getConfig(config, this.defaultConf)
+export default class NetworkMetric implements MetricInterface {
+  private metricService: MetricService | undefined
+  private timer: NodeJS.Timer
+  private logger: Function = Debug('axm:features:metrics:network')
+  private downloadTimer: NodeJS.Timer
+  private uploadTimer: NodeJS.Timer
+  private socketProto: any
 
-    if (config.traffic) {
-      this.catchTraffic(config.traffic)
+  init (config?: NetworkMetricConfig | boolean) {
+    if (config === false) return
+    if (config === true) {
+      config = allEnabled
+    }
+    if (config === undefined) {
+      config = defaultConfig
     }
 
-    if (config.ports) {
-      this.catchPorts()
+    if (config.traffic === true) {
+      config.traffic = {
+        upload: true,
+        download: true
+      }
     }
+
+    if (config.traffic === false) return
+
+    if (config.traffic.download === true) {
+      this.catchDownload()
+    }
+    if (config.traffic.upload === true) {
+      this.catchUpload()
+    }
+    this.logger('init')
   }
 
   destroy () {
-    clearTimeout(this.timer)
-    debug('NetworkMetric destroyed !')
+    if (this.timer !== null) {
+      clearTimeout(this.timer)
+    }
+
+    if (this.socketProto !== undefined && this.socketProto !== null) {
+      shimmer.unwrap(this.socketProto, 'read')
+      shimmer.unwrap(this.socketProto, 'write')
+    }
+    
+    this.logger('destroy')
   }
 
-  catchPorts () {
-    const portsList: Array<any> = []
-    let openedPorts = 'N/A'
-
-    this.metricFeature.metric({
-      name: 'Open ports',
-      type: 'internal/network/open-ports',
-      value: function () { return openedPorts }
+  private catchDownload () {
+    if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
+    const downloadMeter = new Meter()
+    this.metricService.registerMetric({
+      name: 'Network In',
+      id: 'internal/network/in',
+      type: MetricType.meter,
+      implementation: downloadMeter,
+      unit: 'MBytes/sec',
+      handler: function () {
+        return this.implementation.val() / 1024 / 1024
+      }
     })
 
-    const originalListen = netModule.Server.prototype.listen
-
-    netModule.Server.prototype.listen = function () {
-      const port = parseInt(arguments[0], 10)
-
-      if (!isNaN(port) && portsList.indexOf(port) === -1) {
-        portsList.push(port)
-        openedPorts = portsList.sort().join()
+    this.downloadTimer = setTimeout(() => {
+      const property = netModule.Socket.prototype.read
+      // @ts-ignore thanks mr typescript but we are monkey patching here
+      const isWrapped = property && property.__wrapped === true
+      if (isWrapped) {
+        return this.logger(`Already patched socket read, canceling`)
       }
-
-      this.once('close', function () {
-        if (portsList.indexOf(port) > -1) {
-          portsList.splice(portsList.indexOf(port), 1)
-          openedPorts = portsList.sort().join()
+      shimmer.wrap(netModule.Socket.prototype, 'read', (original) => {
+        return function () {
+          this.on('data', (data) => {
+            if (typeof data.length === 'number') {
+              downloadMeter.mark(data.length)
+            }
+          })
+          return original.apply(this, arguments)
         }
       })
-
-      return originalListen.apply(this, arguments)
-    }
+    }, 500)
   }
 
-  catchTraffic (config) {
-    let download = 0
-    let upload = 0
-    let up = '0 B/sec'
-    let down = '0 B/sec'
-
-    const filter = function (bytes) {
-      let toFixed = 0
-
-      if (bytes < 1024) {
-        toFixed = 6
-      } else if (bytes < (1024 * 1024)) {
-        toFixed = 3
-      } else if (bytes !== 0) {
-        toFixed = 2
+  private catchUpload () {
+    if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
+    const uploadMeter = new Meter()
+    this.metricService.registerMetric({
+      name: 'Network Out',
+      id: 'internal/network/out',
+      type: MetricType.meter,
+      implementation: uploadMeter,
+      unit: 'MBytes/sec',
+      handler: function () {
+        return this.implementation.val() / 1024 / 1024
       }
+    })
 
-      bytes = (bytes / (1024 * 1024)).toFixed(toFixed)
-
-      let cutZeros = 0
-
-      for (let i = (bytes.length - 1); i > 0; --i) {
-        if (bytes[i] === '.') {
-          ++cutZeros
-          break
-        }
-        if (bytes[i] !== '0') break
-        ++cutZeros
+    this.downloadTimer = setTimeout(() => {
+      const property = netModule.Socket.prototype.write
+      // @ts-ignore thanks mr typescript but we are monkey patching here
+      const isWrapped = property && property.__wrapped === true
+      if (isWrapped) {
+        return this.logger(`Already patched socket write, canceling`)
       }
-
-      if (cutZeros > 0) {
-        bytes = bytes.slice(0, -(cutZeros))
-      }
-
-      return (bytes + ' MB/s')
-    }
-
-    const interval = setInterval(function () {
-      up = filter(upload)
-      down = filter(download)
-      upload = 0
-      download = 0
-    }, 999)
-
-    interval.unref()
-
-    if (config === true || config.download === true) {
-      this.metricFeature.metric({
-        name: 'Network In',
-        type: 'internal/network/in',
-        agg_type: 'sum',
-        value: function () {
-          return down
-        }
-      })
-    }
-
-    if (config === true || config.upload === true) {
-      this.metricFeature.metric({
-        name: 'Network Out',
-        type: 'internal/network/out',
-        agg_type: 'sum',
-        value: function () {
-          return up
-        }
-      })
-    }
-
-    if (config === true || config.upload === true) {
-      const originalWrite = netModule.Socket.prototype.write
-
-      netModule.Socket.prototype.write = function (data) {
-        if (data.length) {
-          upload += data.length
-        }
-        return originalWrite.apply(this, arguments)
-      }
-    }
-
-    if (config === true || config.download === true || Number.isInteger(config.download)) {
-      const delay = Number.isInteger(config.download) ? config.download : 500
-
-      this.timer = setTimeout(() => {
-        const originalRead = netModule.Socket.prototype.read
-
-        netModule.Socket.prototype.read = function () {
-          if (!this.monitored) {
-            this.monitored = true
-
-            this.on('data', function (data) {
-              if (data.length) {
-                download += data.length
-              }
-            })
+      shimmer.wrap(netModule.Socket.prototype, 'write', (original) => {
+        return function (data) {
+          if (typeof data.length === 'number') {
+            uploadMeter.mark(data.length)
           }
-
-          return originalRead.apply(this, arguments)
+          return original.apply(this, arguments)
         }
-      }, delay)
-
-      this.timer.unref()
-    }
+      })
+    }, 500)
   }
 }

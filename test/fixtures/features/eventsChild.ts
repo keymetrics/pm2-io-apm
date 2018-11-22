@@ -1,6 +1,6 @@
-import EventsFeature from '../../../src/features/events'
-import TransportService from '../../../src/services/transport'
-import { ServiceManager } from '../../../src/serviceManager'
+import EventsFeature from '../../features/events'
+import TransportService from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 
 const transport = new TransportService()
 transport.init()

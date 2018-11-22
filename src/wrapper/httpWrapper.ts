@@ -1,5 +1,5 @@
 import Proxy from '../utils/proxy'
-import MetricsFeature from '../features/metrics'
+import MetricsFeature from '../services/metrics'
 
 export default class HttpWrapper {
 

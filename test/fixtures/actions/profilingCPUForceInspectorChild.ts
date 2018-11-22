@@ -1,9 +1,9 @@
 process.env.FORCE_INSPECTOR = 'true'
 
-import Action from '../../../src/features/actions'
-import ProfilingCPU from '../../../src/actions/profilingCpu'
-import TransportService from '../../../src/services/transport'
-import { ServiceManager } from '../../../src/serviceManager'
+import Action from '../../services/actions'
+import ProfilingCPU from '../../actions/profilingCpu'
+import TransportService from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 
 const transport = new TransportService()
 transport.init()

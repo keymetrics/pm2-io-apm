@@ -1,49 +1,64 @@
 import * as inspector from 'inspector'
 import Debug from 'debug'
-const debug = Debug('axm:inspectorservice')
 
-export class InspectorService {
+export class InspectorService extends inspector.Session {
 
-  private session
+  private session: inspector.Session | null = null
   private isConnected: boolean = false
+  private logger: Function = Debug('axm:services:inspector')
 
   createSession () {
-    if (!this.session) {
+    if (this.session === null) {
       this.session = new inspector.Session()
     }
-
     return this.session
   }
 
   post (action, params?) {
-    return new Promise((resolve, reject) => {
-      this.session.post(action, params, (err, data) => {
-        if (err) return reject(err)
-        debug(action + ' !')
-        resolve(data)
-      })
-    })
+    this.logger(`posting message with action ${action}`)
+    let session = this.session === null ? this.connect() : this.session
+    return session.post.apply(this, arguments)
   }
 
-  on (eventName, callback) {
-    this.session.on(eventName, callback)
+  on (event: string, handler: Function) {
+    this.logger(`listening from inspector message ${event}`)
+    let session = this.session === null ? this.connect() : this.session
+    return session.on.apply(this, arguments)
   }
 
-  connect () {
+  removeListener (event: string, handler: Function) {
+    if (this.session === null) return
+    return this.session.removeListener.apply(this, arguments)
+  }
+
+  removeAllListeners () {
+    if (this.session === null) return
+    return this.session.removeAllListeners.apply(this, arguments)
+  }
+
+  connect () : inspector.Session {
+    let session = this.session
+    if (session === null) {
+      session = this.createSession()
+      this.session = session
+      session.connect()
+    } 
     if (!this.isConnected) {
-      this.session.connect()
+      session.connect()
     }
     this.isConnected = true
+    return session
   }
 
-  disconnect () {
-    if (this.isConnected) {
+  destroy () {
+    if (this.isConnected === true && this.session !== null) {
       this.session.post('Profiler.disable')
-
+      this.session.post('Profiler.disable')
       this.session.disconnect()
       this.isConnected = false
+      this.session = null
     } else {
-      debug('No open session !')
+      this.logger('No open session')
     }
   }
 }

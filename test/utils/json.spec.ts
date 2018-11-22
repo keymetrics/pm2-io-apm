@@ -1,4 +1,4 @@
-import JsonUtils from '../../src/utils/json'
+import JsonUtils from './json'
 import { expect } from 'chai'
 import * as chai from 'chai'
 import 'mocha'

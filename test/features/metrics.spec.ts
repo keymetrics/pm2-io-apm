@@ -1,7 +1,7 @@
 import { expect, assert } from 'chai'
 import 'mocha'
 
-import Metric from '../../src/features/metrics'
+import Metric from '../services/metrics'
 import SpecUtils from '../fixtures/utils'
 import { fork } from 'child_process'
 

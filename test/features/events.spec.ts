@@ -2,7 +2,7 @@ import { fork } from 'child_process'
 import { expect, assert } from 'chai'
 import 'mocha'
 import SpecUtils from '../fixtures/utils'
-import EventsFeature from '../../src/features/events'
+import EventsFeature from './events'
 
 describe('EventsFeature', () => {
   describe('emit', () => {

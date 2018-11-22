@@ -1,13 +1,17 @@
 import { ServiceManager } from '../serviceManager'
 import * as stringify from 'json-stringify-safe'
-import { Feature } from './featureTypes'
+import { Feature } from '../featureManager'
+import { Transport } from '../services/transport'
+import * as Debug from 'debug'
 
-export default class Events implements Feature {
+export class EventsFeature implements Feature {
 
-  async init (): Promise<Object> {
-    return {
-      emit: this.emit
-    }
+  private transport: Transport | undefined
+  private logger: Function = Debug('axm:features:events')
+  
+  init (): void {
+    this.transport = ServiceManager.get('transport')
+    this.logger('init')
   }
 
   emit (name, data) {
@@ -27,8 +31,13 @@ export default class Events implements Feature {
     }
 
     inflightObj.__name = name
+    if (this.transport === undefined) {
+      return this.logger('Failed to send event as transporter isnt available')
+    }
+    this.transport.send('human:event', inflightObj)
+  }
 
-    ServiceManager.get('transport').send('human:event', inflightObj)
-    return false
+  destroy () {
+    this.logger('destroy')
   }
 }

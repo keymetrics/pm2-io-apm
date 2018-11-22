@@ -1,277 +1,106 @@
-import { Feature } from './featureTypes'
-import Meter from '../utils/metrics/meter'
-import Counter from '../utils/metrics/counter'
-import Histogram from '../utils/metrics/histogram'
-import { ServiceManager } from '../serviceManager'
-import constants from '../constants'
-import MetricsService from '../services/metrics'
+import Debug from 'debug'
+import { Feature } from '../featureManager'
+import EventLoopHandlesRequestsMetric from '../metrics/eventLoopMetrics'
+import NetworkMetric from '../metrics/network'
+import { getObjectAtPath } from '../featureManager'
+import HttpMetrics from '../metrics/httpMetrics';
+import V8Metric from '../metrics/v8';
+import GCMetrics from '../metrics/gc';
 
-export default class MetricsFeature implements Feature {
-  private _var: Map<string, any> = new Map()
-  private defaultAggregation: string = 'avg'
-  private _started: boolean = false
-  private _alreadySentData: Array<string> = []
-  private timer
-  private metricService: MetricsService
+const debug = Debug('axm:features:metrics')
 
-  private AVAILABLE_MEASUREMENTS: Array<string> = [
-    'min',
-    'max',
-    'sum',
-    'count',
-    'variance',
-    'mean',
-    'stddev',
-    'median',
-    'p75',
-    'p95',
-    'p99',
-    'p999'
-  ]
+export const defaultMetricConf = {
+  eventLoopDelay: true,
+  eventLoopActive: true,
+  transaction: {
+    http: true
+  },
+  v8: true
+}
 
-  constructor () {
-    this._var = ServiceManager.get('metricsMap')
-    ServiceManager.set('metricService', new MetricsService(this))
-    this.metricService = ServiceManager.get('metricService')
+class AvailableMetric {
+  /**
+   * Name of the feature
+   */
+  name: string
+  /**
+   * The non-instancied class of the feature, used to init it
+   */
+  module: { new(): MetricInterface }
+  /**
+   * Option path is the path of the configuration for this feature
+   * Possibles values:
+   *  - undefined: the feature doesn't need any configuration
+   *  - '.': the feature need the top level configuration
+   *  - everything else: the path to the value that contains the config, it can any anything
+   */
+  optionsPath?: string
+  /**
+   * Current instance of the feature used
+   */
+  instance?: MetricInterface
+}
+
+const availableMetrics: AvailableMetric[] = [
+  {
+    name: 'eventloop',
+    module: EventLoopHandlesRequestsMetric,
+    optionsPath: '.'
+  },
+  {
+    name: 'http',
+    module: HttpMetrics,
+    optionsPath: 'transaction'
+  },
+  {
+    name: 'network',
+    module: NetworkMetric,
+    optionsPath: 'network'
+  },
+  {
+    name: 'v8',
+    module: V8Metric,
+    optionsPath: 'v8'
+  },
+  {
+    name: 'gc',
+    module: GCMetrics,
+    optionsPath: 'v8.GC'
   }
+]
 
-  init (config?, force?): any {
-    if (this._started === false) {
-      this._started = true
-      const self = this
+export interface MetricInterface {
+  init (config?: Object | boolean): void
+  destroy (): void
+}
 
-      this.timer = setInterval(function () {
-        const data = self._cookData(self._getVar())
+export class MetricsFeature implements Feature {
 
-        // don't send empty data
-        if (Object.keys(data).length !== 0 && ServiceManager.get('transport')) {
-          ServiceManager.get('transport').setMetrics(data)
-        }
-      }, constants.METRIC_INTERVAL)
+  init (options?: Object) {
+    if (typeof options !== 'object') options = {}
 
-      this.timer.unref()
-    }
-
-    this.metricService.init(config, force)
-
-    return {
-      histogram: this.histogram,
-      meter: this.meter,
-      counter: this.counter,
-      metric: this.metric
-    }
-  }
-
-  transpose (variableName, reporter?): any {
-    if (typeof variableName === 'object') {
-      reporter = variableName.data
-      variableName = variableName.name
-    }
-
-    if (typeof reporter !== 'function') {
-      console.error('[PM2 IO][Transpose] reporter is not a function')
-      return undefined
-    }
-
-    this._var.set(variableName, {
-      value: reporter
-    })
-  }
-
-  meter (opts: any) {
-    if (!opts.name) {
-      console.error('[PM2 IO][Meter] Name not defined')
-      return undefined
-    }
-
-    opts.unit = opts.unit || ''
-
-    const meter = new Meter(opts)
-
-    this._var.set(opts.name, {
-      value: function () {
-        return meter.val() + `${opts.unit}`
-      },
-      type    : opts.type || opts.name,
-      historic: this._historicEnabled(opts.historic),
-      agg_type: opts.agg_type || this.defaultAggregation,
-      unit : opts.unit
-    })
-
-    return meter
-  }
-
-  counter (opts?: any) {
-    if (!opts.name) {
-      console.error('[PM2 IO][Counter] Name not defined')
-      return undefined
-    }
-
-    const counter = new Counter(opts)
-
-    this._var.set(opts.name, {
-      value: function () { return counter.val() },
-      type    : opts.type || opts.name,
-      historic: this._historicEnabled(opts.historic),
-      agg_type: opts.agg_type || this.defaultAggregation,
-      unit : opts.unit
-    })
-
-    return counter
-  }
-
-  histogram (opts?: any): Histogram | void {
-    if (!opts.name) {
-      console.error('[PM2 IO][Histogram] Name not defined')
-      return undefined
-    }
-
-    opts.measurement = opts.measurement || 'mean'
-    opts.unit = opts.unit || ''
-
-    if (this.AVAILABLE_MEASUREMENTS.indexOf(opts.measurement) === -1) {
-      console.error('[PM2 IO][Histogram] Measure type %s does not exists', opts.measurement)
-      return undefined
-    }
-
-    const histogram = new Histogram(opts)
-
-    this._var.set(opts.name, {
-      value: function () {
-        return (Math.round(histogram.val() * 100) / 100) + `${opts.unit}`
-      },
-      type    : opts.type || opts.name,
-      historic: this._historicEnabled(opts.historic),
-      agg_type: opts.agg_type || this.defaultAggregation,
-      unit : opts.unit
-    })
-
-    return histogram
-  }
-
-  metric (opts): any {
-    if (!opts.name) {
-      console.error('[PM2 IO][Metric] Name not defined')
-      return undefined
-    }
-
-    this._var.set(opts.name, {
-      value   : opts.value || 0,
-      type    : opts.type || opts.name,
-      historic: this._historicEnabled(opts.historic),
-      agg_type: opts.agg_type || this.defaultAggregation,
-      unit : opts.unit
-    })
-
-    const self = this
-
-    return {
-      val : function () {
-        let value = self._var.get(opts.name).value
-
-        if (typeof(value) === 'function') {
-          value = value()
-        }
-
-        return value
-      },
-      set : function (dt) {
-        if (self._var.get(opts.name)) self._var.get(opts.name).value = dt
+    for (let availableMetric of availableMetrics) {
+      const metric = new availableMetric.module()
+      let config: any = undefined
+      if (typeof availableMetric.optionsPath !== 'string') {
+        config = {}
+      } else if (availableMetric.optionsPath === '.') {
+        config = options
+      } else {
+        config = getObjectAtPath(options, availableMetric.optionsPath)
       }
+      // @ts-ignore
+      // thanks mr typescript but we don't know the shape that the 
+      // options will be, so we just ignore the warning there
+      metric.init(config)
+      availableMetric.instance = metric
     }
-  }
-
-  deleteMetric (name: string) {
-    this._var.delete(name)
-    this._alreadySentData.splice(this._alreadySentData.indexOf(name), 1)
   }
 
   destroy () {
-    clearInterval(this.timer)
-    this._getVar().clear()
-    this._started = false
-
-    this.metricService.destroyAll()
-  }
-  /** -----------------------------------------
-   * Private Methods
-   * ------------------------------------------
-   */
-
-  /**
-   * Check if metric is historic or not
-   *
-   * @param historic
-   * @returns {boolean}
-   * @private
-   */
-  _historicEnabled (historic) {
-    if (historic === false) {
-      return false
+    for (let availableMetric of availableMetrics) {
+      if (availableMetric.instance === undefined) continue
+      availableMetric.instance.destroy()
     }
-    if (typeof(historic) === 'undefined') {
-      return true
-    }
-    return true
-  }
-
-  /**
-   * Only for tests
-   *
-   * @returns {Object}
-   */
-  _getVar () {
-    return this._var
-  }
-
-  /**
-   * Data that will be sent to Keymetrics
-   */
-  _cookData (data) {
-    const cookedData = {}
-    const self = this
-
-    data.forEach(function (probe, probeName) {
-
-      if (typeof(data.get(probeName).value) === 'undefined') {
-        return false
-      }
-
-      const value = self._getValue(data.get(probeName).value)
-
-      // do not send data if this is always equal to 0
-      // probably an initialized metric which is not "active"
-      if ((self._alreadySentData.indexOf(probeName) === -1 && value !== 0) ||
-        self._alreadySentData.indexOf(probeName) > -1) {
-        if (self._alreadySentData.indexOf(probeName) === -1) {
-          self._alreadySentData.push(probeName)
-        }
-
-        cookedData[probeName] = {
-          value: value
-        }
-
-        /**
-         * Attach aggregation mode
-         */
-        if (data.get(probeName).agg_type &&
-          data.get(probeName).agg_type !== 'none') {
-          cookedData[probeName].agg_type = data.get(probeName).agg_type
-        }
-
-        cookedData[probeName].historic = data.get(probeName).historic
-        cookedData[probeName].type = data.get(probeName).type
-
-        cookedData[probeName].unit = data.get(probeName).unit
-      }
-    })
-    return cookedData
-  }
-
-  _getValue (value) {
-    if (typeof(value) === 'function') {
-      return value()
-    }
-    return value
   }
 }
