@@ -3,7 +3,7 @@ import 'mocha'
 
 import SpecUtils from '../fixtures/utils'
 import { fork, exec } from 'child_process'
-import EventLoopHandlesRequestsMetric from '../../src/metrics/eventLoopHandlesRequests'
+import EventLoopHandlesRequestsMetric from './eventLoopMetrics'
 
 describe('EventLoopHandlesRequests', function () {
 

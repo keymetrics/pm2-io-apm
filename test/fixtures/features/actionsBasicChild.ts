@@ -1,6 +1,6 @@
-import ActionsFeature from '../../../src/features/actions'
-import TransportService from '../../../src/services/transport'
-import { ServiceManager } from '../../../src/serviceManager'
+import ActionsFeature from '../../services/actions'
+import TransportService from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 
 const transport = new TransportService()
 transport.init()

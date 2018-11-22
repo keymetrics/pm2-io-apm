@@ -4,7 +4,7 @@ import 'mocha'
 import * as semver from 'semver'
 
 import { exec, fork } from 'child_process'
-import Histogram from '../src/utils/metrics/histogram'
+import Histogram from './utils/metrics/histogram'
 
 describe('API', function () {
   this.timeout(50000)

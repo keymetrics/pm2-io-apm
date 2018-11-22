@@ -2,7 +2,7 @@ import { fork } from 'child_process'
 import { expect, assert } from 'chai'
 import 'mocha'
 import SpecUtils from '../fixtures/utils'
-import { NotifyFeature } from '../../src/features/notify'
+import { NotifyFeature } from './notify'
 import * as semver from 'semver'
 
 describe('Notify', () => {

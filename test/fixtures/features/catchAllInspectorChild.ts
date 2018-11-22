@@ -1,8 +1,8 @@
 'use strict'
 
-import { NotifyFeature } from '../../../src/features/notify'
-import TransportService from '../../../src/services/transport'
-import { ServiceManager } from '../../../src/serviceManager'
+import { NotifyFeature } from '../../features/notify'
+import TransportService from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 
 const transport = new TransportService()
 transport.init()

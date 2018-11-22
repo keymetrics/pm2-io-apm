@@ -1,7 +1,7 @@
-import Action from '../../../src/features/actions'
-import Inspector from '../../../src/actions/eventLoopInspector'
-import { ServiceManager } from '../../../src/serviceManager'
-import TransportService from '../../../src/services/transport'
+import Action from '../../services/actions'
+import Inspector from '../../features/eventLoopInspector'
+import { ServiceManager } from '../../serviceManager'
+import TransportService from '../../services/transport'
 
 const transport = new TransportService()
 transport.init()

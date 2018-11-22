@@ -1,49 +1,35 @@
-import { NotifyFeature, NotifyOptions, NotifyOptionsDefault } from './features/notify'
-import MetricsFeature from './features/metrics'
-import ActionsFeature from './features/actions'
-import EventFeature from './features/events'
+
 import * as merge from 'deepmerge'
 import Configuration from './configuration'
-import Metriconfig from './utils/metricConfig'
 import Debug from 'debug'
 import * as fs from 'fs'
-import * as cluster from 'cluster'
 import { ServiceManager } from './serviceManager'
 import Entrypoint from './features/entrypoint'
-import TransportService from './services/transport'
+import { createTransport, TransportConfig } from './services/transport'
+import { FeatureManager } from './featureManager'
+import { Transport } from './services/transport'
+import ActionService from './services/actions'
+import { NotifyFeature, ErrorContext } from './features/notify'
+import { Metric, MetricService, HistogramOptions, MetricBulk, MetricType, MetricMeasurements } from './services/metrics'
+import Meter from './utils/metrics/meter'
+import Histogram from './utils/metrics/histogram'
+import Gauge from './utils/metrics/gauge'
+import Counter from './utils/metrics/counter'
+import { EventsFeature } from './features/events';
+import {TracingConfig} from './features/tracing';
 
-const debug = Debug('PM2-IO-APM')
-
-class TransactionConfig {
-  tracing: boolean
-  http: boolean
-}
-
-class MetricsConfig {
-  transaction: TransactionConfig
-  network: Object
-  v8: boolean
-  deepMetrics: boolean
-}
-
-class ActionsConfig {
-  profilingCpu: boolean
-  profilingHeap: boolean
-  eventLoopDump: boolean
-}
-
-class IOConfig {
+export class IOConfig {
   level?: string
   catchExceptions?: boolean
-  metrics: MetricsConfig
-  actions: ActionsConfig
+  metrics: any
+  actions: any
   network: boolean
-  ports: boolean
+  ports?: boolean
   v8: boolean
   transactions: boolean
   http: boolean
-  deep_metrics: boolean // tslint:disable-line
-  event_loop_dump: boolean // tslint:disable-line
+  deep_metrics?: boolean // tslint:disable-line
+  event_loop_dump?: boolean // tslint:disable-line
   profiling: boolean
   standalone: boolean
   publicKey?: string
@@ -51,217 +37,273 @@ class IOConfig {
   appName?: string
   serverName?: string
   sendLogs?: Boolean
+  tracing?: TracingConfig | boolean
 }
 
-interface Context {
-  level?: string
-}
-
-interface ActionOpts {
-  name: string
-  opts: Object
-  action: Function
-}
-
-interface ConfigItem {
-  type: string
-  name: string
+export const defaultConfig: IOConfig = {
+  catchExceptions: true,
+  profiling: true,
+  http: true,
+  transactions: false,
+  v8: true,
+  network: false,
+  actions: {},
+  metrics: {},
+  ports: false,
+  standalone: false
 }
 
 export default class PMX {
 
-  private notifyFeature: NotifyFeature
-  private metricsFeature: MetricsFeature
-  private actionsFeature: ActionsFeature
-  private eventsFeature: EventFeature
   public Entrypoint: Entrypoint
   private initialConfig: IOConfig
-
-  constructor () {
-    this.notifyFeature = new NotifyFeature()
-    this.metricsFeature = new MetricsFeature()
-    this.actionsFeature = new ActionsFeature(!cluster.isWorker)
-    this.eventsFeature = new EventFeature()
-
-    const eventLoopInspector = require('event-loop-inspector')(true)
-    ServiceManager.set('eventLoopService', {
-      inspector: eventLoopInspector
-    })
-    ServiceManager.set('transport', new TransportService())
-  }
+  private transport: Transport | null
+  private featureManager: FeatureManager = new FeatureManager()
+  private actionService: ActionService | null
+  private metricService: MetricService | null
+  private logger: Function = Debug('axm:main')
 
   getInitialConfig (): IOConfig {
     return this.initialConfig
   }
 
+  /**
+   * Init the APM instance, you should *always* init it before using any method
+   */
   init (config?: IOConfig, force?: boolean) {
-    let notifyOptions: NotifyOptions = NotifyOptionsDefault
-    let configMetrics = {}
-
-    if (!config) {
-      config = new IOConfig()
+    if (config === undefined || config === null) {
+      config = defaultConfig
     }
 
     if (process.env.PMX_FORCE_UPDATE) {
       const IO_KEY = Symbol.for('@pm2/io')
       const globalSymbols = Object.getOwnPropertySymbols(global)
-      const alreadyInstanciated = (globalSymbols.indexOf(IO_KEY) > -1)
-
-      if (alreadyInstanciated) {
+      if (globalSymbols.indexOf(IO_KEY) > -1) {
         global[IO_KEY].destroy()
       }
 
       global[IO_KEY] = this
     }
 
-    if (config.level) {
-      notifyOptions.level = config.level
-    }
-    if (config.catchExceptions) {
-      notifyOptions.catchExceptions = config.catchExceptions
-    }
+    // Register the transport before any other service
+    const transportConfig: TransportConfig = config as TransportConfig
+    this.transport = createTransport(config.standalone === true ? 'websocket' : 'ipc', transportConfig)
+    ServiceManager.set('transport', this.transport)
 
-    if (config.metrics) {
-      configMetrics = config.metrics
-    }
+    // register the action service
+    this.actionService = new ActionService()
+    ServiceManager.set('actions', this.actionService)
 
-    (async _ => {
-      // Transport
-      if (config.standalone && config.publicKey && config.secretKey && config.appName) {
-        await ServiceManager.get('transport').initStandalone({
-          publicKey: config.publicKey,
-          secretKey: config.secretKey,
-          appName: config.appName,
-          serverName: config.serverName,
-          sendLogs: config.sendLogs
-        })
-      } else {
-        ServiceManager.get('transport').init()
-      }
+    // register the metric service
+    this.metricService = new MetricService()
+    ServiceManager.set('metrics', this.metricService)
 
-      // Configuration
-      this.backwardConfigConversion(config)
+    // Configuration
+    config = this.backwardConfigConversion(config)
 
-      this.notifyFeature.init(notifyOptions)
-      this.metricsFeature.init(config.metrics, force)
-      this.actionsFeature.init(config.actions, force)
-      this.actionsFeature.initListener()
+    // init features
+    this.featureManager.init(config)
 
-      Configuration.init(config)
-      this.initialConfig = config
-    })()
+    Configuration.init(config)
+    // save the configuration
+    this.initialConfig = config
 
     return this
   }
 
+  /**
+   * Destroy the APM instance, every method will stop working afterwards
+   */
   destroy () {
-    if (this.metricsFeature) this.metricsFeature.destroy()
+    this.featureManager.destroy()
 
-    if (this.actionsFeature) this.actionsFeature.destroy()
-
-    if (this.notifyFeature) this.notifyFeature.destroy()
-  }
-
-  notifyError (err: Error, context?: Context) {
-    let level = 'info'
-    if (context && context.level) {
-      level = context.level
+    if (this.actionService !== null) {
+      this.actionService.destroy()
     }
-
-    this.notifyFeature.notifyError(err, level)
+    if (this.transport !== null) {
+      this.transport.destroy()
+    }
   }
 
-  metrics (metrics: Object | Array<Object>): Object {
+  /**
+   * Notify an error to PM2 Plus/Enterprise, note that you can attach a context to it
+   * to provide more insight about the error
+   */
+  notifyError (error: Error, context?: ErrorContext | string) {
+    const notify = this.featureManager.get('notify') as NotifyFeature
+    // before the level of error was top level
+    if (typeof context === 'string') {
+      context = { level: context }
+    }
+    return notify.notifyError(error, context)
+  }
+
+  /**
+   * Register metrics in bulk
+   */
+  metrics (metric: MetricBulk | Array<MetricBulk>): Object {
 
     const res: Object = {}
 
-    let allMetrics: Array<any> = []
-    if (!Array.isArray(metrics)) {
-      allMetrics[0] = metrics
-    } else {
-      allMetrics = metrics
-    }
-
-    for (let i = 0; i < allMetrics.length; i++) {
-      const currentMetric = allMetrics[i]
-      if (!currentMetric || !currentMetric.hasOwnProperty('name') || !currentMetric.hasOwnProperty('type')) {
-        console.warn(`Metric can't be initialized : missing some properties !`)
-        console.warn('name => required')
-        console.warn('type => required')
-        console.warn('id => optional')
-        console.warn('unit => optional')
-        console.warn('value => optional')
-        console.warn('historic => optional')
-        console.warn('agg_type => optional')
-        console.warn('measurement => optional')
+    let metrics: Array<MetricBulk> = !Array.isArray(metric) ? [ metric ] : metric
+    for (let metric of metrics) {
+      if (typeof metric.name !== 'string') {
+        console.trace(`Trying to create a metrics without a name`)
         continue
       }
-
-      // escape spaces and special characters from metric's name
-      const metricKey = currentMetric.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
-
-      const type = currentMetric.type
-      currentMetric.type = currentMetric.id
-      delete currentMetric.id
-      if (typeof this.metricsFeature[type] !== 'function') {
-        console.warn(`Metric ${currentMetric.name} cant be initialized : unknown type ${type} !`)
-        continue
+      if (metric.type === undefined) {
+        metric.type = MetricType.gauge
       }
 
-      res[metricKey] = this.metricsFeature[type](currentMetric)
+      const key = metric.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
+      switch (metric.type) {
+        case MetricType.counter : {
+          res[key] = this.counter(metric)
+          continue
+        }
+        case MetricType.gauge : {
+          res[key] = this.gauge(metric)
+          continue
+        }
+        case MetricType.histogram : {
+          res[key] = this.histogram(metric as any)
+          continue
+        }
+        case MetricType.meter : {
+          res[key] = this.meter(metric)
+          continue
+        }
+        case MetricType.metric : {
+          res[key] = this.gauge(metric)
+          continue
+        }
+      }
     }
 
     return res
   }
 
-  histogram (config: Object) {
-    config = Metriconfig.buildConfig(config)
-
-    return this.metricsFeature['histogram'](config)
-  }
-
-  metric (config: Object) {
-    config = Metriconfig.buildConfig(config)
-
-    return this.metricsFeature['metric'](config)
-  }
-
-  counter (config: Object) {
-    config = Metriconfig.buildConfig(config)
-
-    return this.metricsFeature['counter'](config)
-  }
-
-  meter (config: Object) {
-    config = Metriconfig.buildConfig(config)
-
-    return this.metricsFeature['meter'](config)
-  }
-
-  action (name: string | ActionOpts, opts?: Object, fn?: Function) {
-    if (typeof name === 'object') {
-      opts = name.opts
-      fn = name.action
-      name = name.name
+  /**
+   * Create an histogram metric
+   */
+  histogram (config: HistogramOptions) : Histogram {
+    if (typeof config === 'string') {
+      config = {
+        name: config as string,
+        measurement: MetricMeasurements.mean
+      }
+    }
+    if (this.metricService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a metric without initializing @pm2/io`)
     }
 
-    this.actionsFeature.action(name, opts, fn)
-    // Only listen if transporter wasn't initiated (no pmx.init())
-    if (!ServiceManager.get('transport').initiated) {
-      this.actionsFeature.initListener()
-    }
+    return this.metricService.histogram(config)
   }
 
+  /**
+   * Create a gauge metric
+   */
+  metric (config: Metric) : Gauge {
+    if (typeof config === 'string') {
+      config = {
+        name: config as string
+      }
+    }
+    if (this.metricService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a metric without initializing @pm2/io`)
+    }
+    return this.metricService.metric(config)
+  }
+
+  /**
+   * Create a gauge metric
+   */
+  gauge (config: Metric) : Gauge {
+    if (typeof config === 'string') {
+      config = {
+        name: config as string
+      }
+    }
+    if (this.metricService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a metric without initializing @pm2/io`)
+    }
+    return this.metricService.metric(config)
+  }
+
+  /**
+   * Create a counter metric
+   */
+  counter (config: Metric) : Counter {
+    if (typeof config === 'string') {
+      config = {
+        name: config as string
+      }
+    }
+    if (this.metricService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a metric without initializing @pm2/io`)
+    }
+
+    return this.metricService.counter(config)
+  }
+
+  /**
+   * Create a meter metric
+   */
+  meter (config: Metric) : Meter {
+    if (typeof config === 'string') {
+      config = {
+        name: config as string
+      }
+    }
+    if (this.metricService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a metric without initializing @pm2/io`)
+    }
+
+    return this.metricService.meter(config)
+  }
+
+  /**
+   * Register a custom action that will be executed when the someone called
+   * it from the API
+   */
+  action (name: string, opts?: Object, fn?: Function) {
+    if (this.actionService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a action without initializing @pm2/io`)
+    }
+    return this.actionService.registerAction(name, opts, fn)
+  }
+
+  /**
+   * Register a scoped action
+   * @deprecated we will remove scopedAction in the future
+   */
   scopedAction (name: string, fn: Function) {
-    this.actionsFeature.scopedAction(name, fn)
-    // Only listen if transporter wasn't initiated (no pmx.init())
-    if (!ServiceManager.get('transport').initiated) {
-      this.actionsFeature.initListener()
+    if (this.actionService === null) {
+      // @ts-ignore
+      // thanks mr typescript but it's in real specific case and want to have type completion
+      return console.trace(`Tried to register a action without initializing @pm2/io`)
     }
+    return this.actionService.scopedAction(name, fn)
   }
 
-  transpose (variableName: string, reporter: Function) {
-    this.metricsFeature.transpose(variableName, reporter)
+  /**
+   * We dropped support for this method (that was never used anyway)
+   * @deprecated
+   */
+  transpose () {
+    return console.error(`io.transpose has been removed from our APM`)
   }
 
   onExit (callback: Function) {
@@ -278,38 +320,57 @@ export default class PMX {
 
   probe () {
     return {
-      histogram: (histogram) => {
-        return this.genericBackwardConversion(histogram, 'histogram')
+      histogram: (options: HistogramOptions): Histogram => {
+        if (this.metricService === null) {
+          // @ts-ignore
+          // thanks mr typescript but it's in real specific case and want to have type completion
+          return console.trace(`Tried to register a metric without initializing @pm2/io`)
+        }
+        return this.histogram(options)
       },
-      meter: (meter) => {
-        return this.genericBackwardConversion(meter, 'meter')
+      meter: (options: Metric): Meter => {
+        if (this.metricService === null) {
+          // @ts-ignore
+          // thanks mr typescript but it's in real specific case and want to have type completion
+          return console.trace(`Tried to register a metric without initializing @pm2/io`)
+        }
+        return this.meter(options)
       },
-      metric: (metric) => {
-        return this.genericBackwardConversion(metric, 'metric')
+      metric: (options: Metric): Gauge => {
+        if (this.metricService === null) {
+          // @ts-ignore
+          // thanks mr typescript but it's in real specific case and want to have type completion
+          return console.trace(`Tried to register a metric without initializing @pm2/io`)
+        }
+        return this.gauge(options)
       },
-      counter: (counter) => {
-        return this.genericBackwardConversion(counter, 'counter')
+      counter: (options: Metric): Counter => {
+        if (this.metricService === null) {
+          // @ts-ignore
+          // thanks mr typescript but it's in real specific case and want to have type completion
+          return console.trace(`Tried to register a metric without initializing @pm2/io`)
+        }
+        return this.counter(options)
       },
-      transpose: (variableName, reporter) => {
-        this.transpose(variableName, reporter)
+      transpose: () => {
+        return console.error(`io.transpose has been removed from our APM`)
       }
     }
   }
 
   emit (name: string, data: any) {
-    this.eventsFeature.emit(name, data)
+    const events = this.featureManager.get('events') as EventsFeature
+    return events.emit(name, data)
   }
 
   emitEvent (name: string, data: any) {
-    this.eventsFeature.emit(name, data)
+    const events = this.featureManager.get('events') as EventsFeature
+    return events.emit(name, data)
   }
 
-  notify (notification: Error | any) {
-    if (!(notification instanceof Error)) {
-      notification = new Error(notification)
-    }
-
-    this.notifyFeature.notifyError(notification)
+  notify (error: Error) {
+    const notify = this.featureManager.get('notify') as NotifyFeature
+    return notify.notifyError(error)
   }
 
   getPID (file: string) {
@@ -344,27 +405,13 @@ export default class PMX {
   }
 
   expressErrorHandler () {
-    return this.notifyFeature.expressErrorHandler()
+    const notify = this.featureManager.get('notify') as NotifyFeature
+    return notify.expressErrorHandler()
   }
 
-  private genericBackwardConversion (object: ConfigItem, type: string) {
-    if (typeof object !== 'object') {
-      console.error('Parameter should be an object')
-      return null
-    }
+  private backwardConfigConversion (config: IOConfig): IOConfig {
 
-    object.type = type
-
-    // escape spaces and special characters from metric's name
-    const metricKey = object.name.replace(/ /g, '_').replace(/[^\w\s]/gi, '')
-    return this.metrics(object)[metricKey]
-  }
-
-  private backwardConfigConversion (config: IOConfig) {
-
-    // ------------------------------------------
-    // Network
-    // ------------------------------------------
+    // handle old configuration for network metrics
     if (config.hasOwnProperty('network') || config.hasOwnProperty('ports')) {
       const networkConf: any = {}
 
@@ -378,81 +425,40 @@ export default class PMX {
         delete config.ports
       }
 
-      this.initMetricsConf(config)
-
       config.metrics.network = networkConf
     }
 
-    // ------------------------------------------
-    // V8
-    // ------------------------------------------
+    // handle shortcut configuration for v8 metrics
     if (config.hasOwnProperty('v8')) {
-      this.initMetricsConf(config)
-
       config.metrics.v8 = config.v8
       delete config.v8
     }
 
-    // ------------------------------------------
-    // transactions
-    // ------------------------------------------
-    if (config.hasOwnProperty('transactions') || config.hasOwnProperty('http')) {
-      this.initMetricsConf(config)
-
-      config.metrics.transaction = new TransactionConfig()
-
-      if (config.hasOwnProperty('transactions')) {
-        config.metrics.transaction.tracing = config.transactions
-        delete config.transactions
-      }
-
-      if (config.hasOwnProperty('http')) {
-        config.metrics.transaction.http = config.http
-        delete config.http
-      }
+    // handle shortcut configuration for tracing feature
+    if (config.hasOwnProperty('transactions')) {
+      config.tracing = config.transactions
+      delete config.transactions
     }
 
-    // ------------------------------------------
-    // Deep metrics
-    // ------------------------------------------
-    if (config.hasOwnProperty('deep_metrics')) {
-      this.initMetricsConf(config)
+    // handle shortcut configuration for http metrics
+    if (config.hasOwnProperty('http')) {
+      config.metrics.transaction = {}
+      config.metrics.transaction.http = config.http
+      delete config.http
+    }
 
+    // handle shortcut configuration for deep_metrics metrics
+    if (config.hasOwnProperty('deep_metrics')) {
       config.metrics.deepMetrics = config.deep_metrics
       delete config.deep_metrics
     }
 
-    // ------------------------------------------
-    // Event Loop action
-    // ------------------------------------------
+    // handle shortcut configuration for event loop dump metrics
     if (config.hasOwnProperty('event_loop_dump')) {
-      this.initActionsConf(config)
-
       config.actions.eventLoopDump = config.event_loop_dump
       delete config.event_loop_dump
     }
 
-    // ------------------------------------------
-    // Profiling action
-    // ------------------------------------------
-    if (config.hasOwnProperty('profiling')) {
-      this.initActionsConf(config)
-
-      config.actions.profilingHeap = config.profiling
-      config.actions.profilingHeap = config.profiling
-      delete config.profiling
-    }
-  }
-
-  private initMetricsConf (config: IOConfig) {
-    if (!config.metrics) {
-      config.metrics = new MetricsConfig()
-    }
-  }
-
-  private initActionsConf (config: IOConfig) {
-    if (!config.actions) {
-      config.actions = new ActionsConfig()
-    }
+    return config
   }
 }

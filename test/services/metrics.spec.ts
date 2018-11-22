@@ -1,9 +1,9 @@
 import { expect } from 'chai'
 
-import MetricsService from '../../src/services/metrics'
-import MetricsFeature from '../../src/features/metrics'
-import V8Metric from '../../src/metrics/v8'
-import EventLoopDelayMetric from '../../src/metrics/eventLoopDelay'
+import MetricsService from '../features/metrics'
+import MetricsFeature from './metrics'
+import V8Metric from '../metrics/v8'
+import EventLoopDelayMetric from '../metrics/eventLoopDelay'
 
 describe('MetricsService', () => {
 

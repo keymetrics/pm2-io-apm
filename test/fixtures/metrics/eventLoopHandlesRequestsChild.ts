@@ -1,6 +1,6 @@
-import Metric from '../../../src/features/metrics'
-import TransportService from '../../../src/services/transport'
-import { ServiceManager } from '../../../src/serviceManager'
+import Metric from '../../services/metrics'
+import TransportService from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 
 const transport = new TransportService()
 transport.init()

@@ -1,4 +1,4 @@
-import Module from '../../src/utils/module'
+import Module from './module'
 
 import { expect } from 'chai'
 import 'mocha'
