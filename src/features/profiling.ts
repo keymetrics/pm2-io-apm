@@ -11,29 +11,29 @@ export interface ProfilerType {
 }
 
 export class ProfilingConfig extends FeatureConfig {
-  cpu_js: boolean
-  heap_snapshot: boolean
-  heap_sampling: boolean
+  cpuJS: boolean
+  heapSnapshot: boolean
+  heapSampling: boolean
   implementation: string
 }
 
-const defaultProfilingConfig = {
-  cpu_js: true,
-  heap_snapshot: true,
-  heap_sampling: true,
+const defaultProfilingConfig: ProfilingConfig = {
+  cpuJS: true,
+  heapSnapshot: true,
+  heapSampling: true,
   implementation: 'both'
 }
 
-const disabledProfilingConfig = {
-  cpu_js: false,
-  heap_snapshot: false,
-  heap_sampling: false,
+const disabledProfilingConfig: ProfilingConfig = {
+  cpuJS: false,
+  heapSnapshot: false,
+  heapSampling: false,
   implementation: 'none'
 }
 
 export class ProfilingFeature implements Feature {
 
-  private profiler: ProfilerType
+  private profiler: ProfilerType | undefined
   private logger: Function = Debug('axm:features:profiling')
 
   init (config: ProfilingConfig | boolean) {
@@ -62,6 +62,9 @@ export class ProfilingFeature implements Feature {
         this.profiler = new AddonProfiler()
         break
       }
+      default: {
+        return this.logger(`Invalid profiler implementation choosen: ${config.implementation}`)
+      }
     }
     this.logger('init')
     this.profiler.init()
@@ -69,7 +72,7 @@ export class ProfilingFeature implements Feature {
 
   destroy () {
     this.logger('destroy')
-    if (this.profiler === null) return
+    if (this.profiler === undefined) return
     this.profiler.destroy()
   }
 }

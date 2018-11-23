@@ -30,10 +30,8 @@ const allEnabled: NetworkMetricConfig = {
 
 export default class NetworkMetric implements MetricInterface {
   private metricService: MetricService | undefined
-  private timer: NodeJS.Timer
+  private timer: NodeJS.Timer | undefined
   private logger: Function = Debug('axm:features:metrics:network')
-  private downloadTimer: NodeJS.Timer
-  private uploadTimer: NodeJS.Timer
   private socketProto: any
 
   init (config?: NetworkMetricConfig | boolean) {
@@ -64,7 +62,7 @@ export default class NetworkMetric implements MetricInterface {
   }
 
   destroy () {
-    if (this.timer !== null) {
+    if (this.timer !== undefined) {
       clearTimeout(this.timer)
     }
 
@@ -72,7 +70,7 @@ export default class NetworkMetric implements MetricInterface {
       shimmer.unwrap(this.socketProto, 'read')
       shimmer.unwrap(this.socketProto, 'write')
     }
-    
+
     this.logger('destroy')
   }
 
@@ -90,7 +88,7 @@ export default class NetworkMetric implements MetricInterface {
       }
     })
 
-    this.downloadTimer = setTimeout(() => {
+    setTimeout(() => {
       const property = netModule.Socket.prototype.read
       // @ts-ignore thanks mr typescript but we are monkey patching here
       const isWrapped = property && property.__wrapped === true
@@ -124,7 +122,7 @@ export default class NetworkMetric implements MetricInterface {
       }
     })
 
-    this.downloadTimer = setTimeout(() => {
+    setTimeout(() => {
       const property = netModule.Socket.prototype.write
       // @ts-ignore thanks mr typescript but we are monkey patching here
       const isWrapped = property && property.__wrapped === true

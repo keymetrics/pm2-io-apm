@@ -5,6 +5,7 @@ import Debug from 'debug'
 import { ServiceManager } from '../serviceManager'
 import Gauge from '../utils/metrics/gauge'
 
+/* tslint:disable */
 export class V8MetricsConfig {
   new_space: boolean
   old_space: boolean
@@ -15,6 +16,7 @@ export class V8MetricsConfig {
   heap_used_size: boolean
   heap_used_percent: boolean
 }
+/* tslint:enable */
 
 const defaultOptions: V8MetricsConfig = {
   new_space: true,
@@ -29,7 +31,7 @@ const defaultOptions: V8MetricsConfig = {
 
 export default class V8Metric implements MetricInterface {
 
-  private timer: NodeJS.Timer
+  private timer: NodeJS.Timer | undefined
   private TIME_INTERVAL: number = 1000
   private metricService: MetricService | undefined
   private logger: Function = Debug('axm:features:metrics:v8')
@@ -88,7 +90,6 @@ export default class V8Metric implements MetricInterface {
     }
   }
 
-
   init (config?: V8MetricsConfig | boolean) {
     if (config === false) return
     if (config === undefined) {
@@ -101,14 +102,13 @@ export default class V8Metric implements MetricInterface {
     this.metricService = ServiceManager.get('metrics')
     if (this.metricService === undefined) return this.logger('Failed to load metric service')
     this.logger('init')
-    
+
     if (!v8.hasOwnProperty('getHeapStatistics')) {
       return this.logger(`V8.getHeapStatistics is not available, aborting`)
     }
 
     for (let metricName in this.metricsDefinitions) {
       if (config[metricName] === false) continue
-      let tmpGauge = new Gauge()
       let metric: Metric = config[metricName]
       this.metricStore.set(metricName, this.metricService.metric(metric))
     }
@@ -134,7 +134,7 @@ export default class V8Metric implements MetricInterface {
   }
 
   destroy () {
-    if (this.timer !== null) {
+    if (this.timer !== undefined) {
       clearInterval(this.timer)
     }
     this.logger('destroy')

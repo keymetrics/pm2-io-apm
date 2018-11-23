@@ -27,7 +27,7 @@ export default class ModuleUtils {
   /**
    * Try to detect the path of a specific module
    */
-  static detectModule (moduleName: string) : string | null {
+  static detectModule (moduleName: string): string | null {
     const fakeNodule = { paths: ['./node_modules', '/node_modules'] }
     const nodule = typeof require.main === 'object' ? require.main : fakeNodule
 

@@ -5,7 +5,7 @@ import { ServiceManager } from '../serviceManager'
 import { Transport } from '../services/transport'
 import ActionService from '../services/actions'
 import MiscUtils from '../utils/miscellaneous'
-import { InspectorService } from '../services/inspector';
+import { InspectorService } from '../services/inspector'
 import * as inspector from 'inspector'
 import * as Debug from 'debug'
 
@@ -21,7 +21,7 @@ export default class InspectorProfiler implements ProfilerType {
   private actionService: ActionService | undefined
   private transport: Transport | undefined
   private currentProfile: CurrentProfile | null = null
-  private logger: Function = this.logger('axm:features:profiling:inspector')
+  private logger: Function = Debug('axm:features:profiling:inspector')
 
   init () {
     this.profiler = ServiceManager.get('inspector')
@@ -34,7 +34,7 @@ export default class InspectorProfiler implements ProfilerType {
       })
       return console.error(`Failed to require the profiler via inspector, disabling profiling ...`)
     }
-    
+
     this.profiler.createSession()
     this.profiler.connect()
     this.profiler.post('Profiler.enable')
@@ -106,20 +106,22 @@ export default class InspectorProfiler implements ProfilerType {
       ? opts.initiated : 'manual'
 
      // run the callback to acknowledge that we received the action
-    cb({ success: true, uuid: this.currentProfile })  
+    cb({ success: true, uuid: this.currentProfile })
 
     const defaultSamplingInterval = 16384
     this.profiler.post('HeapProfiler.startSampling', {
       samplingInterval: typeof opts.samplingInterval === 'number'
         ? opts.samplingInterval : defaultSamplingInterval
     })
-    
-    if (isNaN(parseInt(opts.timeout))) return
+
+    if (isNaN(parseInt(opts.timeout, 10))) return
     // if the duration is included, handle that ourselves
-    const duration = parseInt(opts.timeout)
+    const duration = parseInt(opts.timeout, 10)
     setTimeout(_ => {
       // it will send the profiling itself
-      this.onHeapProfileStop(_ => {})
+      this.onHeapProfileStop(_ => {
+        return
+      })
     }, duration)
   }
 
@@ -140,7 +142,7 @@ export default class InspectorProfiler implements ProfilerType {
 
     // run the callback to acknowledge that we received the action
     cb({ success: true })
-  
+
     this.profiler.post('HeapProfiler.stopSampling', ({ profile }: inspector.HeapProfiler.StopSamplingReturnType) => {
       // not possible but thanks mr typescript
       if (this.currentProfile === null) return
@@ -194,13 +196,15 @@ export default class InspectorProfiler implements ProfilerType {
     cb({ success: true, uuid: this.currentProfile })
 
     this.profiler.post('Profiler.start')
-    
-    if (isNaN(parseInt(opts.timeout))) return
+
+    if (isNaN(parseInt(opts.timeout, 10))) return
     // if the duration is included, handle that ourselves
-    const duration = parseInt(opts.timeout)
+    const duration = parseInt(opts.timeout, 10)
     setTimeout(_ => {
       // it will send the profiling itself
-      this.onCPUProfileStop(_ => {})
+      this.onCPUProfileStop(_ => {
+        return
+      })
     }, duration)
   }
 
@@ -310,7 +314,7 @@ export default class InspectorProfiler implements ProfilerType {
       }
 
       this.profiler.on('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
-      this.profiler.on('HeapProfiler.reportHeapSnapshotProgress', progressHandler) 
+      this.profiler.on('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
       this.profiler.post('HeapProfiler.takeHeapSnapshot')
     })
   }

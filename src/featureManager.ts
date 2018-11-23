@@ -4,22 +4,22 @@ import { ProfilingFeature } from './features/profiling'
 import { EventLoopInspectorFeature } from './features/eventLoopInspector'
 import { EventsFeature } from './features/events'
 import { IOConfig } from './pmx'
-import { MetricsFeature } from './features/metrics';
+import { MetricsFeature } from './features/metrics'
 
 export function getObjectAtPath (context: Object, path: string): any {
-  if (path.indexOf('.') == -1 && path.indexOf('[') == -1) {
+  if (path.indexOf('.') === -1 && path.indexOf('[') === -1) {
     return context[path]
   }
 
-  var crumbs = path.split(/\.|\[|\]/g)
-  var i = -1
-  var len = crumbs.length
-  var result
+  let crumbs = path.split(/\.|\[|\]/g)
+  let i = -1
+  let len = crumbs.length
+  let result
 
   while (++i < len) {
-    if (i == 0) result = context
+    if (i === 0) result = context
     if (!crumbs[i]) continue
-    if (result == undefined) break
+    if (result === undefined) break
     result = result[crumbs[i]]
   }
 
@@ -93,7 +93,7 @@ export class FeatureManager {
         config = getObjectAtPath(options, availableFeature.optionsPath)
       }
       // @ts-ignore
-      // thanks mr typescript but we don't know the shape that the 
+      // thanks mr typescript but we don't know the shape that the
       // options will be, so we just ignore the warning there
       feature.init(config)
       availableFeature.instance = feature
@@ -121,7 +121,7 @@ export class FeatureManager {
 }
 
 // just to be able to cast
-export class FeatureConfig {  }
+export class FeatureConfig { }
 
 export interface Feature {
   init (config?: any): void

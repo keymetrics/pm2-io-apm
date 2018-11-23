@@ -1,5 +1,4 @@
 
-
 import { Action } from './actions'
 import { Metric } from './metrics'
 import { IPCTransport } from '../transports/IPCTransport'
@@ -34,15 +33,15 @@ export interface Transport extends Service {
   /**
    * Declare available actions
    */
-  addAction: (action: Action) => void 
+  addAction: (action: Action) => void
   /**
    * Declare metrics
    */
-  setMetrics: (metrics: Metric[]) => void 
+  setMetrics: (metrics: Metric[]) => void
   /**
    * Declare options for process
    */
-  setOptions: (options: any) => void 
+  setOptions: (options: any) => void
 }
 
 /**

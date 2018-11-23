@@ -1,25 +1,23 @@
 import { Transport, TransportConfig } from '../services/transport'
-import Debug from 'debug'
+import * as Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
-import { EventEmitter2 } from 'eventemitter2';
-
-const debug = Debug('axm:transport:ipc')
+import { EventEmitter2 } from 'eventemitter2'
 
 export class IPCTransport extends EventEmitter2 implements Transport {
 
-  private config: TransportConfig
   private initiated: Boolean = false // tslint:disable-line
+  private logger: Function = Debug('axm:transport:ipc')
 
-  init (config: TransportConfig): Transport {
-    debug('Init new transport service')
+  init (config?: TransportConfig): Transport {
+    this.logger('Init new transport service')
     if (this.initiated === true) {
       console.error(`Trying to re-init the transport, please avoid`)
       return this
     }
     this.initiated = true
-    debug('Agent launched')
-    process.on('message', (data: Object) => {
+    this.logger('Agent launched')
+    process.on('message', (data?: Object) => {
       if (typeof data !== 'object') return
       // we don't actually care about the channel
       this.emit('packet', data)
@@ -28,6 +26,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
   }
   setMetrics (metrics: InternalMetric[]) {
     const serializedMetric = metrics.reduce((object, metric: InternalMetric) => {
+      if (typeof metric.name !== 'string') return object
       object[metric.name] = {
         historic: metric.historic,
         unit: metric.unit,
@@ -36,11 +35,11 @@ export class IPCTransport extends EventEmitter2 implements Transport {
       }
       return object
     }, {})
-    this.send('axm:monitor', metrics)
+    this.send('axm:monitor', serializedMetric)
   }
 
   addAction (action: Action) {
-    debug(`Add action: ${action.name}:${action.type}`)
+    this.logger(`Add action: ${action.name}:${action.type}`)
     return this.send('axm:action', {
       action_name: action.name,
       action_type: action.type,
@@ -50,7 +49,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
   }
 
   setOptions (options) {
-    debug(`Set options: [${Object.keys(options).join(',')}]`)
+    this.logger(`Set options: [${Object.keys(options).join(',')}]`)
     return this.send('axm:option:configuration', options)
   }
 
@@ -59,11 +58,13 @@ export class IPCTransport extends EventEmitter2 implements Transport {
     try {
       process.send({ type: channel, data: payload })
     } catch (err) {
-      debug('Process disconnected from parent !')
-      debug(err)
+      this.logger('Process disconnected from parent !')
+      this.logger(err)
       return process.exit(1)
     }
   }
 
-  destroy () { }
+  destroy () {
+    this.logger('destroy')
+  }
 }

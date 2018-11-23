@@ -1,11 +1,10 @@
-import { MetricService, InternalMetric, MetricType } from '../services/metrics'
+import { MetricService, MetricType } from '../services/metrics'
 import { ServiceManager } from '../serviceManager'
 import * as Debug from 'debug'
 import { MetricInterface } from '../features/metrics'
 import Histogram from '../utils/metrics/histogram'
 import utils from '../utils/module'
-import {EventEmitter} from 'events';
-import Gauge from '../utils/metrics/gauge';
+import Gauge from '../utils/metrics/gauge'
 
 export class GCMetricsOptions {
   gcType: boolean
@@ -92,7 +91,7 @@ export default class GCMetrics implements MetricInterface {
       histogram.update(Math.round(stats.pause / 1000000))
       gcType.set(stats.gctype)
     }
-    
+
     this.gcStatsInstance.on('stats', this.gcHandler)
   }
 
