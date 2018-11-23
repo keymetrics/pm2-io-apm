@@ -3,7 +3,7 @@ import { Feature } from '../featureManager'
 import Configuration from '../configuration'
 import { ServiceManager } from '../serviceManager'
 import Debug from 'debug'
-import { Transport } from '../services/transport';
+import { Transport } from '../services/transport'
 
 export class NotifyOptions {
   catchExceptions: boolean
@@ -51,7 +51,7 @@ export class NotifyFeature implements Feature {
     if (typeof context !== 'object') {
       context = { }
     }
-  
+
     if (!(err instanceof Error)) {
       console.trace('[PM2-IO-APM] You should use notifyError with an Error object')
       return -1

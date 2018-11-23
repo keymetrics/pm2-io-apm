@@ -108,13 +108,15 @@ export default class AddonProfiler implements ProfilerType {
     cb({ success: true, uuid: this.currentProfile })
 
     this.profiler.startTrackingHeapObjects()
-    
-    if (isNaN(parseInt(opts.timeout))) return
+
+    if (isNaN(parseInt(opts.timeout, 10))) return
     // if the duration is included, handle that ourselves
-    const duration = parseInt(opts.timeout)
+    const duration = parseInt(opts.timeout, 10)
     setTimeout(_ => {
       // it will send the profiling itself
-      this.onHeapProfileStop(_ => {})
+      this.onHeapProfileStop(_ => {
+        return
+      })
     }, duration)
   }
 
@@ -177,13 +179,15 @@ export default class AddonProfiler implements ProfilerType {
     cb({ success: true, uuid: this.currentProfile })
 
     this.profiler.startProfiling()
-    
-    if (isNaN(parseInt(opts.timeout))) return
+
+    if (isNaN(parseInt(opts.timeout, 10))) return
     // if the duration is included, handle that ourselves
-    const duration = parseInt(opts.timeout)
+    const duration = parseInt(opts.timeout, 10)
     setTimeout(_ => {
       // it will send the profiling itself
-      this.onCPUProfileStop(_ => {})
+      this.onCPUProfileStop(_ => {
+        return
+      })
     }, duration)
   }
 
@@ -260,7 +264,7 @@ export default class AddonProfiler implements ProfilerType {
 
   private takeSnapshot () {
     return new Promise((resolve, reject) => {
-      const snapshot = this.profiler.takeSnapshot();
+      const snapshot = this.profiler.takeSnapshot()
       snapshot.export((err, data) => {
         if (err) {
           reject(err)

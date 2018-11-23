@@ -5,9 +5,8 @@ import Debug from 'debug'
 import * as fs from 'fs'
 import { ServiceManager } from './serviceManager'
 import Entrypoint from './features/entrypoint'
-import { createTransport, TransportConfig } from './services/transport'
+import { createTransport, TransportConfig, Transport } from './services/transport'
 import { FeatureManager } from './featureManager'
-import { Transport } from './services/transport'
 import ActionService from './services/actions'
 import { NotifyFeature, ErrorContext } from './features/notify'
 import { Metric, MetricService, HistogramOptions, MetricBulk, MetricType, MetricMeasurements } from './services/metrics'
@@ -15,8 +14,8 @@ import Meter from './utils/metrics/meter'
 import Histogram from './utils/metrics/histogram'
 import Gauge from './utils/metrics/gauge'
 import Counter from './utils/metrics/counter'
-import { EventsFeature } from './features/events';
-import {TracingConfig} from './features/tracing';
+import { EventsFeature } from './features/events'
+import { TracingConfig } from './features/tracing'
 
 export class IOConfig {
   level?: string
@@ -186,7 +185,7 @@ export default class PMX {
   /**
    * Create an histogram metric
    */
-  histogram (config: HistogramOptions) : Histogram {
+  histogram (config: HistogramOptions): Histogram {
     if (typeof config === 'string') {
       config = {
         name: config as string,
@@ -205,7 +204,7 @@ export default class PMX {
   /**
    * Create a gauge metric
    */
-  metric (config: Metric) : Gauge {
+  metric (config: Metric): Gauge {
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -222,7 +221,7 @@ export default class PMX {
   /**
    * Create a gauge metric
    */
-  gauge (config: Metric) : Gauge {
+  gauge (config: Metric): Gauge {
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -239,7 +238,7 @@ export default class PMX {
   /**
    * Create a counter metric
    */
-  counter (config: Metric) : Counter {
+  counter (config: Metric): Counter {
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -257,7 +256,7 @@ export default class PMX {
   /**
    * Create a meter metric
    */
-  meter (config: Metric) : Meter {
+  meter (config: Metric): Meter {
     if (typeof config === 'string') {
       config = {
         name: config as string

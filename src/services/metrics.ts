@@ -3,12 +3,11 @@
 import Meter from '../utils/metrics/meter'
 import Counter from '../utils/metrics/counter'
 import Histogram from '../utils/metrics/histogram'
-import { ServiceManager } from '../serviceManager'
+import { ServiceManager, Service } from '../serviceManager'
 import constants from '../constants'
-import {Transport} from './transport';
+import { Transport } from './transport'
 import * as Debug from 'debug'
-import Gauge from '../utils/metrics/gauge';
-import { Service } from '../serviceManager'
+import Gauge from '../utils/metrics/gauge'
 
 export enum MetricType {
   'meter',
@@ -37,8 +36,8 @@ export interface InternalMetric {
   /**
    * Display name of the metric, it should be a clear name that everyone can understand
    */
-  name: string
-  type: MetricType
+  name?: string
+  type?: MetricType
   /**
    * An precise identifier for your metric, exemple:
    * The heap usage can be shown to user as 'Heap Usage' but internally
@@ -74,7 +73,7 @@ export class Metric {
   /**
    * Display name of the metric, it should be a clear name that everyone can understand
    */
-  name: string
+  name?: string
   /**
    * An precise identifier for your metric, exemple:
    * The heap usage can be shown to user as 'Heap Usage' but internally
@@ -103,7 +102,6 @@ export class HistogramOptions extends Metric {
 export class MetricService implements Service {
 
   private metrics: Map<string, InternalMetric> = new Map()
-  private defaultAggregation: string = 'mean'
   private timer: NodeJS.Timer | null
   private transport: Transport | null
   private logger: any = Debug('axm:services:metrics')
@@ -123,8 +121,9 @@ export class MetricService implements Service {
     this.timer.unref()
   }
 
-
   registerMetric (metric: InternalMetric): void {
+    // thanks tslint but user can be dump sometimes
+    /* tslint:disable */
     if (typeof metric.name !== 'string') {
       return console.trace(`Invalid metric name declared: ${metric.name}`)
     } else if (typeof metric.type !== 'string') {
@@ -132,6 +131,7 @@ export class MetricService implements Service {
     } else if (typeof metric.handler !== 'function') {
       return console.trace(`Invalid metric handler declared: ${metric.handler}`)
     }
+    /* tslint:enable */
     this.metrics.set(metric.name, metric)
   }
 
@@ -187,7 +187,6 @@ export class MetricService implements Service {
   }
 
   metric (opts: Metric): Gauge {
-    const self = this
     const metric: InternalMetric = {
       name: opts.name,
       type: MetricType.gauge,

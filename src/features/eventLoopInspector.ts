@@ -4,7 +4,7 @@ import { Feature, FeatureConfig } from '../featureManager'
 import * as EventLoopInspector from 'event-loop-inspector'
 import * as Debug from 'debug'
 
-class EventLoopInspectorConfig extends FeatureConfig { 
+class EventLoopInspectorConfig extends FeatureConfig {
   enabled: boolean
 }
 
@@ -21,7 +21,10 @@ export class EventLoopInspectorFeature implements Feature {
   init (config?: EventLoopInspectorConfig | boolean) {
     if (config === false) return
     if (config === undefined) return
-    if (typeof config === 'object' && config.enabled === false) return
+    if (typeof config !== 'object') {
+      config = defaultConfig
+    }
+    if (config.enabled === false) return
 
     this.actionService = ServiceManager.get('actions')
     if (this.actionService === undefined) {
@@ -38,5 +41,7 @@ export class EventLoopInspectorFeature implements Feature {
     })
   }
 
-  destroy () { }
+  destroy () {
+    this.logger('destroy')
+  }
 }

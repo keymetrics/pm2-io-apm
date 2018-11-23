@@ -1,5 +1,5 @@
 import { ServiceManager } from '../serviceManager'
-import { Transport } from './transport' 
+import { Transport } from './transport'
 import * as Debug from 'debug'
 import * as cluster from 'cluster'
 import * as EventLoopInspector from 'event-loop-inspector'
@@ -57,7 +57,7 @@ export default class ActionService {
 
     const actionName = data.msg ? data.msg : data.action_name ? data.action_name : data
     let action = this.actions.get(actionName)
-    if (typeof action !== 'object' || action === null) {
+    if (typeof action !== 'object') {
       return this.logger(`Received action ${actionName} but failed to find the implementation`)
     }
 
@@ -123,10 +123,10 @@ export default class ActionService {
   /**
    * Register a custom action that will be called when we receive a call for this actionName
    */
-  registerAction (actionName: string, opts?: Object | null, handler?: Function): void {
+  registerAction (actionName?: string, opts?: Object | undefined | Function, handler?: Function): void {
     if (typeof opts === 'function') {
-      handler = opts as Function
-      opts = null
+      handler = opts
+      opts = undefined
     }
 
     if (typeof actionName !== 'string') {
@@ -160,7 +160,7 @@ export default class ActionService {
       isScoped: false,
       arity: handler.length,
       opts
-    } 
+    }
     this.logger(`Succesfully registered custom action ${action.name}`)
     this.actions.set(actionName, action)
     this.transport.addAction(action)
@@ -169,7 +169,7 @@ export default class ActionService {
   /**
    * Register a scoped action that will be called when we receive a call for this actionName
    */
-  scopedAction (actionName: string, handler: Function){
+  scopedAction (actionName?: string, handler?: Function) {
     if (typeof actionName !== 'string') {
       console.error(`You must define an name when registering an action`)
       return -1
@@ -186,7 +186,7 @@ export default class ActionService {
       isScoped: true,
       arity: handler.length,
       opts: null
-    } 
+    }
     this.logger(`Succesfully registered scoped action ${action.name}`)
     this.actions.set(actionName, action)
     this.transport.addAction(action)

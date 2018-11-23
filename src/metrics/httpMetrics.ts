@@ -16,7 +16,7 @@ import {
   InternalMetric,
   MetricType,
   Metric
-} from '../services/metrics';
+} from '../services/metrics'
 
 export class HttpMetricsConfig {
   http: boolean

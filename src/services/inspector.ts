@@ -36,13 +36,13 @@ export class InspectorService extends inspector.Session {
     return this.session.removeAllListeners.apply(this, arguments)
   }
 
-  connect () : inspector.Session {
+  connect (): inspector.Session {
     let session = this.session
     if (session === null) {
       session = this.createSession()
       this.session = session
       session.connect()
-    } 
+    }
     if (!this.isConnected) {
       session.connect()
     }

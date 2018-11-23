@@ -8,7 +8,7 @@ export class EventsFeature implements Feature {
 
   private transport: Transport | undefined
   private logger: Function = Debug('axm:features:events')
-  
+
   init (): void {
     this.transport = ServiceManager.get('transport')
     this.logger('init')

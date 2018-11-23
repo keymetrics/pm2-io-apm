@@ -18,9 +18,9 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
 
   private metricService: MetricService | undefined
   private logger: any = Debug('axm:features:metrics:eventloop')
-  private requestTimer: NodeJS.Timer
-  private handleTimer: NodeJS.Timer
-  private delayTimer: NodeJS.Timer
+  private requestTimer: NodeJS.Timer | undefined
+  private handleTimer: NodeJS.Timer | undefined
+  private delayTimer: NodeJS.Timer | undefined
   private delayLoopInterval: number = 1000
 
   init (config?: EventLoopMetricOption | boolean) {
@@ -105,13 +105,13 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
   }
 
   destroy () {
-    if (this.requestTimer !== null) {
+    if (this.requestTimer !== undefined) {
       clearInterval(this.requestTimer)
     }
-    if (this.handleTimer !== null) {
+    if (this.handleTimer !== undefined) {
       clearInterval(this.handleTimer)
     }
-    if (this.delayTimer !== null) {
+    if (this.delayTimer !== undefined) {
       clearInterval(this.delayTimer)
     }
     this.logger('destroy')

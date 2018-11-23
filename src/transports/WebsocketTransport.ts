@@ -4,8 +4,6 @@ import Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
 
-const debug = Debug('axm:transport:websocket')
-
 class SerializedAction {
   action_name: string // tslint:disable-line
   action_type: string // tslint:disable-line
@@ -28,6 +26,7 @@ export class WebsocketTransport implements Transport {
   private agent: any
   private process: ProcessMetadata
   private initiated: Boolean = false // tslint:disable-line
+  private logger: Function = Debug('axm:transport:websocket')
 
   init (config: TransportConfig): Transport {
     if (!semver.satisfies(process.version, '>= 6.0.0')) {
@@ -40,7 +39,7 @@ export class WebsocketTransport implements Transport {
     }
     this.initiated = true
     const AgentNode = require('@pm2/agent-node')
-    debug('Init new transport service')
+    this.logger('Init new transport service')
     this.config = config
     this.process = {
       axm_actions: [],
@@ -56,12 +55,13 @@ export class WebsocketTransport implements Transport {
     this.agent.sendLogs = config.sendLogs || false
 
     this.agent.start()
-    debug('Agent launched')
+    this.logger('Agent launched')
     return this
   }
 
   setMetrics (metrics: InternalMetric[]) {
     return this.process.axm_monitor = metrics.reduce((object, metric: InternalMetric) => {
+      if (typeof metric.name !== 'string') return object
       object[metric.name] = {
         historic: metric.historic,
         unit: metric.unit,
@@ -73,7 +73,7 @@ export class WebsocketTransport implements Transport {
   }
 
   addAction (action: Action) {
-    debug(`Add action: ${action.name}:${action.type}`)
+    this.logger(`Add action: ${action.name}:${action.type}`)
     const serializedAction: SerializedAction = {
       action_name: action.name,
       action_type: action.type,
@@ -84,7 +84,7 @@ export class WebsocketTransport implements Transport {
   }
 
   setOptions (options) {
-    debug(`Set options: [${Object.keys(options).join(',')}]`)
+    this.logger(`Set options: [${Object.keys(options).join(',')}]`)
     return this.process.axm_options = Object.assign(this.process.axm_options, options)
   }
 
@@ -105,6 +105,7 @@ export class WebsocketTransport implements Transport {
 
   destroy () {
     this.agent.transport.disconnect()
+    this.logger('destroy')
   }
 
   on () {

@@ -1,5 +1,4 @@
 import { ServiceManager } from '../serviceManager'
-import * as stringify from 'json-stringify-safe'
 import { Feature } from '../featureManager'
 import { Transport } from '../services/transport'
 import * as Debug from 'debug'
@@ -43,7 +42,7 @@ export class TracingConfig {
   samplingRate?: number
 }
 
-const defaultConfig: TracingConfig = {
+const enabledConfig: TracingConfig = {
   enabled: true,
   ignoreFilter: {
     url: [ '/' ],
@@ -53,18 +52,22 @@ const defaultConfig: TracingConfig = {
 
 export class TracingFeature implements Feature {
 
-  private transport: Transport
+  private transport: Transport | undefined
   private tracer: any
   private logger: any = Debug('axm:features:tracing')
   private traceHandler: Function
-  
-  init (config: TracingConfig | boolean): void {
+
+  init (config?: TracingConfig | boolean) {
     if (config === undefined) return
     if (config === false) return
     if (config === true) {
-      config = defaultConfig
+      config = enabledConfig
     }
+    if (config.enabled === false) return
     this.transport = ServiceManager.get('transport')
+    if (this.transport === undefined) {
+      return this.logger(`Failed to load transporter service`)
+    }
 
     const tracerModule = require('vxx')
     if (tracerModule.isActive()) {
@@ -78,6 +81,7 @@ export class TracingFeature implements Feature {
       tracing_enabled: true
     })
     this.traceHandler = (data) => {
+      if (this.transport === undefined) return
       this.transport.send('axm:trace', data)
     }
     this.tracer.getBus().on('transaction', this.traceHandler)

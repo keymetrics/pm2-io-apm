@@ -1,13 +1,10 @@
 import Debug from 'debug'
-import { Feature } from '../featureManager'
+import { Feature, getObjectAtPath } from '../featureManager'
 import EventLoopHandlesRequestsMetric from '../metrics/eventLoopMetrics'
 import NetworkMetric from '../metrics/network'
-import { getObjectAtPath } from '../featureManager'
-import HttpMetrics from '../metrics/httpMetrics';
-import V8Metric from '../metrics/v8';
-import GCMetrics from '../metrics/gc';
-
-const debug = Debug('axm:features:metrics')
+import HttpMetrics from '../metrics/httpMetrics'
+import V8Metric from '../metrics/v8'
+import GCMetrics from '../metrics/gc'
 
 export const defaultMetricConf = {
   eventLoopDelay: true,
@@ -76,8 +73,11 @@ export interface MetricInterface {
 
 export class MetricsFeature implements Feature {
 
+  private logger: Function = Debug('axm:features:metrics')
+
   init (options?: Object) {
     if (typeof options !== 'object') options = {}
+    this.logger('init')
 
     for (let availableMetric of availableMetrics) {
       const metric = new availableMetric.module()
@@ -90,7 +90,7 @@ export class MetricsFeature implements Feature {
         config = getObjectAtPath(options, availableMetric.optionsPath)
       }
       // @ts-ignore
-      // thanks mr typescript but we don't know the shape that the 
+      // thanks mr typescript but we don't know the shape that the
       // options will be, so we just ignore the warning there
       metric.init(config)
       availableMetric.instance = metric
@@ -98,6 +98,7 @@ export class MetricsFeature implements Feature {
   }
 
   destroy () {
+    this.logger('destroy')
     for (let availableMetric of availableMetrics) {
       if (availableMetric.instance === undefined) continue
       availableMetric.instance.destroy()
