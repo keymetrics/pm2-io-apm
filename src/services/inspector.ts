@@ -1,61 +1,33 @@
 import * as inspector from 'inspector'
 import Debug from 'debug'
 
-export class InspectorService extends inspector.Session {
+export class InspectorService {
 
   private session: inspector.Session | null = null
-  private isConnected: boolean = false
   private logger: Function = Debug('axm:services:inspector')
 
-  createSession () {
-    if (this.session === null) {
-      this.session = new inspector.Session()
-    }
+  init (): inspector.Session {
+    this.logger(`Creating new inspector session`)
+    this.session = new inspector.Session()
+    this.session.connect()
+    this.logger('Connected to inspector')
     return this.session
   }
 
-  post (action, params?) {
-    this.logger(`posting message with action ${action}`)
-    let session = this.session === null ? this.connect() : this.session
-    return session.post.apply(this, arguments)
-  }
-
-  on (event: string, handler: Function) {
-    this.logger(`listening from inspector message ${event}`)
-    let session = this.session === null ? this.connect() : this.session
-    return session.on.apply(this, arguments)
-  }
-
-  removeListener (event: string, handler: Function) {
-    if (this.session === null) return
-    return this.session.removeListener.apply(this, arguments)
-  }
-
-  removeAllListeners () {
-    if (this.session === null) return
-    return this.session.removeAllListeners.apply(this, arguments)
-  }
-
-  connect (): inspector.Session {
-    let session = this.session
-    if (session === null) {
-      session = this.createSession()
-      this.session = session
-      session.connect()
+  getSession (): inspector.Session {
+    if (this.session === null) {
+      this.session = this.init()
+      return this.session
+    } else {
+      return this.session
     }
-    if (!this.isConnected) {
-      session.connect()
-    }
-    this.isConnected = true
-    return session
   }
 
   destroy () {
-    if (this.isConnected === true && this.session !== null) {
+    if (this.session !== null) {
       this.session.post('Profiler.disable')
-      this.session.post('Profiler.disable')
+      this.session.post('HeapProfiler.disable')
       this.session.disconnect()
-      this.isConnected = false
       this.session = null
     } else {
       this.logger('No open session')
@@ -63,4 +35,4 @@ export class InspectorService extends inspector.Session {
   }
 }
 
-module.exports = new InspectorService()
+module.exports = InspectorService

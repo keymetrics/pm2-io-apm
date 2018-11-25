@@ -73,8 +73,8 @@ export default class AddonProfiler implements ProfilerType {
     this.actionService.registerAction('km:heapdump', this.onHeapdump)
     this.actionService.registerAction('km:cpu:profiling:start', this.onCPUProfileStart)
     this.actionService.registerAction('km:cpu:profiling:stop', this.onCPUProfileStop)
-    this.actionService.registerAction('km:heap:profiling:start', this.onHeapProfileStart)
-    this.actionService.registerAction('km:heap:profiling:stop', this.onHeapProfileStop)
+    this.actionService.registerAction('km:heap:sampling:start', this.onHeapProfileStart)
+    this.actionService.registerAction('km:heap:sampling:stop', this.onHeapProfileStop)
   }
 
   destroy () {

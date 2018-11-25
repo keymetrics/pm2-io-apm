@@ -1,4 +1,4 @@
-import { Feature, FeatureConfig } from '../featureManager'
+import { Feature } from '../featureManager'
 import AddonProfiler from '../profilers/addonProfiler'
 import InspectorProfiler from '../profilers/inspectorProfiler'
 import { canUseInspector } from '../constants'
@@ -10,7 +10,7 @@ export interface ProfilerType {
   destroy (): void
 }
 
-export class ProfilingConfig extends FeatureConfig {
+export class ProfilingConfig {
   cpuJS: boolean
   heapSnapshot: boolean
   heapSampling: boolean
@@ -41,6 +41,8 @@ export class ProfilingFeature implements Feature {
       config = defaultProfilingConfig
     } else if (config === false) {
       config = disabledProfilingConfig
+    } else if (typeof config !== 'object') {
+      config = defaultProfilingConfig
     }
     // allow to force the fallback to addon via the environment
     if (process.env.PM2_PROFILING_FORCE_FALLBACK) {

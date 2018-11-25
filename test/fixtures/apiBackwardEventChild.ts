@@ -1,5 +1,4 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 
-pmx.emit('myEvent', {prop1: 'value1'})
+pmx.emit('myEvent', { prop1: 'value1' })

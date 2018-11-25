@@ -1,8 +1,6 @@
 import { ServiceManager } from '../serviceManager'
 import { Transport } from './transport'
 import * as Debug from 'debug'
-import * as cluster from 'cluster'
-import * as EventLoopInspector from 'event-loop-inspector'
 
 export class Action {
   handler: Function
@@ -16,43 +14,14 @@ export class Action {
 
 export default class ActionService {
 
-  private timer
+  private timer: NodeJS.Timer | null = null
   private listenerInitiated: Boolean = false
-  private transport: Transport
-  private actions: Map<string, Action>
-  private logger: any
-  private eventLoopInspector = EventLoopInspector()
-
-  constructor () {
-    const autoExit = cluster.isWorker === true
-    this.transport = ServiceManager.get('transport')
-    this.logger = Debug('axm:services:actions')
-
-    if (!autoExit) return
-
-    // clean listener if event loop is empty
-    // important to ensure apm will not prevent application to stop
-    this.timer = setInterval(() => {
-      const dump = this.eventLoopInspector.dump()
-
-      if (!dump || (dump.setImmediates.length === 0 &&
-          dump.nextTicks.length === 0 &&
-          (Object.keys(dump.handles).length === 0 || (Object.keys(dump.handles).length === 1 &&
-            dump.handles.hasOwnProperty('Socket') &&
-            dump.handles.Socket.length === 2 &&
-            (dump.handles.Socket[0].fd === 1 ||
-              dump.handles.Socket[0].fd === -1) &&
-            (dump.handles.Socket[1].fd === 2 ||
-              dump.handles.Socket[1].fd === -1))) &&
-          Object.keys(dump.requests).length === 0)) {
-        process.removeListener('message', this.listener)
-      }
-    }, 1000)
-
-    this.timer.unref()
-  }
+  private transport: Transport | null = null
+  private actions: Map<string, Action> = new Map<string, Action>()
+  private logger: Function = Debug('axm:services:actions')
 
   private listener (data) {
+    this.logger(`Received new message from reverse`)
     if (!data) return false
 
     const actionName = data.msg ? data.msg : data.action_name ? data.action_name : data
@@ -80,9 +49,14 @@ export default class ActionService {
       return this.logger(`Received scoped action ${action.name} but without uuid`)
     }
 
+    if (this.transport === undefined || this.transport === null) {
+      return this.logger(`Failed to load transport service`)
+    }
+
     // create a simple object that represent a stream
     const stream = {
       send : (dt) => {
+        // @ts-ignore thanks mr typescript but i already checked above
         this.transport.send('axm:scoped_action:stream', {
           data: dt,
           uuid: data.uuid,
@@ -90,6 +64,7 @@ export default class ActionService {
         })
       },
       error : (dt) => {
+        // @ts-ignore thanks mr typescript but i already checked above
         this.transport.send('axm:scoped_action:error', {
           data: dt,
           uuid: data.uuid,
@@ -97,6 +72,7 @@ export default class ActionService {
         })
       },
       end : (dt) => {
+        // @ts-ignore thanks mr typescript but i already checked above
         this.transport.send('axm:scoped_action:end', {
           data: dt,
           uuid: data.uuid,
@@ -110,14 +86,24 @@ export default class ActionService {
   }
 
   init (): void {
+    this.transport = ServiceManager.get('transport')
+    if (this.transport === undefined || this.transport === null) {
+      return this.logger(`Failed to load transport service`)
+    }
+    this.actions.clear()
     // be sure to never listen twince the message
     if (this.listenerInitiated === true) return
     this.listenerInitiated = true
-    this.transport.on('*', this.listener)
+    this.transport.on('data', this.listener.bind(this))
   }
 
   destroy (): void {
-    clearInterval(this.timer)
+    if (this.timer !== null) {
+      clearInterval(this.timer)
+    }
+    if (this.transport !== null && this.transport !== undefined) {
+      this.transport.removeListener('data', this.listener.bind(this))
+    }
   }
 
   /**
@@ -137,6 +123,9 @@ export default class ActionService {
       console.error(`You must define an callback when registering an action`)
       return
     }
+    if (this.transport === undefined || this.transport === null) {
+      return this.logger(`Failed to load transport service`)
+    }
 
     let type = 'custom'
 
@@ -145,6 +134,7 @@ export default class ActionService {
     }
 
     const reply = (data) => {
+      // @ts-ignore thanks mr typescript but i already checked above
       this.transport.send('axm:reply', {
         at: new Date().getTime(),
         action_name: actionName,
@@ -177,6 +167,9 @@ export default class ActionService {
     if (typeof handler !== 'function') {
       console.error(`You must define an callback when registering an action`)
       return -1
+    }
+    if (this.transport === undefined || this.transport === null) {
+      return this.logger(`Failed to load transport service`)
     }
 
     const action: Action = {

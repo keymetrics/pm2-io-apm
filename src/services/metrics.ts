@@ -10,26 +10,26 @@ import * as Debug from 'debug'
 import Gauge from '../utils/metrics/gauge'
 
 export enum MetricType {
-  'meter',
-  'histogram',
-  'counter',
-  'gauge',
-  'metric' // deprecated, must use gauge
+  'meter' = 'meter',
+  'histogram' = 'histogram',
+  'counter' = 'counter',
+  'gauge' = 'gauge',
+  'metric' = 'metric' // deprecated, must use gauge
 }
 
 export enum MetricMeasurements {
-  'min',
-  'max',
-  'sum',
-  'count',
-  'variance',
-  'mean',
-  'stddev',
-  'median',
-  'p75',
-  'p95',
-  'p99',
-  'p999'
+  'min' = 'min',
+  'max' = 'max',
+  'sum' = 'sum',
+  'count' = 'count',
+  'variance' = 'variance',
+  'mean' = 'mean',
+  'stddev' = 'stddev',
+  'median' = 'median',
+  'p75' = 'p75',
+  'p95' = 'p95',
+  'p99' = 'p99',
+  'p999' = 'p999'
 }
 
 export interface InternalMetric {
@@ -102,21 +102,28 @@ export class HistogramOptions extends Metric {
 export class MetricService implements Service {
 
   private metrics: Map<string, InternalMetric> = new Map()
-  private timer: NodeJS.Timer | null
-  private transport: Transport | null
+  private timer: NodeJS.Timer | null = null
+  private transport: Transport | null = null
   private logger: any = Debug('axm:services:metrics')
 
   init (): void {
     this.transport = ServiceManager.get('transport')
     if (this.transport === null) return this.logger('Failed to init metrics service cause no transporter')
 
+    this.logger('init')
     this.timer = setInterval(() => {
       if (this.transport === null) return this.logger('Abort metrics update since transport is not available')
+      this.logger('refreshing metrics value')
       for (let metric of this.metrics.values()) {
         metric.value = metric.handler()
       }
+      this.logger('sending update metrics value to transporter')
       // send all the metrics value to the transporter
-      this.transport.setMetrics(Array.from(this.metrics.values()))
+      const metricsToSend = Array.from(this.metrics.values())
+        .filter(metric => {
+          return typeof metric.value === 'number' && !isNaN(metric.value)
+        })
+      this.transport.setMetrics(metricsToSend)
     }, constants.METRIC_INTERVAL)
     this.timer.unref()
   }
@@ -125,13 +132,17 @@ export class MetricService implements Service {
     // thanks tslint but user can be dump sometimes
     /* tslint:disable */
     if (typeof metric.name !== 'string') {
-      return console.trace(`Invalid metric name declared: ${metric.name}`)
+      console.error(`Invalid metric name declared: ${metric.name}`)
+      return console.trace()
     } else if (typeof metric.type !== 'string') {
-      return console.trace(`Invalid metric type declared: ${metric.type}`)
+      console.error(`Invalid metric type declared: ${metric.type}`)
+      return console.trace()
     } else if (typeof metric.handler !== 'function') {
-      return console.trace(`Invalid metric handler declared: ${metric.handler}`)
+      console.error(`Invalid metric handler declared: ${metric.handler}`)
+      return console.trace()
     }
     /* tslint:enable */
+    this.logger(`Registering new metric: ${metric.name}`)
     this.metrics.set(metric.name, metric)
   }
 
@@ -170,6 +181,9 @@ export class MetricService implements Service {
   }
 
   histogram (opts: HistogramOptions): Histogram {
+    if (opts.measurement === undefined || opts.measurement === null) {
+      opts.measurement = MetricMeasurements.mean
+    }
     const metric: InternalMetric = {
       name: opts.name,
       type: MetricType.histogram,
@@ -178,7 +192,7 @@ export class MetricService implements Service {
       implementation: new Histogram(opts),
       unit: opts.unit,
       handler: function () {
-        return (Math.round(this.histogram.val() * 100) / 100)
+        return (Math.round(this.implementation.val() * 100) / 100)
       }
     }
     this.registerMetric(metric)

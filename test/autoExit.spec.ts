@@ -1,17 +1,19 @@
-import SpecUtils from './fixtures/utils'
-import { assert, expect } from 'chai'
-import 'mocha'
 
-import { exec, fork } from 'child_process'
-import Histogram from './utils/metrics/histogram'
+import { fork } from 'child_process'
+import { resolve } from 'path'
+
+const launch = fixture => {
+  return fork(resolve(__dirname, fixture), [], {
+    execArgv: [ '-r', 'ts-node/register' ]
+  })
+}
 
 describe('API', function () {
   this.timeout(10000)
 
   describe('AutoExit program', () => {
     it('should exit program when it has no more tasks to process', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/autoExitChild.js'))
-
+      const child = launch('fixtures/autoExitChild')
       child.on('exit', () => {
         done()
       })

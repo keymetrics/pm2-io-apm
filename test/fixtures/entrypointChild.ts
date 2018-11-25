@@ -1,6 +1,7 @@
-import SpecUtils from './utils'
 
-const Entrypoint = require(__dirname + '/../../src/index.js').Entrypoint
+import pmx from '../../src'
+
+const Entrypoint = pmx.Entrypoint
 class MyEntrypoint extends Entrypoint {
 
   onStart (cb: Function) {

@@ -26,7 +26,8 @@ export class TracerIgnoreFilter {
 export class TracingConfig {
   enabled: boolean
   ignoreFilter?: TracerIgnoreFilter
-  logLevel?: string
+  // Log levels: 0-disabled,1-error,2-warn,3-info,4-debug
+  logLevel?: number
   /**
    * To disable a plugin in this list, you may override its path with a falsy
    * value. Disabling any of the default plugins may cause unwanted behavior,
@@ -45,9 +46,10 @@ export class TracingConfig {
 const enabledConfig: TracingConfig = {
   enabled: true,
   ignoreFilter: {
-    url: [ '/' ],
+    url: [],
     method: [ 'OPTIONS' ]
-  }
+  },
+  logLevel: 1
 }
 
 export class TracingFeature implements Feature {
@@ -64,13 +66,14 @@ export class TracingFeature implements Feature {
       config = enabledConfig
     }
     if (config.enabled === false) return
+    this.logger('init')
     this.transport = ServiceManager.get('transport')
     if (this.transport === undefined) {
       return this.logger(`Failed to load transporter service`)
     }
 
     const tracerModule = require('vxx')
-    if (tracerModule.isActive()) {
+    if (tracerModule.get().isActive()) {
       return this.logger(`Tracing already enalbed`)
     }
 
@@ -82,20 +85,19 @@ export class TracingFeature implements Feature {
     })
     this.traceHandler = (data) => {
       if (this.transport === undefined) return
+      this.logger('received trace data')
       this.transport.send('axm:trace', data)
     }
     this.tracer.getBus().on('transaction', this.traceHandler)
   }
 
   destroy () {
-    if (this.tracer === null) return
+    if (this.tracer === undefined) return
     this.tracer.getBus().removeAllListeners()
-    // stop this instance to trace
-    if (this.tracer.private_ === undefined && typeof this.tracer.private_.stop === 'function') {
-      this.tracer.private_.stop()
-    }
     if (typeof this.tracer.disable_ === 'function') {
       this.tracer.disable_()
+      this.logger('stopped tracing agent')
     }
+    this.logger('destroy')
   }
 }

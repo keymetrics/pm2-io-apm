@@ -1,40 +1,10 @@
 
 import PMX from './pmx'
-import Entrypoint from './features/entrypoint'
 
-//let io: PMX
-var io
+const IO_KEY = Symbol.for('@pm2/io')
+const isAlreadyHere = (Object.getOwnPropertySymbols(global).indexOf(IO_KEY) > -1)
 
-if (process.env.PMX_FORCE_UPDATE) {
-  io = new PMX()
-  io.init()
-  io.Entrypoint = Entrypoint
-}
-else {
-  // -----------------------------------
-  // create a unique, global symbol name
-  // -----------------------------------
-  const IO_KEY = Symbol.for('@pm2/io')
+const io: PMX = isAlreadyHere ? global[IO_KEY] as PMX : new PMX().init()
+global[IO_KEY] = io
 
-  // ------------------------------------------
-  // check if the global object has this symbol
-  // add it if it does not have the symbol, yet
-  // ------------------------------------------
-  const globalSymbols = Object.getOwnPropertySymbols(global)
-  const hasKey = (globalSymbols.indexOf(IO_KEY) > -1)
-
-  if (!hasKey) {
-    io = global[IO_KEY] = new PMX()
-  }
-
-  if (!hasKey) {
-    global[IO_KEY].Entrypoint = Entrypoint
-
-    // Freeze API, cannot be modified
-    //Object.freeze(global[IO_KEY])
-  }
-
-  io = global[IO_KEY]
-}
-
-export = io
+export default io

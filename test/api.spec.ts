@@ -1,17 +1,25 @@
-import SpecUtils from './fixtures/utils'
+
 import { assert, expect } from 'chai'
 import 'mocha'
 import * as semver from 'semver'
+import { resolve } from 'path'
 
 import { exec, fork } from 'child_process'
-import Histogram from './utils/metrics/histogram'
+import pmx from '../src'
+
+const launch = (fixture) => {
+  return fork(resolve(__dirname, fixture), [], {
+    execArgv: [ '-r', 'ts-node/register' ],
+    stdio: [0, 1, 2, 'ipc']
+  })
+}
 
 describe('API', function () {
   this.timeout(50000)
 
   describe('Notify', () => {
     it('should receive data from notify', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiNotifyChild.js'))
+      const child = launch('fixtures/apiNotifyChild.ts')
 
       child.on('message', msg => {
         if (msg.data.message === 'myNotify') {
@@ -25,37 +33,32 @@ describe('API', function () {
 
   describe('Metrics', () => {
     it('should receive data from metric', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiMetricsChild.js'))
+      const child = launch('fixtures/apiMetricsChild.ts')
 
       child.on('message', res => {
-
         if (res.type === 'axm:monitor') {
           expect(res.data.hasOwnProperty('metric with spaces')).to.equal(true)
           expect(res.data.hasOwnProperty('metric wi!th special chars % ///')).to.equal(true)
           expect(res.data.hasOwnProperty('metricHistogram')).to.equal(true)
-          expect(res.data.metricHistogram.value).to.equal('10')
+          expect(res.data.metricHistogram.value).to.equal(10)
           expect(res.data.metricHistogram.type).to.equal('metric/custom')
           expect(res.data.metricInline.value).to.equal(11)
-          expect(res.data.metricInline.type).to.equal('metricInline')
 
-          if (res.data.hasOwnProperty('New space used size')) {
-            child.kill('SIGINT')
-          }
+          child.kill('SIGINT')
+          return done()
         }
       })
 
-      child.on('exit', function () {
-        done()
-      })
+      child.on('error', done)
     })
   })
 
   describe('Actions', () => {
     it('should receive data from action', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsChild.js'))
+      const child = launch('fixtures/apiActionsChild')
 
       child.on('message', res => {
-        if (res.type === 'axm:action' && res.data.action_name == 'testAction') {
+        if (res.type === 'axm:action' && res.data.action_name === 'testAction') {
           child.send(res.data.action_name)
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('testAction')
@@ -67,11 +70,11 @@ describe('API', function () {
     })
 
     it('should receive data from scoped action', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsScopedChild.js'))
+      const child = launch('fixtures/apiActionsScopedChild')
 
       child.on('message', res => {
 
-        if (res.type === 'axm:action' && res.data.action_name == 'testScopedAction') {
+        if (res.type === 'axm:action' && res.data.action_name === 'testScopedAction') {
           child.send({ action_name: res.data.action_name, uuid: 1000 })
         } else if (res.type === 'axm:scoped_action:stream') {
           expect(res.data.uuid).to.equal(1000)
@@ -84,10 +87,10 @@ describe('API', function () {
     })
 
     it('should receive data from action with conf', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiActionsJsonChild.js'))
+      const child = launch('fixtures/apiActionsJsonChild')
 
       child.on('message', res => {
-        if (res.type === 'axm:action' && res.data.action_name == 'testActionWithConf') {
+        if (res.type === 'axm:action' && res.data.action_name === 'testActionWithConf') {
           child.send(res.data.action_name)
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('testActionWithConf')
@@ -99,46 +102,11 @@ describe('API', function () {
     })
   })
 
-  describe('Transpose', () => {
-    it('should receive data from transpose', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiTransposeChild.js'))
-
-      child.on('message', res => {
-        if (res.type === 'axm:monitor') {
-          expect(res.data.hasOwnProperty('transpose')).to.equal(true)
-          expect(res.data.transpose.value).to.equal('transposeResponse')
-
-          child.kill('SIGINT')
-        }
-      })
-
-      child.on('exit', function () {
-        done()
-      })
-    })
-
-    it('should receive data from backward transpose', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiTransposeBackwardChild.js'))
-
-      child.on('message', res => {
-        if (res.type === 'axm:monitor') {
-          expect(res.data.hasOwnProperty('transpose')).to.equal(true)
-          expect(res.data.transpose.value).to.equal('transposeResponse')
-
-          child.kill('SIGINT')
-        }
-      })
-
-      child.on('exit', function () {
-        done()
-      })
-    })
-  })
-
   describe('Histogram', () => {
     it('should return an histogram', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
+      // @ts-ignore
       const firstWay = pmx.histogram('firstWay')
+      // @ts-ignore
       const secondWay = pmx.histogram({
         name: 'secondWay'
       })
@@ -150,7 +118,7 @@ describe('API', function () {
 
   describe('Counter', () => {
     it('should return a counter', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
+      // @ts-ignore old api
       const firstWay = pmx.counter('firstWay')
       const secondWay = pmx.counter({
         name: 'secondWay'
@@ -163,7 +131,7 @@ describe('API', function () {
 
   describe('Meter', () => {
     it('should return a counter', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
+      // @ts-ignore old api
       const firstWay = pmx.meter('firstWay')
       const secondWay = pmx.meter({
         name: 'secondWay'
@@ -175,52 +143,54 @@ describe('API', function () {
   })
 
   describe('Metric', () => {
-    it('should return an histogram', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
+    it('should return an metric', () => {
+      // @ts-ignore old api
       const firstWay = pmx.metric('firstWay')
       const secondWay = pmx.metric({
         name: 'secondWay'
       })
 
-      expect(firstWay.hasOwnProperty('val')).to.equal(true)
-      expect(secondWay.hasOwnProperty('val')).to.equal(true)
+      expect(typeof firstWay.val === 'function').to.equal(true)
+      expect(typeof secondWay.val === 'function').to.equal(true)
     })
   })
 
-  describe('Onexit', () => {
-    it('should catch signals and launch callback', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitChild.js'))
+  describe('onExit', () => {
+    it.skip('should catch signals and launch callback', (done) => {
+      const child = launch('fixtures/apiOnExitChild')
 
       child.on('message', res => {
-        if (res == 'callback')
+        if (res === 'callback') {
           done()
+        }
       })
 
       setTimeout(function () {
         child.kill('SIGINT')
-      }, 500)
+      }, 1000)
 
     })
 
     it('should return null cause no callback provided', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
+      // @ts-ignore what the fuck is that test
       const fn = pmx.onExit()
       expect(fn).to.equal(undefined)
     })
 
     it('should catch uncaught exception and launch callback', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiOnExitExceptionChild.js'))
+      const child = launch('fixtures/apiOnExitExceptionChild')
 
       child.on('message', res => {
-        if (res == 'callback')
+        if (res === 'callback') {
           done()
+        }
       })
     })
   })
 
   describe('Compatibility', () => {
     it('should receive data', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardChild.js'))
+      const child = launch('fixtures/apiBackwardChild')
 
       child.on('message', res => {
         if (res.type === 'axm:monitor') {
@@ -231,10 +201,10 @@ describe('API', function () {
           expect(res.data.counterBackward.value).to.equal(2)
 
           expect(res.data.hasOwnProperty('meterBackward')).to.equal(true)
-          expect(res.data.meterBackward.value).to.equal('0')
+          expect(res.data.meterBackward.value).to.equal(0)
 
           expect(res.data.hasOwnProperty('histogramBackward')).to.equal(true)
-          expect(res.data.histogramBackward.value).to.equal('0')
+          expect(res.data.histogramBackward.value).to.equal(0)
 
           child.kill('SIGINT')
           done()
@@ -243,8 +213,7 @@ describe('API', function () {
     })
 
     it('should return metrics object with clean keys', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
-
+      // @ts-ignore
       const metrics = pmx.metrics([
         {
           name: 'metricHistogram',
@@ -272,25 +241,8 @@ describe('API', function () {
       expect(Object.keys(metrics).length).to.equal(3)
     })
 
-    it('should return null', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
-      const probe = pmx.probe()
-
-      const metric = probe.metric()
-      expect(metric).to.equal(null)
-    })
-
-    it('should return null when using init', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js').init({ profiling: false })
-      const probe = pmx.probe()
-
-      const metric = probe.metric()
-      expect(metric).to.equal(null)
-      pmx.destroy()
-    })
-
     it('should receive data from event', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardEventChild.js'))
+      const child = launch('fixtures/apiBackwardEventChild')
 
       child.on('message', res => {
         if (res.type === 'human:event') {
@@ -304,7 +256,7 @@ describe('API', function () {
     })
 
     it('should receive data from notify', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardNotifyChild.js'))
+      const child = launch('fixtures/apiBackwardNotifyChild')
 
       child.on('message', msg => {
         if (msg.data.message !== 'test' && msg.data.message !== 'testError' && msg.success) {
@@ -312,13 +264,11 @@ describe('API', function () {
         }
       })
 
-      child.on('exit', () => {
-        done()
-      })
+      child.on('exit', done)
     })
 
     it('should receive data from expressErrorHandler', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardExpressChild.js'))
+      const child = launch('fixtures/apiBackwardExpressChild')
 
       child.on('message', msg => {
         if (msg === 'expressReady') {
@@ -326,31 +276,35 @@ describe('API', function () {
           httpModule.get('http://localhost:3003/error')
         } else if (msg.type === 'process:exception') {
           expect(msg.data.message).to.equal('toto')
-          expect(msg.data.url).to.equal('/error')
-          expect(msg.data.action).to.equal('GET')
-          expect(msg.data.component).to.equal('/error')
+          expect(msg.data.metadata.http.path).to.equal('/error')
+          expect(msg.data.metadata.http.method).to.equal('GET')
+          expect(msg.data.metadata.http.route).to.equal('/error')
           child.kill('SIGINT')
           done()
         }
       })
     })
 
-    it('should receive data with old config', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardConfChild.js'))
+    it('should enable tracing + metrics', (done) => {
+      const child = launch('fixtures/apiBackwardConfChild')
       let tracingDone = false
       let metricsDone = false
       let finished = false
 
-      child.on('message', pck => {
+      child.on('message', packet => {
 
-        if (pck.type === 'axm:trace') {
-          expect(pck.data.hasOwnProperty('projectId')).to.equal(true)
-          expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
+        if (packet.type === 'axm:trace') {
+          expect(packet.data.hasOwnProperty('projectId')).to.equal(true)
+          expect(packet.data.hasOwnProperty('traceId')).to.equal(true)
           tracingDone = true
         }
 
-        if (pck.data && pck.data.hasOwnProperty('New space used size')) {
-          expect(pck.data.hasOwnProperty('New space used size')).to.equal(true)
+        if (packet.type === 'axm:monitor') {
+          assert(packet.data['Heap Usage'] !== undefined)
+          assert(packet.data['HTTP'] !== undefined)
+          assert(packet.data['HTTP Mean Latency'] !== undefined)
+          assert(packet.data['HTTP P95 Latency'] !== undefined)
+          assert(packet.data['HTTP P95 Latency'].value > packet.data['HTTP Mean Latency'].value)
           metricsDone = true
         }
 
@@ -375,38 +329,26 @@ describe('API', function () {
     })
 
     describe('Profiling', () => {
-      before(function (done) {
-        if (semver.satisfies(process.version, '< 10.0.0')) {
-          exec('npm install ' + MODULE, function (err) {
-            expect(err).to.equal(null)
-            setTimeout(done, 1000)
-          })
-        } else {
-          done()
-        }
-      })
-
-      it('should receive data from default actions', (done) => {
-        const child = fork(SpecUtils.buildTestPath('fixtures/apiBackwardActionsChild.js'))
-        const actionDone: Array<string> = []
-        var isDone = false
+      it('should receive data for profiling actions', (done) => {
+        const child = launch('fixtures/apiBackwardActionsChild')
+        const actionDone = new Set<string>()
+        let isDone = false
 
         child.on('message', pck => {
 
           if (pck.type === 'axm:action') {
-            if (actionDone.indexOf(pck.data.action_name) === -1) {
-              actionDone.push(pck.data.action_name)
-            }
+            actionDone.add(pck.data.action_name)
 
-            if (actionDone.length === 6) {
-              expect(actionDone.indexOf('km:heap:sampling:start') > -1).to.equal(true)
-              expect(actionDone.indexOf('km:heap:sampling:stop') > -1).to.equal(true)
-              expect(actionDone.indexOf('km:cpu:profiling:start') > -1).to.equal(true)
-              expect(actionDone.indexOf('km:cpu:profiling:stop') > -1).to.equal(true)
-              expect(actionDone.indexOf('km:heapdump') > -1).to.equal(true)
+            if (actionDone.size >= 6) {
+              expect(actionDone.has('km:heap:sampling:start')).to.equal(true)
+              expect(actionDone.has('km:heap:sampling:stop')).to.equal(true)
+              expect(actionDone.has('km:cpu:profiling:start')).to.equal(true)
+              expect(actionDone.has('km:cpu:profiling:stop')).to.equal(true)
+              expect(actionDone.has('km:heapdump')).to.equal(true)
+              expect(actionDone.has('km:event-loop-dump')).to.equal(true)
               child.kill('SIGINT')
 
-              if (isDone == false) {
+              if (isDone === false) {
                 isDone = true
                 done()
               }
@@ -419,8 +361,6 @@ describe('API', function () {
 
   describe('InitModule', () => {
     it('should return module conf', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
-
       process.env.mocha = JSON.stringify({
         test: 'processTest',
         bool: true,
@@ -452,8 +392,6 @@ describe('API', function () {
     })
 
     it('should return module conf with callback', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
-
       process.env.mocha = JSON.stringify(new Date())
 
       pmx.initModule({
@@ -471,8 +409,7 @@ describe('API', function () {
     })
 
     it('should return minimal conf', () => {
-      const pmx = require(__dirname + '/../build/main/src/index.js')
-
+      // @ts-ignore
       const conf = pmx.initModule()
       expect(conf.module_name).to.equal('mocha')
       expect(typeof conf.module_version).to.equal('string')
@@ -482,10 +419,10 @@ describe('API', function () {
     })
 
     it('should receive data from init module', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/apiInitModuleChild.js'))
+      const child = launch('fixtures/apiInitModuleChild')
 
       child.on('message', pck => {
-        if (pck.type === 'axm:option:configuration' && pck.data.module_name == 'fixtures') {
+        if (pck.type === 'axm:option:configuration' && pck.data.module_name === 'fixtures') {
           const conf = pck.data
           expect(conf.module_version).to.equal('0.0.1')
           expect(typeof conf.module_name).to.equal('string')
@@ -497,20 +434,18 @@ describe('API', function () {
     })
   })
 
-  describe.skip('Multiple instantiation', () => {
+  describe('Multiple instantiation', () => {
     it('should retrieve config of the previous instantiation', () => {
-      let pmx = require(__dirname + '/../build/main/src/index.js')
 
       pmx.init({ metrics: { v8: true } })
       let conf = pmx.getInitialConfig()
       expect(conf.metrics.v8).to.equal(true)
       expect(conf.metrics.transaction).to.equal(undefined)
 
-      pmx = require(__dirname + '/../build/main/src/index.js')
       pmx.init({ metrics: { transaction: { http: false } } })
       conf = pmx.getInitialConfig()
 
-      expect(conf.metrics.v8).to.equal(true)
+      expect(conf.metrics.v8).to.equal(undefined)
       expect(conf.metrics.transaction.http).to.equal(false)
 
       pmx.destroy()

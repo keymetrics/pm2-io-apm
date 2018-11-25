@@ -2,8 +2,8 @@
 import { Action } from './actions'
 import { Metric } from './metrics'
 import { IPCTransport } from '../transports/IPCTransport'
-import { Service } from '../serviceManager'
 import { WebsocketTransport } from '../transports/WebsocketTransport'
+import { EventEmitter2 } from 'eventemitter2'
 
 export class TransportConfig {
   publicKey: string
@@ -13,7 +13,7 @@ export class TransportConfig {
   sendLogs: Boolean
 }
 
-export interface Transport extends Service {
+export interface Transport extends EventEmitter2 {
   /**
    * Init the transporter (connection, listeners etc)
    */
@@ -22,10 +22,6 @@ export interface Transport extends Service {
    * Destroy the instance (disconnect, cleaning listeners etc)
    */
   destroy: () => void
-  /**
-   * Listen for event incoming from a reverse connection
-   */
-  on: (name: string, handler: Function) => void
   /**
    * Send data to remote endpoint
    */

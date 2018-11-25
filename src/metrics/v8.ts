@@ -19,11 +19,11 @@ export class V8MetricsConfig {
 /* tslint:enable */
 
 const defaultOptions: V8MetricsConfig = {
-  new_space: true,
-  old_space: true,
-  map_space: true,
-  code_space: true,
-  large_object_space: true,
+  new_space: false,
+  old_space: false,
+  map_space: false,
+  code_space: false,
+  large_object_space: false,
   heap_total_size: true,
   heap_used_size: true,
   heap_used_percent: true
@@ -32,7 +32,7 @@ const defaultOptions: V8MetricsConfig = {
 export default class V8Metric implements MetricInterface {
 
   private timer: NodeJS.Timer | undefined
-  private TIME_INTERVAL: number = 1000
+  private TIME_INTERVAL: number = 800
   private metricService: MetricService | undefined
   private logger: Function = Debug('axm:features:metrics:v8')
   private metricStore: Map<string, Gauge> = new Map<string, Gauge>()
@@ -109,7 +109,9 @@ export default class V8Metric implements MetricInterface {
 
     for (let metricName in this.metricsDefinitions) {
       if (config[metricName] === false) continue
-      let metric: Metric = config[metricName]
+      const isEnabled: boolean = config[metricName]
+      if (isEnabled === false) continue
+      let metric: Metric = this.metricsDefinitions[metricName]
       this.metricStore.set(metricName, this.metricService.metric(metric))
     }
 
@@ -123,7 +125,7 @@ export default class V8Metric implements MetricInterface {
         gauge.set(stats[metricName])
       }
       // manually compute the heap usage
-      const usage = (stats.used_heap_size / stats.total_heap_size).toFixed(2)
+      const usage = (stats.used_heap_size / stats.total_heap_size * 100).toFixed(2)
       const usageMetric = this.metricStore.get('heap_used_percent')
       if (usageMetric !== undefined) {
         usageMetric.set(parseFloat(usage))

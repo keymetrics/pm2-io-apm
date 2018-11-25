@@ -1,6 +1,5 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 let timer
 let server
 
@@ -8,7 +7,7 @@ pmx.init({
   network: true,
   ports: true,
   v8: true,
-  transactions: {http_latency: 1},
+  transactions: true,
   http: true,
   deep_metrics: true,
   profiling: false

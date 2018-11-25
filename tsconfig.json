@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "es6",
     "outDir": "build/main",
-    "rootDirs": ["src", "test"],
+    "rootDirs": ["src"],
     "moduleResolution": "node",
     "module": "commonjs",
     "declaration": true,
@@ -25,11 +25,11 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules/**"
+    "node_modules/**",
+    "test/**/*.ts"
   ],
   "compileOnSave": false
 }

@@ -1,9 +1,10 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 
+// @ts-ignore
 pmx.notify('test')
 pmx.notify(new Error('testError'))
+// @ts-ignore
 pmx.notify({ success: false })
 
 setTimeout(() => {

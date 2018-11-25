@@ -1,18 +1,11 @@
 
-import { canUseInspector } from './constants'
-
 const services: Map<string, any> = new Map<string, any>()
-
-if (canUseInspector()) {
-  const Inspector = require('./services/inspector')
-  services.set('inspector', new Inspector())
-}
 
 export class Service {}
 
 export class ServiceManager {
 
-  public static get (serviceName: string) : any | undefined {
+  public static get (serviceName: string): any | undefined {
     return services.get(serviceName)
   }
 

@@ -1,10 +1,10 @@
 import ActionService from '../services/actions'
 import { ServiceManager } from '../serviceManager'
-import { Feature, FeatureConfig } from '../featureManager'
+import { Feature } from '../featureManager'
 import * as EventLoopInspector from 'event-loop-inspector'
 import * as Debug from 'debug'
 
-class EventLoopInspectorConfig extends FeatureConfig {
+class EventLoopInspectorConfig {
   enabled: boolean
 }
 
@@ -21,6 +21,9 @@ export class EventLoopInspectorFeature implements Feature {
   init (config?: EventLoopInspectorConfig | boolean) {
     if (config === false) return
     if (config === undefined) return
+    if (config === true) {
+      config = { enabled: true }
+    }
     if (typeof config !== 'object') {
       config = defaultConfig
     }
