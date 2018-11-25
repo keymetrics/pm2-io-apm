@@ -3,11 +3,15 @@ import * as Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
 import { EventEmitter2 } from 'eventemitter2'
+import * as cluster from 'cluster'
+import * as EventLoopInspector from 'event-loop-inspector'
 
 export class IPCTransport extends EventEmitter2 implements Transport {
 
   private initiated: Boolean = false // tslint:disable-line
   private logger: Function = Debug('axm:transport:ipc')
+  private onMessage: any | undefined
+  private eventLoopInspector = EventLoopInspector()
 
   init (config?: TransportConfig): Transport {
     this.logger('Init new transport service')
@@ -17,13 +21,34 @@ export class IPCTransport extends EventEmitter2 implements Transport {
     }
     this.initiated = true
     this.logger('Agent launched')
-    process.on('message', (data?: Object) => {
-      if (typeof data !== 'object') return
-      // we don't actually care about the channel
-      this.emit('packet', data)
-    })
+    this.onMessage = (data?: Object) => {
+      this.logger(`Received reverse message from IPC`)
+      this.emit('data', data)
+    }
+    process.on('message', this.onMessage)
+
+    // if the process is standalone, the fact that there is a listener attached
+    // forbid the event loop to exit when there are no other task there
+    if (cluster.isWorker === false) {
+      this.autoExitHook()
+    }
     return this
   }
+
+  private autoExitHook () {
+    // clean listener if event loop is empty
+    // important to ensure apm will not prevent application to stop
+    const timer = setInterval(() => {
+      process.removeListener('message', this.onMessage)
+      let tmp = setTimeout(_ => {
+        process.on('message', this.onMessage)
+      }, 30)
+      tmp.unref()
+    }, 1000)
+
+    timer.unref()
+  }
+
   setMetrics (metrics: InternalMetric[]) {
     const serializedMetric = metrics.reduce((object, metric: InternalMetric) => {
       if (typeof metric.name !== 'string') return object
@@ -66,5 +91,8 @@ export class IPCTransport extends EventEmitter2 implements Transport {
 
   destroy () {
     this.logger('destroy')
+    if (this.onMessage !== undefined) {
+      process.removeListener('message', this.onMessage)
+    }
   }
 }

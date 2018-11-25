@@ -1,6 +1,5 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 
 pmx.scopedAction('testScopedAction', function (opts, res) { res.send('testScopedActionReply') })
 

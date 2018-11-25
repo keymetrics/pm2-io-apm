@@ -1,4 +1,5 @@
-const pmx = require(__dirname + '/../../src/index.js')
+
+import pmx from '../../src'
 
 const express = require('express')
 const app = express()
@@ -18,5 +19,7 @@ pmx.onExit(() => {
 app.use(pmx.expressErrorHandler())
 
 app.listen(3003, () => {
-  if (process && process.send) process.send('expressReady')
+  if (typeof process.send === 'function') {
+    process.send('expressReady')
+  }
 })

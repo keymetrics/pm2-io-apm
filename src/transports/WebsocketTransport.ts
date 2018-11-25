@@ -3,6 +3,7 @@ import * as semver from 'semver'
 import Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
+import { EventEmitter2 } from 'eventemitter2'
 
 class SerializedAction {
   action_name: string // tslint:disable-line
@@ -20,7 +21,7 @@ export class ProcessMetadata {
   versionning?: Object
 }
 
-export class WebsocketTransport implements Transport {
+export class WebsocketTransport extends EventEmitter2 implements Transport {
 
   private config: TransportConfig
   private agent: any
@@ -55,6 +56,10 @@ export class WebsocketTransport implements Transport {
     this.agent.sendLogs = config.sendLogs || false
 
     this.agent.start()
+    this.agent.transport.on('**', function (data) {
+      this.logger(`Received reverse message from websocket transport`)
+      this.emit('data', data)
+    })
     this.logger('Agent launched')
     return this
   }
@@ -106,6 +111,14 @@ export class WebsocketTransport implements Transport {
   destroy () {
     this.agent.transport.disconnect()
     this.logger('destroy')
+  }
+
+  removeListener () {
+    return this.agent.transport.removeListener.apply(this, arguments)
+  }
+
+  removeAllListeners () {
+    return this.agent.transport.removeAllListeners.apply(this, arguments)
   }
 
   on () {

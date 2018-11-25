@@ -1,5 +1,5 @@
-import SpecUtils from './utils'
+import pmx from '../../src'
 
-const pmx = require(__dirname + '/../../src/index.js')
-
-pmx.action('testAction', function (reply) { reply({data: 'testActionReply'}) })
+pmx.action('testAction', function (reply) {
+  reply({ data: 'testActionReply' })
+})

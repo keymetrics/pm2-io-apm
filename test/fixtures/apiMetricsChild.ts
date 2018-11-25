@@ -1,33 +1,27 @@
-import SpecUtils from './utils'
 
-const io = require(__dirname + '/../../src/index.js')
-
-io.init({ metrics:  { v8: true } })
+import io from '../../src'
+import { MetricType } from '../../src/services/metrics'
 
 // should not fail but display a warning
-io.metrics()
+// @ts-ignore
 io.metrics({})
 
 const allMetrics = io.metrics(
   [
     {
       name: 'metricHistogram',
-      type: 'histogram',
+      type: MetricType.histogram,
       id: 'metric/custom'
     },
     {
       name: 'metric with spaces',
-      type: 'histogram',
+      type: MetricType.histogram,
       id: 'metric/custom'
     },
     {
       name: 'metric wi!th special chars % ///',
-      type: 'histogram',
+      type: MetricType.histogram,
       id: 'metric/custom'
-    },
-    {
-      name: 'metricFailure',
-      type: 'notExist'
     }
   ]
 )
@@ -35,11 +29,14 @@ const allMetrics = io.metrics(
 allMetrics.metricHistogram.update(10)
 
 // test inline declaration
+// @ts-ignore
 const metric = io.metric('metricInline')
 metric.set(11)
 
 // set something into event loop. Else test will exit immediately
-const timer = setInterval(function () {}, 5000)
+const timer = setInterval(function () {
+  return
+}, 5000)
 
 process.on('SIGINT', function () {
   clearInterval(timer)

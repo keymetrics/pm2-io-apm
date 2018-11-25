@@ -1,13 +1,14 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 
 pmx.init({
   profiling: false
 })
 
 // set something into event loop. Else test will exit immediately
-const timer = setInterval(function () {}, 5000)
+const timer = setInterval(function () {
+  return
+}, 5000)
 
 const probe = pmx.probe()
 
@@ -23,6 +24,7 @@ const counter = probe.counter({
 
 counter.inc(2)
 
+// @ts-ignore
 const histogram = probe.histogram({
   name: 'histogramBackward'
 })

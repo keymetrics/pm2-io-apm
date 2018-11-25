@@ -3,7 +3,7 @@ import PMX from '../pmx'
 const debug = Debug('PM2-IO-APM')
 const IO_KEY = Symbol.for('@pm2/io')
 
-export default class Entrypoint extends PMX {
+export default class Entrypoint {
 
   public defaultConf = {
     metrics: {
@@ -35,9 +35,9 @@ export default class Entrypoint extends PMX {
   private io: PMX
 
   constructor () {
-    super()
-
+    return
     try {
+      console.log(global[IO_KEY])
       this.io = global[IO_KEY].init(this.conf())
 
       this.onStart(err => {

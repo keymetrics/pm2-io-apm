@@ -53,7 +53,8 @@ export class NotifyFeature implements Feature {
     }
 
     if (!(err instanceof Error)) {
-      console.trace('[PM2-IO-APM] You should use notifyError with an Error object')
+      console.error('You must use notifyError with an Error object, ignoring')
+      console.trace()
       return -1
     }
 
@@ -61,8 +62,12 @@ export class NotifyFeature implements Feature {
       return this.logger(`Tried to send error without having transporter available`)
     }
 
-    const payload = this.jsonize(err)
-    payload.metadata = context
+    const payload = {
+      message: err.message,
+      stack: err.stack,
+      name: err.name,
+      metadata: context
+    }
 
     return this.transport.send('process:exception', payload)
   }
@@ -124,16 +129,25 @@ export class NotifyFeature implements Feature {
     })
 
     return function errorHandler (err, req, res, next) {
-      if (res.statusCode < 400) res.statusCode = 500
-
-      err.url = req.url
-      err.component = req.url
-      err.action = req.method
-      err.params = req.body
-      err.session = req.session
+      const payload = {
+        message: err.message,
+        stack: err.stack,
+        name: err.name,
+        metadata: {
+          http: {
+            url: req.url,
+            params: req.params,
+            method: req.method,
+            body: req.body,
+            session: req.session,
+            path: req.path,
+            route: req.route && req.route.path ? req.route.path : undefined
+          }
+        }
+      }
 
       if (ServiceManager.get('transport')) {
-        ServiceManager.get('transport').send('process:exception', this.jsonize(err))
+        ServiceManager.get('transport').send('process:exception', payload)
       }
       return next(err)
     }

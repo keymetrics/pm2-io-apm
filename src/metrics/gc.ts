@@ -96,7 +96,7 @@ export default class GCMetrics implements MetricInterface {
   }
 
   destroy () {
-    if (this.gcStatsInstance !== null) {
+    if (this.gcStatsInstance !== undefined) {
       this.gcStatsInstance.removeListener('stats', this.gcHandler)
     }
     this.logger('destroy')

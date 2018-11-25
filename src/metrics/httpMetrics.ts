@@ -53,45 +53,6 @@ export default class HttpMetrics implements MetricInterface {
     if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
     const histogram = new Histogram()
     const p50: InternalMetric = {
-      name: `HTTPS Mean Latency`,
-      id: 'internal/https/builtin/latency/p50',
-      type: MetricType.histogram,
-      historic: true,
-      implementation: histogram,
-      unit: 'ms',
-      handler: () => {
-        const percentiles = histogram.percentiles([ 0.5 ])
-        return percentiles[0.5]
-      }
-    }
-    const p95: InternalMetric = {
-      name: `HTTPS P95 Latency`,
-      id: 'internal/https/builtin/latency/p95',
-      type: MetricType.histogram,
-      historic: true,
-      implementation: histogram,
-      handler: () => {
-        const percentiles = histogram.percentiles([ 0.95 ])
-        return percentiles[0.95]
-      },
-      unit: 'ms'
-    }
-    const meter: Metric = {
-      name: 'HTTPS',
-      historic: true,
-      id: 'internal/https/builtin/reqs',
-      unit: 'req/min'
-    }
-    this.metricService.registerMetric(p50)
-    this.metricService.registerMetric(p95)
-    this.metrics.set('https.latency', histogram)
-    this.metrics.set('https.meter', this.metricService.meter(meter))
-  }
-
-  private registerHttpsMetric () {
-    if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
-    const histogram = new Histogram()
-    const p50: InternalMetric = {
       name: `HTTP Mean Latency`,
       id: 'internal/http/builtin/latency/p50',
       type: MetricType.histogram,
@@ -127,6 +88,45 @@ export default class HttpMetrics implements MetricInterface {
     this.metrics.set('http.meter', this.metricService.meter(meter))
   }
 
+  private registerHttpsMetric () {
+    if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
+    const histogram = new Histogram()
+    const p50: InternalMetric = {
+      name: `HTTPS Mean Latency`,
+      id: 'internal/https/builtin/latency/p50',
+      type: MetricType.histogram,
+      historic: true,
+      implementation: histogram,
+      unit: 'ms',
+      handler: () => {
+        const percentiles = histogram.percentiles([ 0.5 ])
+        return percentiles[0.5]
+      }
+    }
+    const p95: InternalMetric = {
+      name: `HTTPS P95 Latency`,
+      id: 'internal/https/builtin/latency/p95',
+      type: MetricType.histogram,
+      historic: true,
+      implementation: histogram,
+      handler: () => {
+        const percentiles = histogram.percentiles([ 0.95 ])
+        return percentiles[0.95]
+      },
+      unit: 'ms'
+    }
+    const meter: Metric = {
+      name: 'HTTPS',
+      historic: true,
+      id: 'internal/https/builtin/reqs',
+      unit: 'req/min'
+    }
+    this.metricService.registerMetric(p50)
+    this.metricService.registerMetric(p95)
+    this.metrics.set('https.latency', histogram)
+    this.metrics.set('https.meter', this.metricService.meter(meter))
+  }
+
   destroy () {
     if (this.modules.http !== undefined) {
       this.logger('unwraping http module')
@@ -136,6 +136,9 @@ export default class HttpMetrics implements MetricInterface {
       this.logger('unwraping https module')
       shimmer.unwrap(this.modules.https, 'emit')
     }
+    if (Module['_load'] && Module['_load'].__io_apm === true) {
+      Module['_load'].__io_apm = undefined
+    }
     this.logger('destroy')
   }
 
@@ -144,17 +147,21 @@ export default class HttpMetrics implements MetricInterface {
    */
   private hookHttp (nodule: any, name: string) {
     if (nodule.Server === undefined || nodule.Server.prototype === undefined) return
+    if (this.modules[name] !== undefined) return this.logger(`Module ${name} already hooked`)
     this.logger(`Hooking to ${name} module`)
+    this.modules[name] = nodule.Server.prototype
+    const self = this
     // wrap the emitter
     shimmer.wrap(nodule.Server.prototype, 'emit', (original: Function) => {
-      return (event: string, req: any, res: any) => {
+      return function (event: string, req: any, res: any) {
         // only handle http request
+        if (typeof event !== 'string') return original.apply(this, arguments)
         if (event !== 'request') return original.apply(this, arguments)
-        const meter: Meter | undefined = this.metrics.get(`${name}.meter`)
+        const meter: Meter | undefined = self.metrics.get(`${name}.meter`)
         if (meter !== undefined) {
           meter.mark()
         }
-        const latency: Histogram | undefined = this.metrics.get(`${name}.latency`)
+        const latency: Histogram | undefined = self.metrics.get(`${name}.latency`)
         if (latency === undefined) return original.apply(this, arguments)
         if (res === undefined || res === null) return original.apply(this, arguments)
         const startTime = Date.now()
@@ -176,15 +183,13 @@ export default class HttpMetrics implements MetricInterface {
     shimmer.wrap(Module, '_load', function (original: Function) {
       return function (file) {
         // we first require the target module
-        const returned = original.apply(this, arguments)
+        const returned = original.apply(original, arguments)
         // if it's a modue that we want to patch, install the patch on top of it
         if (file === 'http') {
           self.registerHttpMetric()
-          self.modules[file] = file
           self.hookHttp(returned, file)
         } else if (file === 'https') {
           self.registerHttpsMetric()
-          self.modules[file] = file
           self.hookHttp(returned, file)
         }
         // and of course send the module so user can use it

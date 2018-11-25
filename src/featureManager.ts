@@ -5,6 +5,8 @@ import { EventLoopInspectorFeature } from './features/eventLoopInspector'
 import { EventsFeature } from './features/events'
 import { IOConfig } from './pmx'
 import { MetricsFeature } from './features/metrics'
+import * as Debug from 'debug'
+import {TracingFeature} from './features/tracing';
 
 export function getObjectAtPath (context: Object, path: string): any {
   if (path.indexOf('.') === -1 && path.indexOf('[') === -1) {
@@ -73,16 +75,24 @@ const availablesFeatures: AvailableFeature[] = [
     name: 'metrics',
     optionsPath: 'metrics',
     module: MetricsFeature
+  },
+  {
+    name: 'tracing',
+    optionsPath: 'tracing',
+    module: TracingFeature
   }
 ]
 
 export class FeatureManager {
+
+  private logger: Function = Debug('axm:features')
   /**
    * Construct all the features and init them with their respective configuration
    * It will return a map with each public API method
    */
   init (options: IOConfig): void {
     for (let availableFeature of availablesFeatures) {
+      this.logger(`Creating feature ${availableFeature.name}`)
       const feature = new availableFeature.module()
       let config: any = undefined
       if (typeof availableFeature.optionsPath !== 'string') {
@@ -92,6 +102,7 @@ export class FeatureManager {
       } else {
         config = getObjectAtPath(options, availableFeature.optionsPath)
       }
+      this.logger(`Init feature ${availableFeature.name}`)
       // @ts-ignore
       // thanks mr typescript but we don't know the shape that the
       // options will be, so we just ignore the warning there
@@ -115,6 +126,7 @@ export class FeatureManager {
   destroy () {
     for (let availableFeature of availablesFeatures) {
       if (availableFeature.instance === undefined) continue
+      this.logger(`Destroy feature ${availableFeature.name}`)
       availableFeature.instance.destroy()
     }
   }

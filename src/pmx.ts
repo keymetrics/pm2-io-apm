@@ -3,7 +3,7 @@ import * as merge from 'deepmerge'
 import Configuration from './configuration'
 import Debug from 'debug'
 import * as fs from 'fs'
-import { ServiceManager } from './serviceManager'
+import { ServiceManager, Service } from './serviceManager'
 import Entrypoint from './features/entrypoint'
 import { createTransport, TransportConfig, Transport } from './services/transport'
 import { FeatureManager } from './featureManager'
@@ -16,21 +16,23 @@ import Gauge from './utils/metrics/gauge'
 import Counter from './utils/metrics/counter'
 import { EventsFeature } from './features/events'
 import { TracingConfig } from './features/tracing'
+import { InspectorService } from './services/inspector'
+import { canUseInspector } from './constants'
 
 export class IOConfig {
   level?: string
   catchExceptions?: boolean
-  metrics: any
-  actions: any
-  network: boolean
+  metrics?: any
+  actions?: any
+  network?: boolean
   ports?: boolean
-  v8: boolean
-  transactions: boolean
-  http: boolean
+  v8?: boolean
+  transactions?: boolean
+  http?: boolean
   deep_metrics?: boolean // tslint:disable-line
   event_loop_dump?: boolean // tslint:disable-line
-  profiling: boolean
-  standalone: boolean
+  profiling?: boolean
+  standalone?: boolean
   publicKey?: string
   secretKey?: string
   appName?: string
@@ -54,34 +56,30 @@ export const defaultConfig: IOConfig = {
 
 export default class PMX {
 
-  public Entrypoint: Entrypoint
+  public Entrypoint: Entrypoint = new Entrypoint()
   private initialConfig: IOConfig
-  private transport: Transport | null
+  private transport: Transport | null = null
   private featureManager: FeatureManager = new FeatureManager()
-  private actionService: ActionService | null
-  private metricService: MetricService | null
+  private actionService: ActionService | null = null
+  private metricService: MetricService | null = null
   private logger: Function = Debug('axm:main')
-
-  getInitialConfig (): IOConfig {
-    return this.initialConfig
-  }
+  private initialized: boolean = false
 
   /**
    * Init the APM instance, you should *always* init it before using any method
    */
-  init (config?: IOConfig, force?: boolean) {
-    if (config === undefined || config === null) {
-      config = defaultConfig
+  init (config?: IOConfig) {
+    const callsite = (new Error().stack || '').split('\n')[2]
+    if (callsite && callsite.length > 0) {
+      this.logger(`init from ${callsite}`)
     }
 
-    if (process.env.PMX_FORCE_UPDATE) {
-      const IO_KEY = Symbol.for('@pm2/io')
-      const globalSymbols = Object.getOwnPropertySymbols(global)
-      if (globalSymbols.indexOf(IO_KEY) > -1) {
-        global[IO_KEY].destroy()
-      }
-
-      global[IO_KEY] = this
+    if (this.initialized === true) {
+      this.logger(`Calling init but was already the case, destroying and recreating`)
+      this.destroy()
+    }
+    if (config === undefined || config === null) {
+      config = defaultConfig
     }
 
     // Register the transport before any other service
@@ -89,12 +87,21 @@ export default class PMX {
     this.transport = createTransport(config.standalone === true ? 'websocket' : 'ipc', transportConfig)
     ServiceManager.set('transport', this.transport)
 
+    if (canUseInspector()) {
+      const Inspector = require('./services/inspector')
+      const inspectorService = new Inspector()
+      inspectorService.init()
+      ServiceManager.set('inspector', inspectorService)
+    }
+
     // register the action service
     this.actionService = new ActionService()
+    this.actionService.init()
     ServiceManager.set('actions', this.actionService)
 
     // register the metric service
     this.metricService = new MetricService()
+    this.metricService.init()
     ServiceManager.set('metrics', this.metricService)
 
     // Configuration
@@ -106,6 +113,7 @@ export default class PMX {
     Configuration.init(config)
     // save the configuration
     this.initialConfig = config
+    this.initialized = true
 
     return this
   }
@@ -114,6 +122,7 @@ export default class PMX {
    * Destroy the APM instance, every method will stop working afterwards
    */
   destroy () {
+    this.logger('destroy')
     this.featureManager.destroy()
 
     if (this.actionService !== null) {
@@ -122,6 +131,20 @@ export default class PMX {
     if (this.transport !== null) {
       this.transport.destroy()
     }
+    if (this.metricService !== null) {
+      this.metricService.destroy()
+    }
+    const inspectorService: InspectorService | undefined = ServiceManager.get('inspector')
+    if (inspectorService !== undefined && inspectorService !== null) {
+      inspectorService.destroy()
+    }
+  }
+
+  /**
+   * Fetch current configuration of the APM
+   */
+  getInitialConfig (): IOConfig {
+    return this.initialConfig
   }
 
   /**
@@ -140,14 +163,20 @@ export default class PMX {
   /**
    * Register metrics in bulk
    */
-  metrics (metric: MetricBulk | Array<MetricBulk>): Object {
+  metrics (metric: MetricBulk | Array<MetricBulk>): any {
 
     const res: Object = {}
+    if (metric === undefined || metric === null) {
+      console.error(`Received empty metric to create`)
+      console.trace()
+      return {}
+    }
 
     let metrics: Array<MetricBulk> = !Array.isArray(metric) ? [ metric ] : metric
     for (let metric of metrics) {
       if (typeof metric.name !== 'string') {
-        console.trace(`Trying to create a metrics without a name`)
+        console.error(`Trying to create a metrics without a name`, metric)
+        console.trace()
         continue
       }
       if (metric.type === undefined) {
@@ -174,6 +203,11 @@ export default class PMX {
         }
         case MetricType.metric : {
           res[key] = this.gauge(metric)
+          continue
+        }
+        default: {
+          console.error(`Invalid metric type ${metric.type} for metric ${metric.name}`)
+          console.trace()
           continue
         }
       }
@@ -276,6 +310,13 @@ export default class PMX {
    * it from the API
    */
   action (name: string, opts?: Object, fn?: Function) {
+    // backward compatiblity
+    if (typeof name === 'object') {
+      const tmp: any = name
+      name = tmp.name
+      opts = tmp.options
+      fn = tmp.action
+    }
     if (this.actionService === null) {
       // @ts-ignore
       // thanks mr typescript but it's in real specific case and want to have type completion
@@ -289,6 +330,12 @@ export default class PMX {
    * @deprecated we will remove scopedAction in the future
    */
   scopedAction (name: string, fn: Function) {
+    // backward compatiblity
+    if (typeof name === 'object') {
+      const tmp: any = name
+      name = tmp.name
+      fn = tmp.action
+    }
     if (this.actionService === null) {
       // @ts-ignore
       // thanks mr typescript but it's in real specific case and want to have type completion
@@ -377,7 +424,7 @@ export default class PMX {
     return parseInt(fs.readFileSync(file).toString(), 10)
   }
 
-  initModule (opts: any, cb: Function) {
+  initModule (opts: any, cb?: Function) {
     if (!opts) opts = {}
 
     if (opts.reference) {
@@ -409,6 +456,12 @@ export default class PMX {
   }
 
   private backwardConfigConversion (config: IOConfig): IOConfig {
+    if (typeof config.metrics !== 'object') {
+      config.metrics = {}
+    }
+    if (typeof config.actions !== 'object') {
+      config.actions = {}
+    }
 
     // handle old configuration for network metrics
     if (config.hasOwnProperty('network') || config.hasOwnProperty('ports')) {

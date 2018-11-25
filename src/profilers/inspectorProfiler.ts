@@ -35,10 +35,8 @@ export default class InspectorProfiler implements ProfilerType {
       return console.error(`Failed to require the profiler via inspector, disabling profiling ...`)
     }
 
-    this.profiler.createSession()
-    this.profiler.connect()
-    this.profiler.post('Profiler.enable')
-    this.profiler.post('HeapProfiler.enable')
+    this.profiler.getSession().post('Profiler.enable')
+    this.profiler.getSession().post('HeapProfiler.enable')
 
     this.actionService = ServiceManager.get('actions')
     if (this.actionService === undefined) {
@@ -65,15 +63,15 @@ export default class InspectorProfiler implements ProfilerType {
     this.actionService.registerAction('km:heapdump', this.onHeapdump)
     this.actionService.registerAction('km:cpu:profiling:start', this.onCPUProfileStart)
     this.actionService.registerAction('km:cpu:profiling:stop', this.onCPUProfileStop)
-    this.actionService.registerAction('km:heap:profiling:start', this.onHeapProfileStart)
-    this.actionService.registerAction('km:heap:profiling:stop', this.onHeapProfileStop)
+    this.actionService.registerAction('km:heap:sampling:start', this.onHeapProfileStart)
+    this.actionService.registerAction('km:heap:sampling:stop', this.onHeapProfileStop)
   }
 
   destroy () {
     this.logger('Inspector Profiler destroyed !')
     if (this.profiler === undefined) return
-    this.profiler.post('Profiler.disable')
-    this.profiler.post('HeapProfiler.disable')
+    this.profiler.getSession().post('Profiler.disable')
+    this.profiler.getSession().post('HeapProfiler.disable')
   }
 
   private onHeapProfileStart (opts, cb) {
@@ -109,7 +107,7 @@ export default class InspectorProfiler implements ProfilerType {
     cb({ success: true, uuid: this.currentProfile })
 
     const defaultSamplingInterval = 16384
-    this.profiler.post('HeapProfiler.startSampling', {
+    this.profiler.getSession().post('HeapProfiler.startSampling', {
       samplingInterval: typeof opts.samplingInterval === 'number'
         ? opts.samplingInterval : defaultSamplingInterval
     })
@@ -143,7 +141,7 @@ export default class InspectorProfiler implements ProfilerType {
     // run the callback to acknowledge that we received the action
     cb({ success: true })
 
-    this.profiler.post('HeapProfiler.stopSampling', ({ profile }: inspector.HeapProfiler.StopSamplingReturnType) => {
+    this.profiler.getSession().post('HeapProfiler.stopSampling', ({ profile }: inspector.HeapProfiler.StopSamplingReturnType) => {
       // not possible but thanks mr typescript
       if (this.currentProfile === null) return
       if (this.transport === undefined) return
@@ -195,7 +193,7 @@ export default class InspectorProfiler implements ProfilerType {
      // run the callback to acknowledge that we received the action
     cb({ success: true, uuid: this.currentProfile })
 
-    this.profiler.post('Profiler.start')
+    this.profiler.getSession().post('Profiler.start')
 
     if (isNaN(parseInt(opts.timeout, 10))) return
     // if the duration is included, handle that ourselves
@@ -226,7 +224,7 @@ export default class InspectorProfiler implements ProfilerType {
     // run the callback to acknowledge that we received the action
     cb({ success: true })
 
-    this.profiler.post('Profiler.stop', (res: any) => {
+    this.profiler.getSession().post('Profiler.stop', (res: any) => {
       // not possible but thanks mr typescript
       if (this.currentProfile === null) return
       if (this.transport === undefined) return
@@ -308,14 +306,14 @@ export default class InspectorProfiler implements ProfilerType {
         if (data.finished !== true) return
 
         // remove the listeners
-        this.profiler.removeListener('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
-        this.profiler.removeListener('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
+        this.profiler.getSession().removeListener('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
+        this.profiler.getSession().removeListener('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
         return resolve(chunks.join(''))
       }
 
-      this.profiler.on('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
-      this.profiler.on('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
-      this.profiler.post('HeapProfiler.takeHeapSnapshot')
+      this.profiler.getSession().on('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
+      this.profiler.getSession().on('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
+      this.profiler.getSession().post('HeapProfiler.takeHeapSnapshot')
     })
   }
 }

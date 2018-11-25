@@ -1,6 +1,5 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 
 pmx.init({
   event_loop_dump: true,

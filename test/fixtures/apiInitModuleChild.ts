@@ -1,6 +1,5 @@
-import SpecUtils from './utils'
 
-const pmx = require(__dirname + '/../../src/index.js')
+import pmx from '../../src'
 
 process.env.fixtures = JSON.stringify({
   envVar: 'value',
