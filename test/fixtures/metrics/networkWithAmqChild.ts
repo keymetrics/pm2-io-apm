@@ -1,6 +1,14 @@
-const io = require(__dirname + '/../../../src/index.js')
-
-io.init({ network: { traffic: { download: true } } }, true)
+import pmx from '../../../src'
+pmx.init({
+  metrics: {
+    eventLoopActive: true,
+    eventLoopDelay: true,
+    v8: {
+      GC: true
+    }
+  },
+  network: true
+})
 
 const q = 'tasks'
 let timer
@@ -42,5 +50,8 @@ require('amqplib/callback_api')
     if (err != null) bail(err)
     consumer(conn)
     publisher(conn)
-    process.once('SIGINT', function () { clearInterval(timer); conn.close(); io.destroy() })
+    process.once('SIGINT', function () {
+      clearInterval(timer)
+      conn.close()
+    })
   })

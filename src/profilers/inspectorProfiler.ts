@@ -3,7 +3,7 @@ import { ProfilerType } from '../features/profiling'
 import Configuration from '../configuration'
 import { ServiceManager } from '../serviceManager'
 import { Transport } from '../services/transport'
-import ActionService from '../services/actions'
+import { ActionService } from '../services/actions'
 import MiscUtils from '../utils/miscellaneous'
 import { InspectorService } from '../services/inspector'
 import * as inspector from 'inspector'
@@ -37,6 +37,7 @@ export default class InspectorProfiler implements ProfilerType {
 
     this.profiler.getSession().post('Profiler.enable')
     this.profiler.getSession().post('HeapProfiler.enable')
+    this.logger('init')
 
     this.actionService = ServiceManager.get('actions')
     if (this.actionService === undefined) {
@@ -60,11 +61,12 @@ export default class InspectorProfiler implements ProfilerType {
     if (this.actionService === undefined) {
       return this.logger(`Fail to get action service`)
     }
-    this.actionService.registerAction('km:heapdump', this.onHeapdump)
-    this.actionService.registerAction('km:cpu:profiling:start', this.onCPUProfileStart)
-    this.actionService.registerAction('km:cpu:profiling:stop', this.onCPUProfileStop)
-    this.actionService.registerAction('km:heap:sampling:start', this.onHeapProfileStart)
-    this.actionService.registerAction('km:heap:sampling:stop', this.onHeapProfileStop)
+    this.logger('register')
+    this.actionService.registerAction('km:heapdump', this.onHeapdump.bind(this))
+    this.actionService.registerAction('km:cpu:profiling:start', this.onCPUProfileStart.bind(this))
+    this.actionService.registerAction('km:cpu:profiling:stop', this.onCPUProfileStop.bind(this))
+    this.actionService.registerAction('km:heap:sampling:start', this.onHeapProfileStart.bind(this))
+    this.actionService.registerAction('km:heap:sampling:stop', this.onHeapProfileStop.bind(this))
   }
 
   destroy () {
@@ -86,14 +88,14 @@ export default class InspectorProfiler implements ProfilerType {
     // not possible but thanks mr typescript
     if (this.profiler === undefined) {
       return cb({
-        err: new Error('Profiler not available'),
+        err: 'Profiler not available',
         success: false
       })
     }
 
     if (this.currentProfile !== null) {
       return cb({
-        err: new Error('A profiling is already running'),
+        err: 'A profiling is already running',
         success: false
       })
     }
@@ -104,7 +106,7 @@ export default class InspectorProfiler implements ProfilerType {
       ? opts.initiated : 'manual'
 
      // run the callback to acknowledge that we received the action
-    cb({ success: true, uuid: this.currentProfile })
+    cb({ success: true, uuid: this.currentProfile.uuid })
 
     const defaultSamplingInterval = 16384
     this.profiler.getSession().post('HeapProfiler.startSampling', {
@@ -126,22 +128,22 @@ export default class InspectorProfiler implements ProfilerType {
   private onHeapProfileStop (cb) {
     if (this.currentProfile === null) {
       return cb({
-        err: new Error('No profiling are already running'),
+        err: 'No profiling are already running',
         success: false
       })
     }
     // not possible but thanks mr typescript
     if (this.profiler === undefined) {
       return cb({
-        err: new Error('Profiler not available'),
+        err: 'Profiler not available',
         success: false
       })
     }
 
     // run the callback to acknowledge that we received the action
-    cb({ success: true })
+    cb({ success: true, uuid: this.currentProfile.uuid })
 
-    this.profiler.getSession().post('HeapProfiler.stopSampling', ({ profile }: inspector.HeapProfiler.StopSamplingReturnType) => {
+    this.profiler.getSession().post('HeapProfiler.stopSampling', (_: Error, { profile }: inspector.HeapProfiler.StopSamplingReturnType) => {
       // not possible but thanks mr typescript
       if (this.currentProfile === null) return
       if (this.transport === undefined) return
@@ -173,14 +175,14 @@ export default class InspectorProfiler implements ProfilerType {
     // not possible but thanks mr typescript
     if (this.profiler === undefined) {
       return cb({
-        err: new Error('Profiler not available'),
+        err: 'Profiler not available',
         success: false
       })
     }
 
     if (this.currentProfile !== null) {
       return cb({
-        err: new Error('A profiling is already running'),
+        err: 'A profiling is already running',
         success: false
       })
     }
@@ -191,7 +193,7 @@ export default class InspectorProfiler implements ProfilerType {
       ? opts.initiated : 'manual'
 
      // run the callback to acknowledge that we received the action
-    cb({ success: true, uuid: this.currentProfile })
+    cb({ success: true, uuid: this.currentProfile.uuid })
 
     this.profiler.getSession().post('Profiler.start')
 
@@ -209,22 +211,22 @@ export default class InspectorProfiler implements ProfilerType {
   private onCPUProfileStop (cb) {
     if (this.currentProfile === null) {
       return cb({
-        err: new Error('No profiling are already running'),
+        err: 'No profiling are already running',
         success: false
       })
     }
     // not possible but thanks mr typescript
     if (this.profiler === undefined) {
       return cb({
-        err: new Error('Profiler not available'),
+        err: 'Profiler not available',
         success: false
       })
     }
 
     // run the callback to acknowledge that we received the action
-    cb({ success: true })
+    cb({ success: true, uuid: this.currentProfile.uuid })
 
-    this.profiler.getSession().post('Profiler.stop', (res: any) => {
+    this.profiler.getSession().post('Profiler.stop', (_: Error, res: any) => {
       // not possible but thanks mr typescript
       if (this.currentProfile === null) return
       if (this.transport === undefined) return
@@ -261,7 +263,7 @@ export default class InspectorProfiler implements ProfilerType {
     // not possible but thanks mr typescript
     if (this.profiler === undefined) {
       return cb({
-        err: new Error('Profiler not available'),
+        err: 'Profiler not available',
         success: false
       })
     }
@@ -284,7 +286,7 @@ export default class InspectorProfiler implements ProfilerType {
           })
         }).catch(err => {
           return cb({
-            success: false,
+            success: err.message,
             err: err
           })
         })
@@ -300,10 +302,12 @@ export default class InspectorProfiler implements ProfilerType {
       const chunkHandler = (data: inspector.HeapProfiler.AddHeapSnapshotChunkEventDataType) => {
         chunks.push(data.chunk)
       }
-      const progressHandler = (data: inspector.HeapProfiler.ReportHeapSnapshotProgressEventDataType) => {
+      const progressHandler = ({ params }) => {
+        params = params as inspector.HeapProfiler.ReportHeapSnapshotProgressEventDataType
         // not possible but thanks mr typescript
         if (this.profiler === undefined) return reject(new Error(`Profiler not available`))
-        if (data.finished !== true) return
+        this.logger('received heap snapshot progress', params)
+        if (params.finished !== true) return
 
         // remove the listeners
         this.profiler.getSession().removeListener('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
@@ -313,7 +317,9 @@ export default class InspectorProfiler implements ProfilerType {
 
       this.profiler.getSession().on('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
       this.profiler.getSession().on('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
-      this.profiler.getSession().post('HeapProfiler.takeHeapSnapshot')
+      this.profiler.getSession().post('HeapProfiler.takeHeapSnapshot', {
+        reportProgress: true
+      })
     })
   }
 }

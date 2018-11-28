@@ -1,25 +1,40 @@
-import { expect } from 'chai'
 
-import ActionsService from '../features/actions'
-import ActionsFeature from './actions'
-import EventLoopInspector from '../features/eventLoopInspector'
+import { Action, ActionService } from '../../src/services/actions'
+import { IPCTransport } from '../../src/transports/IPCTransport'
+import { ServiceManager } from '../../src/serviceManager'
+import * as assert from 'assert'
 
-describe('ActionsService', () => {
+describe('ActionsService', function () {
 
-  describe('init', () => {
-    it('Should not fail if unknown service is found in conf', () => {
-      const actionsFeature = new ActionsFeature()
-      const service = new ActionsService(actionsFeature)
+  const transport = new IPCTransport()
+  transport.init()
+  ServiceManager.set('transport', transport)
+  const service = new ActionService()
+  service.init()
+  const newAction = {
+    name: 'toto',
+    handler: (cb) => {
+      return cb('data')
+    }
+  }
 
-      service.init({
-        toto: true,
-        eventLoopDump: true,
-        titi: false
-      }, true)
-
-      expect(service.get('toto')).to.equal(null)
-      expect(service.get('titi')).to.equal(null)
-      expect(service.get('eventLoopDump') instanceof EventLoopInspector).to.equal(true)
+  describe('basic', () => {
+    it('should register action', (done) => {
+      transport.addAction = function (action: Action) {
+        assert(action.name === newAction.name)
+        return done()
+      }
+      service.registerAction(newAction.name, newAction.handler)
+    })
+    it('should call it', (done) => {
+      transport.send = (channel, payload) => {
+        assert(channel === 'axm:reply')
+        assert(payload.action_name === 'toto')
+        assert(payload.return === 'data')
+        done()
+        return undefined
+      }
+      transport.emit('data', 'toto')
     })
   })
 })

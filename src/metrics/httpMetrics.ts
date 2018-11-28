@@ -155,7 +155,6 @@ export default class HttpMetrics implements MetricInterface {
     shimmer.wrap(nodule.Server.prototype, 'emit', (original: Function) => {
       return function (event: string, req: any, res: any) {
         // only handle http request
-        if (typeof event !== 'string') return original.apply(this, arguments)
         if (event !== 'request') return original.apply(this, arguments)
         const meter: Meter | undefined = self.metrics.get(`${name}.meter`)
         if (meter !== undefined) {

@@ -4,41 +4,11 @@ const debug = Debug('PM2-IO-APM')
 const IO_KEY = Symbol.for('@pm2/io')
 
 export default class Entrypoint {
-
-  public defaultConf = {
-    metrics: {
-      eventLoopActive: true,
-      eventLoopDelay: true,
-
-      network: {
-        traffic: false,
-        ports: false
-      },
-
-      transaction: {
-        http: true,
-        tracing: false
-      },
-
-      deepMetrics: false,
-
-      v8: false
-    },
-
-    actions: {
-      eventLoopDump: false,
-      profilingCpu: true,
-      profilingHeap: true
-    }
-  }
-
   private io: PMX
 
   constructor () {
-    return
     try {
-      console.log(global[IO_KEY])
-      this.io = global[IO_KEY].init(this.conf())
+      this.io = global[IO_KEY]
 
       this.onStart(err => {
         if (err) {
@@ -88,6 +58,6 @@ export default class Entrypoint {
   }
 
   conf () {
-    return this.defaultConf
+    return this.io.getInitialConfig()
   }
 }

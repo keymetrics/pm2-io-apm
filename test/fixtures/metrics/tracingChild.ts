@@ -1,12 +1,7 @@
-import Metric from '../../services/metrics'
-import TransportService from '../../services/transport'
-import { ServiceManager } from '../../serviceManager'
-
-const transport = new TransportService()
-transport.init()
-ServiceManager.set('transport', transport)
-const metric = new Metric()
-metric.init({ transaction: { tracing: { http_latency: 1, ignore_routes: ['/toto'] } } }, true)
+import pmx from '../../../src'
+pmx.init({
+  tracing: true
+})
 
 import * as express from 'express'
 const app = express()
@@ -34,5 +29,4 @@ const server = app.listen(3001, function () {
 process.on('SIGINT', function () {
   clearInterval(timer)
   server.close()
-  metric.destroy()
 })

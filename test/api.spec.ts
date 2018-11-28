@@ -9,8 +9,7 @@ import pmx from '../src'
 
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
-    execArgv: [ '-r', 'ts-node/register' ],
-    stdio: [0, 1, 2, 'ipc']
+    execArgv: [ '-r', 'ts-node/register' ]
   })
 }
 

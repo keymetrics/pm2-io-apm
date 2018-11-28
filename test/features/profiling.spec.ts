@@ -1,176 +1,248 @@
-import { exec, fork } from 'child_process'
-import { expect, assert } from 'chai'
-import 'mocha'
-import SpecUtils from '../fixtures/utils'
-import ProfilingFeature from './profiling'
+
+import { expect } from 'chai'
+import { fork, exec } from 'child_process'
 import * as semver from 'semver'
+import { resolve } from 'path'
 
-const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
+const launch = (fixture) => {
+  return fork(resolve(__dirname, fixture), [], {
+    execArgv: [ '-r', 'ts-node/register' ]
+  })
+}
 
-describe('ProfilingFeature', function () {
+const MODULE = semver.satisfies(semver.clean(process.version), '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
+
+describe('ProfilingAction', function () {
   this.timeout(50000)
+
+  before(function (done) {
+    exec('npm install ' + MODULE, done)
+  })
 
   after(function (done) {
     exec('npm uninstall ' + MODULE, done)
   })
 
-  describe('Profiling without module', () => {
-    it('Should fail on heap profiling cause no profiler install', async () => {
-      const profiling = new ProfilingFeature().init(true)
-
-      try {
-        await profiling.heapProfiling.init()
-      } catch (e) {
-        expect(e.message.indexOf('Profiler not loaded !')).to.equal(0)
-      }
-    })
-
-    it('Should fail on CPU profiling cause no profiler install', async () => {
-      const profiling = new ProfilingFeature().init(true)
-
-      try {
-        await profiling.cpuProfiling.init()
-      } catch (e) {
-        expect(e.message.indexOf('Profiler not loaded !')).to.equal(0)
-      }
-    })
-  })
-
   describe('CPU', () => {
-    before(function (done) {
-      if (semver.satisfies(process.version, '< 10.0.0')) {
-        exec('npm install ' + MODULE, function (err) {
-          expect(err).to.equal(null)
-          setTimeout(done, 1000)
+
+    it('should get cpu profile data', (done) => {
+      const child = launch('../fixtures/features/profilingChild')
+      let uuid
+
+      child.on('message', res => {
+
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
+        if (res.type === 'axm:reply') {
+          expect(res.data.return.success).to.equal(true)
+          if (res.data.action_name === 'km:cpu:profiling:start') {
+            uuid = res.data.return.uuid
+          }
+        }
+        if (res.type === 'profilings') {
+          expect(typeof res.data.data).to.equal('string')
+
+          expect(res.data.type).to.equal('cpuprofile')
+
+          child.kill('SIGINT')
+          done()
+        }
+
+        if (res === 'initialized') {
+          child.send('km:cpu:profiling:start')
+
+          setTimeout(function () {
+            child.send('km:cpu:profiling:stop')
+          }, 500)
+        }
+      })
+    })
+
+    it('should get cpu profile data with timeout', (done) => {
+      const child = launch('../fixtures/features/profilingChild')
+      let uuid
+
+      child.on('message', res => {
+
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
+        if (res.type === 'axm:reply') {
+          if (res.data.action_name === 'km:cpu:profiling:start') {
+            expect(res.data.return.success).to.equal(true)
+            uuid = res.data.return.uuid
+          }
+        }
+        if (res.type === 'profilings') {
+          expect(typeof res.data.data).to.equal('string')
+
+          expect(res.data.type).to.equal('cpuprofile')
+
+          child.kill('SIGINT')
+          done()
+        }
+
+        if (res === 'initialized') {
+          child.send({
+            msg: 'km:cpu:profiling:start',
+            opts: { timeout: 500 }
+          })
+        }
+      })
+    })
+
+    if (semver.satisfies(process.version, '8.x')) {
+      it('should get cpu profile data (force inspector on node 8)', (done) => {
+        process.env.FORCE_INSPECTOR = '1'
+        const child = launch('../fixtures/features/profilingChild')
+        let uuid
+
+        child.on('message', res => {
+
+          if (res.type === 'axm:action') {
+            expect(res.data.action_type).to.equal('internal')
+          }
+
+          if (res.type === 'axm:reply') {
+            expect(res.data.return.success).to.equal(true)
+            if (res.data.action_name === 'km:cpu:profiling:start') {
+              uuid = res.data.return.uuid
+            }
+          }
+          if (res.type === 'profilings') {
+            expect(typeof res.data.data).to.equal('string')
+            expect(res.data.type).to.equal('cpuprofile')
+
+            child.kill('SIGINT')
+            done()
+          }
+
+          if (res === 'initialized') {
+            child.send('km:cpu:profiling:start')
+
+            setTimeout(function () {
+              child.send('km:cpu:profiling:stop')
+            }, 500)
+          }
         })
-      } else {
-        done()
-      }
-    })
-
-    it('should get CPU profile from inspector', async () => {
-      const profiling = new ProfilingFeature().init()
-
-      await profiling.cpuProfiling.init()
-
-      profiling.cpuProfiling.start()
-
-      await setTimeoutCPUProfile(profiling)
-    })
-
-    if (semver.satisfies(process.version, '< 10.0.0')) {
-      it('should get CPU profile from v8-profiler module', async () => {
-        const profiling = new ProfilingFeature().init(true)
-
-        await profiling.cpuProfiling.init()
-        profiling.cpuProfiling.start()
-
-        await setTimeoutCPUProfile(profiling)
       })
     }
   })
 
   describe('Heap', () => {
-    before(function (done) {
-      if (semver.satisfies(process.version, '< 10.0.0')) {
-        exec('npm install ' + MODULE, function (err) {
-          expect(err).to.equal(null)
-          setTimeout(done, 1000)
+    if (semver.satisfies(semver.clean(process.version), '>8.x')) {
+      it('should get heap profile data', (done) => {
+        const child = launch('../fixtures/features/profilingChild')
+        let uuid
+
+        child.on('message', res => {
+
+          if (res.type === 'axm:action') {
+            expect(res.data.action_type).to.equal('internal')
+          }
+
+          if (res.type === 'axm:reply') {
+            expect(res.data.return.success).to.equal(true)
+            if (res.data.action_name === 'km:heap:sampling:start') {
+              uuid = res.data.return.uuid
+            }
+          }
+          if (res.type === 'profilings') {
+            expect(typeof res.data.data).to.equal('string')
+
+            expect(res.data.type).to.equal('heapprofile')
+            child.kill('SIGINT')
+          }
+
+          if (res === 'initialized') {
+            setTimeout(function () {
+              child.send('km:heap:sampling:start')
+            }, 100)
+
+            setTimeout(function () {
+              child.send('km:heap:sampling:stop')
+            }, 500)
+          }
         })
-      } else {
-        done()
-      }
-    })
 
-    it('should get Heap profile from inspector', async () => {
-      const profiling = new ProfilingFeature().init()
+        child.on('exit', function () {
+          done()
+        })
+      })
 
-      await profiling.heapProfiling.init()
+      it('should get heap profile data with timeout', (done) => {
+        const child = launch('../fixtures/features/profilingChild')
+        let uuid
 
-      profiling.heapProfiling.start()
+        child.on('message', res => {
 
-      await setTimeoutHeapProfile(profiling)
-    })
+          if (res.type === 'axm:action') {
+            expect(res.data.action_type).to.equal('internal')
+          }
 
-    it('should get Heap snapshot', async () => {
-      const profiling = new ProfilingFeature().init()
-      await profiling.heapProfiling.init()
-      const res = await profiling.heapProfiling.takeSnapshot()
+          if (res.type === 'axm:reply') {
+            expect(res.data.return.success).to.equal(true)
 
-      const content = JSON.parse(res)
+            if (res.data.action_name === 'km:heap:sampling:start') {
+              uuid = res.data.return.uuid
+            }
+          }
+          if (res.type === 'profilings') {
+            expect(typeof res.data.data).to.equal('string')
 
-      if (semver.satisfies(process.version, '>= 10.0.0') ||
-        (semver.satisfies(process.version, '>= 8.0.0') && process.env.FORCE_INSPECTOR)) {
-        expect(typeof content).to.equal('object')
-        expect(content.hasOwnProperty('snapshot')).to.equal(true)
-      }
+            expect(res.data.type).to.equal('heapprofile')
+            child.kill('SIGINT')
+          }
 
-      await profiling.heapProfiling.destroy()
-    })
+          if (res === 'initialized') {
+            setTimeout(function () {
+              child.send({
+                msg: 'km:heap:sampling:start',
+                opts: { timeout: 500 }
+              })
+            }, 100)
+          }
+        })
 
-    if (semver.satisfies(process.version, '< 10.0.0')) {
-      it('should get Heap profile from v8-profiler module', async () => {
-        const profiling = new ProfilingFeature().init(true)
-
-        await profiling.heapProfiling.init()
-
-        await setTimeoutProfile(profiling)
+        child.on('exit', function () {
+          done()
+        })
       })
     }
+
+    it('should get heap dump data', (done) => {
+      const child = launch('../fixtures/features/profilingChild')
+
+      child.on('message', res => {
+
+        if (res.type === 'axm:action') {
+          expect(res.data.action_type).to.equal('internal')
+        }
+
+        if (res.type === 'axm:reply') {
+
+          expect(res.data.return.success).to.equal(true)
+        }
+        if (res.type === 'profilings') {
+          expect(res.data.type).to.equal('heapdump')
+          expect(typeof res.data.data).to.equal('string')
+
+          child.kill('SIGINT')
+        }
+
+        if (res === 'initialized') {
+          setTimeout(function () {
+            child.send('km:heapdump')
+          }, 500)
+        }
+      })
+
+      child.on('exit', function () {
+        done()
+      })
+    })
   })
 })
-
-function setTimeoutHeapProfile (profiling) {
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      const res = await profiling.heapProfiling.stop()
-
-      const content = JSON.parse(res)
-
-      if (semver.satisfies(process.version, '>= 10.0.0')) {
-        expect(typeof content).to.equal('object')
-        expect(content.hasOwnProperty('head')).to.equal(true)
-      } else {
-        expect(typeof content).to.equal('object')
-        expect(content.hasOwnProperty('snapshot')).to.equal(true)
-      }
-
-      await profiling.heapProfiling.destroy()
-      resolve()
-    }, 500)
-  })
-}
-
-function setTimeoutCPUProfile (profiling) {
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      const res = await profiling.cpuProfiling.stop()
-
-      const content = JSON.parse(res)
-
-      expect(typeof content).to.equal('object')
-      expect(content.typeId).to.equal('CPU')
-      expect(Array.isArray(content.head)).to.equal(false)
-
-      await profiling.cpuProfiling.destroy()
-      resolve()
-    }, 500)
-  })
-
-}
-
-function setTimeoutProfile (profiling) {
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      const res = await profiling.heapProfiling.takeSnapshot()
-
-      const content = JSON.parse(res)
-
-      expect(typeof content).to.equal('object')
-      expect(content.hasOwnProperty('snapshot')).to.equal(true)
-
-      await profiling.heapProfiling.destroy()
-      resolve()
-    }, 500)
-  })
-}

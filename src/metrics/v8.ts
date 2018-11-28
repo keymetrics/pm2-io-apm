@@ -40,6 +40,7 @@ export default class V8Metric implements MetricInterface {
   private unitKB = 'kB'
 
   private metricsDefinitions = {
+    /*
     new_space: {
       name: 'New space used size',
       id: 'internal/v8/heap/space/new',
@@ -69,7 +70,7 @@ export default class V8Metric implements MetricInterface {
       id: 'internal/v8/heap/space/large',
       unit: this.unitKB,
       historic: false
-    },
+    },*/
     total_heap_size: {
       name: 'Heap size',
       id: 'internal/v8/heap/total',

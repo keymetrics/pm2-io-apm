@@ -1,15 +1,14 @@
-import Metric from '../../services/metrics'
-import TransportService from '../../services/transport'
-import { ServiceManager } from '../../serviceManager'
-
-const transport = new TransportService()
-transport.init()
-ServiceManager.set('transport', transport)
-
-const metric = new Metric()
-metric.init({transaction: {http: {http_latency: 1, ignore_routes: ['/toto']}}}, true)
-// test cases two not patch 2 times the same function
-metric.init({transaction: {http: {http_latency: 1, ignore_routes: ['/toto']}}}, true)
+import pmx from '../../../src'
+pmx.init({
+  metrics: {
+    eventLoopActive: true,
+    eventLoopDelay: true,
+    v8: {
+      GC: true
+    }
+  },
+  http: true
+})
 
 const httpModule = require('http')
 
@@ -29,5 +28,4 @@ const server = httpModule.createServer((req, res) => {
 process.on('SIGINT', function () {
   clearInterval(timer)
   server.close()
-  metric.destroy()
 })
