@@ -12,6 +12,10 @@ export default class Meter {
   constructor (opts?: any) {
     const self = this
 
+    if (typeof opts !== 'object') {
+      opts = {}
+    }
+
     this._samples = opts.samples || opts.seconds || 1
     this._timeframe = opts.timeframe || 60
     this._tickInterval = opts.tickInterval || 5 * units.SECONDS

@@ -1,13 +1,11 @@
+
 import pmx from '../../../src'
 pmx.init({
-  metrics: {
-    eventLoopActive: true,
-    eventLoopDelay: true,
-    v8: {
-      GC: true
-    }
-  }
+  profiling: true
 })
+if (process && process.send) {
+  process.send('initialized')
+}
 
 setInterval(_ => {
   let str = 0

@@ -36,16 +36,17 @@ export class ProfilingFeature implements Feature {
   private profiler: ProfilerType | undefined
   private logger: Function = Debug('axm:features:profiling')
 
-  init (config: ProfilingConfig | boolean) {
+  init (config?: ProfilingConfig | boolean) {
     if (config === true) {
       config = defaultProfilingConfig
     } else if (config === false) {
       config = disabledProfilingConfig
-    } else if (typeof config !== 'object') {
-      config = defaultProfilingConfig
+    } else if (config === undefined) {
+      config = disabledProfilingConfig
     }
+
     // allow to force the fallback to addon via the environment
-    if (process.env.PM2_PROFILING_FORCE_FALLBACK) {
+    if (process.env.PM2_PROFILING_FORCE_FALLBACK === 'true') {
       config.implementation = 'addon'
     }
     // by default we check for the best suited one

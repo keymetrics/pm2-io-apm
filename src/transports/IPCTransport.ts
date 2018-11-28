@@ -4,14 +4,12 @@ import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
 import { EventEmitter2 } from 'eventemitter2'
 import * as cluster from 'cluster'
-import * as EventLoopInspector from 'event-loop-inspector'
 
 export class IPCTransport extends EventEmitter2 implements Transport {
 
   private initiated: Boolean = false // tslint:disable-line
   private logger: Function = Debug('axm:transport:ipc')
   private onMessage: any | undefined
-  private eventLoopInspector = EventLoopInspector()
 
   init (config?: TransportConfig): Transport {
     this.logger('Init new transport service')
@@ -65,7 +63,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
 
   addAction (action: Action) {
     this.logger(`Add action: ${action.name}:${action.type}`)
-    return this.send('axm:action', {
+    this.send('axm:action', {
       action_name: action.name,
       action_type: action.type,
       arity: action.arity,

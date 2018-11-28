@@ -31,10 +31,6 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
     if (config === true) {
       config = defaultOptions
     }
-    if (typeof config !== 'object') {
-      config = defaultOptions
-    }
-
     this.metricService = ServiceManager.get('metrics')
     if (this.metricService === undefined) return this.logger('Failed to load metric service')
 

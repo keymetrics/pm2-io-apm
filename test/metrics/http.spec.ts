@@ -1,28 +1,25 @@
 import { expect, assert } from 'chai'
-import 'mocha'
+import { fork } from 'child_process'
+import { resolve } from 'path'
 
-import SpecUtils from '../fixtures/utils'
-import { fork, exec } from 'child_process'
-
+const launch = (fixture) => {
+  return fork(resolve(__dirname, fixture), [], {
+    execArgv: [ '-r', 'ts-node/register' ]
+  })
+}
 describe('HttpWrapper', function () {
   this.timeout(10000)
   it('should wrap http and send basic metric', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/httpWrapperChild.js'))
+    const child = launch('../fixtures/metrics/httpWrapperChild')
 
     child.on('message', pck => {
 
-      if (pck.type === 'http:transaction') {
-        expect(pck.data.url).to.equal('/')
-      }
-
-      if (pck.type === 'axm:monitor' && pck.data.HTTP.value !== '0req/min') {
+      if (pck.type === 'axm:monitor') {
         expect(pck.data.HTTP.type).to.equal('internal/http/builtin/reqs')
-        expect(pck.data.HTTP.agg_type).to.equal('avg')
         expect(pck.data.HTTP.unit).to.equal('req/min')
 
-        expect(pck.data['pmx:http:latency'].type).to.equal('internal/http/builtin/latency')
-        expect(pck.data['pmx:http:latency'].agg_type).to.equal('avg')
-        expect(pck.data['pmx:http:latency'].unit).to.equal('ms')
+        expect(pck.data['HTTP Mean Latency'].type).to.equal('internal/http/builtin/latency/p50')
+        expect(pck.data['HTTP Mean Latency'].unit).to.equal('ms')
 
         child.kill('SIGINT')
         done()
@@ -31,25 +28,18 @@ describe('HttpWrapper', function () {
   })
 
   it('should use tracing system', (done) => {
-    const child = fork(SpecUtils.buildTestPath('fixtures/metrics/tracingChild.js'))
-    let isAlive = true
+    const child = launch('../fixtures/metrics/tracingChild')
+    let called = false
     child.on('message', pck => {
-
-      if (pck.type === 'axm:trace') {
+      if (pck.type === 'axm:trace' && called === false) {
+        called = true
         expect(pck.data.hasOwnProperty('projectId')).to.equal(true)
         expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
-        expect(pck.data.spans[0].name).to.equal('/')
         expect(pck.data.spans[0].labels['http/method']).to.equal('GET')
-        expect(pck.data.spans[0].labels['http/path']).to.equal('/')
-        expect(pck.data.spans[0].labels['http/url']).to.equal('http://localhost/')
-        expect(pck.data.spans[0].labels['express/request.route.path']).to.equal('/')
         expect(pck.data.spans[0].labels['http/status_code']).to.equal('200')
 
-        if (isAlive) {
-          child.kill('SIGINT')
-          done()
-          isAlive = false
-        }
+        child.kill('SIGINT')
+        done()
       }
     })
   })

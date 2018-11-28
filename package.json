@@ -1,17 +1,23 @@
 {
   "name": "@pm2/io",
   "version": "2.4.7",
-  "description": "",
+  "description": "PM2.io NodeJS APM",
   "main": "build/main/src/index.js",
   "typings": "build/main/src/index.d.ts",
   "types": "build/main/src/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/keymetrics/pm2-io-apm",
   "author": {
-    "name": "Vincent Vallet",
-    "email": "vincent@pm2.io",
+    "name": "PM2.io tech team",
+    "email": "tech@pm2.io",
     "url": "https://pm2.io"
   },
+  "contributors": [
+    {
+      "name": "Vincent Vallet",
+      "url": "https://github.com/wallet77"
+    }
+  ],
   "license": "MIT",
   "scripts": {
     "info": "npm-scripts-info",
@@ -19,7 +25,7 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
     "lint": "tslint --project . src/**/*.ts",
-    "unit": "yarn build && yarn copy && nyc mocha -r ts-node/register ./test/**/*.spec.ts ./test/*.spec.ts --expose-gc",
+    "unit": "yarn build && yarn copy && mocha -r ts-node/register ./test/*.spec.ts ./test/**/*.spec.ts --expose-gc",
     "mono": "mocha --require ts-node/register --expose-gc",
     "copy": "copyfiles test/**/*.json build/main/",
     "test": "yarn lint && yarn unit",

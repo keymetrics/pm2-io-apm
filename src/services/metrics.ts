@@ -142,6 +142,9 @@ export class MetricService implements Service {
       return console.trace()
     }
     /* tslint:enable */
+    if (typeof metric.historic !== 'boolean') {
+      metric.historic = true
+    }
     this.logger(`Registering new metric: ${metric.name}`)
     this.metrics.set(metric.name, metric)
   }
@@ -181,6 +184,7 @@ export class MetricService implements Service {
   }
 
   histogram (opts: HistogramOptions): Histogram {
+    // tslint:disable-next-line
     if (opts.measurement === undefined || opts.measurement === null) {
       opts.measurement = MetricMeasurements.mean
     }

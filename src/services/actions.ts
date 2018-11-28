@@ -12,11 +12,10 @@ export class Action {
   opts: Object | null | undefined
 }
 
-export default class ActionService {
+export class ActionService {
 
-  private timer: NodeJS.Timer | null = null
-  private listenerInitiated: Boolean = false
-  private transport: Transport | null = null
+  private timer: NodeJS.Timer | undefined = undefined
+  private transport: Transport | undefined = undefined
   private actions: Map<string, Action> = new Map<string, Action>()
   private logger: Function = Debug('axm:services:actions')
 
@@ -47,10 +46,6 @@ export default class ActionService {
     // handle scoped actions
     if (data.uuid === undefined) {
       return this.logger(`Received scoped action ${action.name} but without uuid`)
-    }
-
-    if (this.transport === undefined || this.transport === null) {
-      return this.logger(`Failed to load transport service`)
     }
 
     // create a simple object that represent a stream
@@ -87,21 +82,20 @@ export default class ActionService {
 
   init (): void {
     this.transport = ServiceManager.get('transport')
-    if (this.transport === undefined || this.transport === null) {
+    // tslint:disable-next-line
+    if (this.transport === undefined) {
       return this.logger(`Failed to load transport service`)
     }
     this.actions.clear()
-    // be sure to never listen twince the message
-    if (this.listenerInitiated === true) return
-    this.listenerInitiated = true
     this.transport.on('data', this.listener.bind(this))
   }
 
   destroy (): void {
-    if (this.timer !== null) {
+    if (this.timer !== undefined) {
       clearInterval(this.timer)
     }
-    if (this.transport !== null && this.transport !== undefined) {
+    // tslint:disable-next-line
+    if (this.transport !== undefined) {
       this.transport.removeListener('data', this.listener.bind(this))
     }
   }
@@ -123,7 +117,7 @@ export default class ActionService {
       console.error(`You must define an callback when registering an action`)
       return
     }
-    if (this.transport === undefined || this.transport === null) {
+    if (this.transport === undefined) {
       return this.logger(`Failed to load transport service`)
     }
 
@@ -168,7 +162,7 @@ export default class ActionService {
       console.error(`You must define an callback when registering an action`)
       return -1
     }
-    if (this.transport === undefined || this.transport === null) {
+    if (this.transport === undefined) {
       return this.logger(`Failed to load transport service`)
     }
 

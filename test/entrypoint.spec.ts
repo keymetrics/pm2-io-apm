@@ -1,7 +1,14 @@
-import SpecUtils from './fixtures/utils'
-import { assert, expect } from 'chai'
-import { exec, fork } from 'child_process'
-import 'mocha'
+
+import { expect } from 'chai'
+import pmx from '../src'
+import { fork } from 'child_process'
+import { resolve } from 'path'
+
+const launch = (fixture) => {
+  return fork(resolve(__dirname, fixture), [], {
+    execArgv: [ '-r', 'ts-node/register' ]
+  })
+}
 
 describe('Entrypoint', function () {
   this.timeout(20000)
@@ -9,9 +16,7 @@ describe('Entrypoint', function () {
   describe('Empty class', () => {
     it('should fail cause no onStart method', () => {
       try {
-        const pmx = require(__dirname + '/../build/main/src/index.js')
-        const Entrypoint = pmx.Entrypoint
-        const entrypoint = new Entrypoint()
+        const entrypoint = new pmx.Entrypoint()
       } catch (e) {
         expect(e.message).to.equal('Entrypoint onStart() not specified')
       }
@@ -20,13 +25,9 @@ describe('Entrypoint', function () {
 
   describe('Basic class', () => {
     it('should instantiate a basic entrypoint', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/entrypointChild.js'))
+      const child = launch('fixtures/entrypointChild')
 
       child.on('message', res => {
-
-        if (res.type && res.type === 'axm:option:configuration' && res.data && res.data.metrics) {
-          expect(res.data.metrics.eventLoopActive).to.equal(false)
-        }
 
         if (res === 'ready') {
           child.kill('SIGINT')

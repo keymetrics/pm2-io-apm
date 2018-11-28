@@ -1,23 +1,22 @@
-import V8Metric from '../../metrics/v8'
-import Metric from '../../services/metrics'
-import TransportService from '../../services/transport'
-import { ServiceManager } from '../../serviceManager'
+import pmx from '../../../src'
+import * as v8 from 'v8'
 
-const transport = new TransportService()
-transport.init()
-ServiceManager.set('transport', transport)
+v8.setFlagsFromString('--expose-gc')
 
-const metric = new Metric()
-metric.init({v8: 'all'}, true)
+pmx.init({
+  metrics: {
+    eventLoopActive: true,
+    eventLoopDelay: true,
+    v8: true
+  },
+  network: true
+})
 
 // set something into event loop. Else test will exit immediately
-const timer = setInterval(function () {}, 5000)
+const timer = setInterval(function () {
+  return
+}, 5000)
 
 process.on('SIGINT', function () {
   clearInterval(timer)
-  metric.destroy()
 })
-
-setTimeout(function () {
-  global.gc()
-}, 1000)

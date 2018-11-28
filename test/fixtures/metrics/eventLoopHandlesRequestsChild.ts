@@ -1,18 +1,20 @@
-import Metric from '../../services/metrics'
-import TransportService from '../../services/transport'
-import { ServiceManager } from '../../serviceManager'
-
-const transport = new TransportService()
-transport.init()
-ServiceManager.set('transport', transport)
-
-const metric = new Metric()
-metric.init({ eventLoopActive: true } , true)
-
-// set something into event loop. Else test will exit immediately
-const timer = setInterval(function () {}, 5000)
-
-process.on('SIGINT', function () {
-  clearInterval(timer)
-  metric.destroy()
+import pmx from '../../../src'
+pmx.init({
+  metrics: {
+    eventLoopActive: true,
+    eventLoopDelay: true,
+    v8: {
+      GC: true
+    }
+  }
 })
+if (process && process.send) {
+  process.send('initialized')
+}
+
+setInterval(_ => {
+  let str = 0
+  for (let i = 0; i < 100; i++) {
+    str = str + str
+  }
+}, 1000)

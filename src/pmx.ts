@@ -7,7 +7,7 @@ import { ServiceManager, Service } from './serviceManager'
 import Entrypoint from './features/entrypoint'
 import { createTransport, TransportConfig, Transport } from './services/transport'
 import { FeatureManager } from './featureManager'
-import ActionService from './services/actions'
+import { ActionService } from './services/actions'
 import { NotifyFeature, ErrorContext } from './features/notify'
 import { Metric, MetricService, HistogramOptions, MetricBulk, MetricType, MetricMeasurements } from './services/metrics'
 import Meter from './utils/metrics/meter'
@@ -24,7 +24,7 @@ export class IOConfig {
   catchExceptions?: boolean
   metrics?: any
   actions?: any
-  network?: boolean
+  network?: any
   ports?: boolean
   v8?: boolean
   transactions?: boolean
@@ -56,7 +56,7 @@ export const defaultConfig: IOConfig = {
 
 export default class PMX {
 
-  public Entrypoint: Entrypoint = new Entrypoint()
+  public Entrypoint: { new(): Entrypoint }
   private initialConfig: IOConfig
   private transport: Transport | null = null
   private featureManager: FeatureManager = new FeatureManager()

@@ -1,14 +1,20 @@
 import { fork } from 'child_process'
-import { expect, assert } from 'chai'
+import { expect } from 'chai'
 import 'mocha'
-import SpecUtils from '../fixtures/utils'
-import EventsFeature from './events'
+
+import { resolve } from 'path'
+
+const launch = (fixture) => {
+  return fork(resolve(__dirname, fixture), [], {
+    execArgv: [ '-r', 'ts-node/register' ]
+  })
+}
 
 describe('EventsFeature', () => {
   describe('emit', () => {
 
     it('should emit an event', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/features/eventsChild.js'))
+      const child = launch('../fixtures/features/eventsChild')
       child.on('message', res => {
         if (res.type === 'human:event') {
           expect(res.data.__name).to.equal('myEvent')
@@ -20,7 +26,7 @@ describe('EventsFeature', () => {
     })
 
     it('should emit an event with non object data', (done) => {
-      const child = fork(SpecUtils.buildTestPath('fixtures/features/eventsStringChild.js'))
+      const child = launch('../fixtures/features/eventsStringChild')
       child.on('message', res => {
         if (res.type === 'human:event') {
           expect(res.data.__name).to.equal('myEvent')
@@ -28,18 +34,6 @@ describe('EventsFeature', () => {
           child.kill('SIGINT')
           done()
         }
-      })
-    })
-
-    it('should not emit event (no name or no data)', () => {
-      const events = new EventsFeature()
-
-      events.init().then(() => {
-        let res = events.emit(null, {})
-        expect(res).to.equal(undefined)
-
-        res = events.emit('myEvent', null)
-        expect(res).to.equal(undefined)
       })
     })
   })

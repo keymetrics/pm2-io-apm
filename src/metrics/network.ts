@@ -4,6 +4,7 @@ import { MetricInterface } from '../features/metrics'
 import * as Debug from 'debug'
 import Meter from '../utils/metrics/meter'
 import * as shimmer from 'shimmer'
+import { ServiceManager } from '../serviceManager'
 
 export class NetworkTrafficConfig {
   upload: boolean
@@ -52,6 +53,11 @@ export default class NetworkMetric implements MetricInterface {
 
     if (config.traffic === false) return
 
+    this.metricService = ServiceManager.get('metrics')
+    if (this.metricService === undefined) {
+      return this.logger(`Failed to load metric service`)
+    }
+
     if (config.traffic.download === true) {
       this.catchDownload()
     }
@@ -76,10 +82,11 @@ export default class NetworkMetric implements MetricInterface {
 
   private catchDownload () {
     if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
-    const downloadMeter = new Meter()
+    const downloadMeter = new Meter({})
     this.metricService.registerMetric({
       name: 'Network In',
       id: 'internal/network/in',
+      historic: true,
       type: MetricType.meter,
       implementation: downloadMeter,
       unit: 'MBytes/sec',
@@ -95,7 +102,7 @@ export default class NetworkMetric implements MetricInterface {
       if (isWrapped) {
         return this.logger(`Already patched socket read, canceling`)
       }
-      shimmer.wrap(netModule.Socket.prototype, 'read', (original) => {
+      shimmer.wrap(netModule.Socket.prototype, 'read', function (original) {
         return function () {
           this.on('data', (data) => {
             if (typeof data.length === 'number') {
@@ -115,6 +122,7 @@ export default class NetworkMetric implements MetricInterface {
       name: 'Network Out',
       id: 'internal/network/out',
       type: MetricType.meter,
+      historic: true,
       implementation: uploadMeter,
       unit: 'MBytes/sec',
       handler: function () {
@@ -129,7 +137,7 @@ export default class NetworkMetric implements MetricInterface {
       if (isWrapped) {
         return this.logger(`Already patched socket write, canceling`)
       }
-      shimmer.wrap(netModule.Socket.prototype, 'write', (original) => {
+      shimmer.wrap(netModule.Socket.prototype, 'write', function (original) {
         return function (data) {
           if (typeof data.length === 'number') {
             uploadMeter.mark(data.length)
