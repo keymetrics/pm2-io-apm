@@ -3,6 +3,8 @@ import { expect } from 'chai'
 import { fork, exec } from 'child_process'
 import * as semver from 'semver'
 import { resolve } from 'path'
+// for node 8
+process.env.FORCE_INSPECTOR = '1'
 
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
@@ -10,18 +12,8 @@ const launch = (fixture) => {
   })
 }
 
-const MODULE = semver.satisfies(semver.clean(process.version), '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
-
 describe('ProfilingAction', function () {
   this.timeout(50000)
-
-  before(function (done) {
-    exec('npm install ' + MODULE, done)
-  })
-
-  after(function (done) {
-    exec('npm uninstall ' + MODULE, done)
-  })
 
   describe('CPU', () => {
 
@@ -96,7 +88,6 @@ describe('ProfilingAction', function () {
 
     if (semver.satisfies(process.version, '8.x')) {
       it('should get cpu profile data (force inspector on node 8)', (done) => {
-        process.env.FORCE_INSPECTOR = '1'
         const child = launch('../fixtures/features/profilingChild')
         let uuid
 
