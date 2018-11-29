@@ -7,10 +7,11 @@ pipeline:
       - node -v
       - yarn -v
       - uname -r
-      - npm install 2> /dev/null
+      - yarn install 2> /dev/null
       - export PATH=$PATH:./node_modules/.bin/
-      - npm run test
-      - npm run send-coverage
+      - yarn add v8-profiler-node8
+      - yarn add amqplib
+      - yarn run test
     secrets: [ codecov_token ]
     when:
       event: push
@@ -44,3 +45,4 @@ matrix:
     - 6
     - 8
     - 10
+    - 11

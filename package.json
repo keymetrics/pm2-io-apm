@@ -99,6 +99,7 @@
     "shimmer": "^1.2.0",
     "signal-exit": "3.0.2",
     "tslib": "1.9.3",
+    "v8-profiler-node8": "^6.0.1",
     "vxx": "1.2.2"
   }
 }
