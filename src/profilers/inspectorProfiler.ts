@@ -8,6 +8,7 @@ import MiscUtils from '../utils/miscellaneous'
 import { InspectorService } from '../services/inspector'
 import * as inspector from 'inspector'
 import * as Debug from 'debug'
+import * as semver from 'semver'
 
 class CurrentProfile {
   uuid: string
@@ -22,6 +23,7 @@ export default class InspectorProfiler implements ProfilerType {
   private transport: Transport | undefined
   private currentProfile: CurrentProfile | null = null
   private logger: Function = Debug('axm:features:profiling:inspector')
+  private isNode11: boolean = semver.satisfies(semver.clean(process.version), '>11.x')
 
   init () {
     this.profiler = ServiceManager.get('inspector')
@@ -50,7 +52,7 @@ export default class InspectorProfiler implements ProfilerType {
 
     Configuration.configureModule({
       heapdump: true,
-      'feature.profiler.heapsnapshot': true,
+      'feature.profiler.heapsnapshot': !this.isNode11,
       'feature.profiler.heapsampling': true,
       'feature.profiler.cpu_js': true
     })
@@ -62,7 +64,9 @@ export default class InspectorProfiler implements ProfilerType {
       return this.logger(`Fail to get action service`)
     }
     this.logger('register')
-    this.actionService.registerAction('km:heapdump', this.onHeapdump.bind(this))
+    if (this.isNode11 === false) {
+      this.actionService.registerAction('km:heapdump', this.onHeapdump.bind(this))
+    }
     this.actionService.registerAction('km:cpu:profiling:start', this.onCPUProfileStart.bind(this))
     this.actionService.registerAction('km:cpu:profiling:stop', this.onCPUProfileStop.bind(this))
     this.actionService.registerAction('km:heap:sampling:start', this.onHeapProfileStart.bind(this))
