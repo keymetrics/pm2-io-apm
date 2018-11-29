@@ -204,36 +204,38 @@ describe('ProfilingAction', function () {
       })
     }
 
-    it('should get heap dump data', (done) => {
-      const child = launch('../fixtures/features/profilingChild')
+    if (semver.satisfies(semver.clean(process.version), '<11.x')) {
+      it('should get heap dump data', (done) => {
+        const child = launch('../fixtures/features/profilingChild')
 
-      child.on('message', res => {
+        child.on('message', res => {
 
-        if (res.type === 'axm:action') {
-          expect(res.data.action_type).to.equal('internal')
-        }
+          if (res.type === 'axm:action') {
+            expect(res.data.action_type).to.equal('internal')
+          }
 
-        if (res.type === 'axm:reply') {
+          if (res.type === 'axm:reply') {
 
-          expect(res.data.return.success).to.equal(true)
-        }
-        if (res.type === 'profilings') {
-          expect(res.data.type).to.equal('heapdump')
-          expect(typeof res.data.data).to.equal('string')
+            expect(res.data.return.success).to.equal(true)
+          }
+          if (res.type === 'profilings') {
+            expect(res.data.type).to.equal('heapdump')
+            expect(typeof res.data.data).to.equal('string')
 
-          child.kill('SIGINT')
-        }
+            child.kill('SIGINT')
+          }
 
-        if (res === 'initialized') {
-          setTimeout(function () {
-            child.send('km:heapdump')
-          }, 500)
-        }
+          if (res === 'initialized') {
+            setTimeout(function () {
+              child.send('km:heapdump')
+            }, 500)
+          }
+        })
+
+        child.on('exit', function () {
+          done()
+        })
       })
-
-      child.on('exit', function () {
-        done()
-      })
-    })
+    }
   })
 })
