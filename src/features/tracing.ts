@@ -72,7 +72,7 @@ export class TracingFeature implements Feature {
       return this.logger(`Failed to load transporter service`)
     }
 
-    const tracerModule = require('vxx')
+    const tracerModule = require('@pm2/legacy-tracing')
     if (tracerModule.get().isActive()) {
       return this.logger(`Tracing already enalbed`)
     }

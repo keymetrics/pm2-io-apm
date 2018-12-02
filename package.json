@@ -87,10 +87,10 @@
     ]
   },
   "dependencies": {
-    "@pm2/agent-node": "~1.0.9",
+    "@pm2/agent-node": "^1.0.9",
+    "@pm2/legacy-tracing": "^1.4.0",
     "async": "^2.6.1",
     "debug": "3.1.0",
-    "deep-metrics": "0.0.2",
     "deepmerge": "2.1.1",
     "event-loop-inspector": "^1.2.0",
     "eventemitter2": "^5.0.1",
@@ -98,8 +98,6 @@
     "semver": "5.5.0",
     "shimmer": "^1.2.0",
     "signal-exit": "3.0.2",
-    "tslib": "1.9.3",
-    "v8-profiler-node8": "^6.0.1",
-    "vxx": "1.2.2"
+    "tslib": "1.9.3"
   }
 }
