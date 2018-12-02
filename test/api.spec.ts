@@ -316,48 +316,6 @@ describe('API', function () {
     })
   })
 
-  describe('Compatibility actions', () => {
-    const MODULE = semver.satisfies(process.version, '< 8.0.0') ? 'v8-profiler' : 'v8-profiler-node8'
-
-    before(function (done) {
-      exec('npm uninstall ' + MODULE, done)
-    })
-
-    after(function (done) {
-      exec('npm uninstall ' + MODULE, done)
-    })
-
-    describe('Profiling', () => {
-      it('should receive data for profiling actions', (done) => {
-        const child = launch('fixtures/apiBackwardActionsChild')
-        const actionDone = new Set<string>()
-        let isDone = false
-
-        child.on('message', pck => {
-
-          if (pck.type === 'axm:action') {
-            actionDone.add(pck.data.action_name)
-
-            if (actionDone.size >= 6) {
-              expect(actionDone.has('km:heap:sampling:start')).to.equal(true)
-              expect(actionDone.has('km:heap:sampling:stop')).to.equal(true)
-              expect(actionDone.has('km:cpu:profiling:start')).to.equal(true)
-              expect(actionDone.has('km:cpu:profiling:stop')).to.equal(true)
-              expect(actionDone.has('km:heapdump')).to.equal(true)
-              expect(actionDone.has('km:event-loop-dump')).to.equal(true)
-              child.kill('SIGINT')
-
-              if (isDone === false) {
-                isDone = true
-                done()
-              }
-            }
-          }
-        })
-      })
-    })
-  })
-
   describe('InitModule', () => {
     it('should return module conf', () => {
       process.env.mocha = JSON.stringify({
