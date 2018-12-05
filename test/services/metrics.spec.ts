@@ -60,7 +60,11 @@ describe('MetricsService', function () {
       counter.inc()
     })
     it('should send value for all metrics', (done) => {
+      let called = false
       transport.setMetrics = function (metrics: InternalMetric[]) {
+        if (called === true) return
+        called = true
+
         const counter = metrics.find(metric => metric.name === 'counter')
         const histogram = metrics.find(metric => metric.name === 'histogram')
         const meter = metrics.find(metric => metric.name === 'meter')
