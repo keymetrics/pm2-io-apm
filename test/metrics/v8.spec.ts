@@ -32,20 +32,6 @@ describe('V8', function () {
 describe('GC', function () {
   this.timeout(50000)
 
-  before(function (done) {
-    exec('npm install gc-stats', function (err) {
-      expect(err).to.equal(null)
-      setTimeout(done, 1000)
-    })
-  })
-
-  after(function (done) {
-    exec('npm uninstall gc-stats', function (err) {
-      expect(err).to.equal(null)
-      done()
-    })
-  })
-
   it('should get GC stats', (done) => {
     const child = launch('../fixtures/metrics/v8Child')
 

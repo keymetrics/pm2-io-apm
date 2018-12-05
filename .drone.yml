@@ -7,9 +7,10 @@ pipeline:
       - node -v
       - yarn -v
       - uname -r
-      - yarn install 2> /dev/null
+      - yarn install
       - export PATH=$PATH:./node_modules/.bin/
       - yarn add v8-profiler-node8
+      - yarn add gc-stats
       - yarn add amqplib
       - yarn run test
     secrets: [ codecov_token ]
