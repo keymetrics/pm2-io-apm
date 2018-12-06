@@ -46,20 +46,4 @@ describe('Network', function () {
       }
     })
   })
-
-  it('should only send download data even with amqplib', (done) => {
-    const child = launch('../fixtures/metrics/networkWithAmqChild')
-
-    setTimeout(() => {
-      child.on('message', pck => {
-
-        if (pck.type === 'axm:monitor') {
-          child.kill('SIGKILL')
-          expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
-
-          done()
-        }
-      })
-    }, 1500)
-  })
 })

@@ -7,14 +7,14 @@ pmx.init({
       GC: true
     }
   },
-  network: true
+  network: false
 })
 
 const q = 'tasks'
 let timer
 
 function bail (err) {
-  console.error(err)
+  console.error('error while connecting', err)
   process.exit(1)
 }
 
@@ -46,8 +46,8 @@ function consumer (conn) {
 }
 
 require('amqplib/callback_api')
-  .connect('amqp://localhost', function (err, conn) {
-    if (err != null) bail(err)
+  .connect(process.env.RABBITMQ_URL || 'amqp://localhost', function (err, conn) {
+    if (err !== null) return bail(err)
     consumer(conn)
     publisher(conn)
     process.once('SIGINT', function () {
