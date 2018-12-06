@@ -58,6 +58,6 @@ export default class Entrypoint {
   }
 
   conf () {
-    return this.io.getInitialConfig()
+    return this.io.getConfig()
   }
 }

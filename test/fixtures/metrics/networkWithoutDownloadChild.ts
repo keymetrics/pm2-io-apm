@@ -1,15 +1,10 @@
 import pmx from '../../../src'
 pmx.init({
   metrics: {
-    eventLoopActive: true,
-    eventLoopDelay: true,
-    v8: {
-      GC: true
+    network: {
+      upload: true,
+      download: false
     }
-  },
-  network: {
-    upload: true,
-    download: false
   }
 })
 

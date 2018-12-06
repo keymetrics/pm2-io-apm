@@ -4,12 +4,12 @@ let timer
 let server
 
 pmx.init({
-  network: true,
-  ports: true,
-  v8: true,
-  transactions: true,
-  http: true,
-  deep_metrics: true,
+  metrics: {
+    network: true,
+    v8: true,
+    http: true
+  },
+  tracing: true,
   profiling: false
 })
 

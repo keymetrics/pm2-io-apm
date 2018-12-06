@@ -2,11 +2,7 @@
 import io from '../../src'
 import { MetricType } from '../../src/services/metrics'
 
-// should not fail but display a warning
-// @ts-ignore
-io.metrics({})
-
-const allMetrics = io.metrics(
+const [ one, two, three ] = io.metrics(
   [
     {
       name: 'metricHistogram',
@@ -26,7 +22,7 @@ const allMetrics = io.metrics(
   ]
 )
 
-allMetrics.metricHistogram.update(10)
+one.update(10)
 
 // test inline declaration
 // @ts-ignore
