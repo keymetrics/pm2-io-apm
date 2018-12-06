@@ -13,13 +13,17 @@ export class EventsFeature implements Feature {
     this.logger('init')
   }
 
-  emit (name: string, data: any) {
+  emit (name?: string, data?: any) {
     if (typeof name !== 'string') {
       console.error('event name must be a string')
       return console.trace()
     }
     if (typeof data !== 'object') {
       console.error('event data must be an object')
+      return console.trace()
+    }
+    if (data instanceof Array) {
+      console.error(`event data cannot be an array`)
       return console.trace()
     }
 
