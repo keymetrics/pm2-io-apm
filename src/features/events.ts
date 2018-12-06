@@ -1,5 +1,4 @@
 import { ServiceManager } from '../serviceManager'
-import * as stringify from 'json-stringify-safe'
 import { Feature } from '../featureManager'
 import { Transport } from '../services/transport'
 import * as Debug from 'debug'
@@ -14,20 +13,21 @@ export class EventsFeature implements Feature {
     this.logger('init')
   }
 
-  emit (name, data) {
-    if (!name) {
-      return console.error('[PMX] emit.name is missing')
+  emit (name: string, data: any) {
+    if (typeof name !== 'string') {
+      console.error('event name must be a string')
+      return console.trace()
     }
-    if (!data) {
-      return console.error('[PMX] emit.data is missing')
+    if (typeof data !== 'object') {
+      console.error('event data must be an object')
+      return console.trace()
     }
 
     let inflightObj: Object | any = {}
-
-    if (typeof(data) === 'object') {
-      inflightObj = JSON.parse(stringify(data))
-    } else {
-      inflightObj.data = data
+    try {
+      inflightObj = JSON.parse(JSON.stringify(data))
+    } catch (err) {
+      return console.log('Failed to serialize the event data', err.message)
     }
 
     inflightObj.__name = name

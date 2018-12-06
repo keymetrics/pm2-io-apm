@@ -1,5 +1,4 @@
 
-import * as merge from 'deepmerge'
 import Configuration from './configuration'
 import Debug from 'debug'
 import * as fs from 'fs'
@@ -432,11 +431,11 @@ export default class PMX {
       delete opts.reference
     }
 
-    opts = merge({
+    opts = Object.assign({
       widget: {}
     }, opts)
 
-    opts.widget = merge({
+    opts.widget = Object.assign({
       type : 'generic',
       logo : 'https://app.keymetrics.io/img/logo/keymetrics-300.png',
       theme            : ['#111111', '#1B2228', '#807C7C', '#807C7C']

@@ -11,10 +11,13 @@ describe('HttpWrapper', function () {
   this.timeout(10000)
   it('should wrap http and send basic metric', (done) => {
     const child = launch('../fixtures/metrics/httpWrapperChild')
+    let called = false
 
     child.on('message', pck => {
 
       if (pck.type === 'axm:monitor') {
+        if (called === true) return
+        called = true
         expect(pck.data.HTTP.type).to.equal('internal/http/builtin/reqs')
         expect(pck.data.HTTP.unit).to.equal('req/min')
 
