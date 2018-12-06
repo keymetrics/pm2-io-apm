@@ -19,11 +19,10 @@ The [@pm2/io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module 
 - [**Expose Custom Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#expose-custom-metrics)
 - [**Expose Remote Actions**](https://github.com/keymetrics/pm2-io-apm/tree/master#expose-remote-actions)
 - [**Report Caught Exceptions**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-caught-exceptions)
-- [**Report Custom Events (deprecated)**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-custom-events-deprecated)
 - [**Predefined Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#predefined-metrics)
 - [**Configuration**](https://github.com/keymetrics/pm2-io-apm/tree/master#configuration)
-- [**Entrypoint**](https://github.com/keymetrics/pm2-io-apm/tree/master#entrypoint)
 - [**Development**](https://github.com/keymetrics/pm2-io-apm/tree/master#development)
+- [**Notes**](https://github.com/keymetrics/pm2-io-apm/tree/master#notes)
 
 
 # Installation
@@ -93,21 +92,11 @@ io.metric({
 In active mode, you need to create a probe and call the method `set()` to update the value.
 
 ```javascript
-const Realtime_Value = io.metric({
+const myMetric = io.metric({
   name: 'Realtime Value'
 });
 
-Realtime_Value.set(23);
-```
-
-#### Inline Mode
-
-In inline mode, you can create a probe with a simple string.
-
-```javascript
-const metric = io.metric('Inline');
-
-metric.set(23);
+myMetric.set(23);
 ```
 
 ### Counter: Discrete Counter
@@ -117,17 +106,17 @@ The second type of metric, called `counter`, is a discrete counter that helps yo
 ```javascript
 const io = require('@pm2/io');
 
-const Current_req_processed = io.counter({
+const currentReq = io.counter({
   name: 'Current req processed',
   type: 'counter',
 });
 
 http.createServer((req, res) => {
   // Increment the counter, counter will eq 1
-  Current_req_processed.inc();
+  currentReq.inc();
   req.on('end', () => {
     // Decrement the counter, counter will eq 0
-    Current_req_processed.dec();
+    currentReq.dec();
   });
 });
 ```
@@ -179,7 +168,7 @@ Options are:
 
 ## Expose Remote Actions: Trigger Functions remotely
 
-Remotely trigger functions from Keymetrics.
+Remotely trigger functions from PM2 Plus or Enterprise.
 
 ### Simple actions
 
@@ -192,51 +181,22 @@ const io = require('@pm2/io');
 
 io.action('db:clean', (cb) => {
   clean.db(() => {
-    /**
-     * cb() must be called at the end of the action
-     */
-     cb({ success: true });
+    // cb must be called at the end of the action
+    return cb({ success: true });
   });
 });
 ```
 
-### Scoped actions (beta)
-
-Scoped Actions are advanced remote actions that can be also triggered from Keymetrics.
-
-Two arguments are passed to the function, data (optional data sent from Keymetrics) and res that allows to emit log data and to end the scoped action.
-
-Example:
-
-```javascript
-io.scopedAction('long running lsof', (data, res) => {
-  const child = spawn('lsof', []);
-
-  child.stdout.on('data', (chunk) => {
-    chunk.toString().split('\n').forEach(function(line) {
-      res.send(line); // This send log to Keymetrics to be saved (for tracking)
-    });
-  });
-
-  child.stdout.on('end', (chunk) => {
-    res.end('end'); // This end the scoped action
-  });
-
-  child.on('error', (e) => {
-    res.error(e);  // This report an error to Keymetrics
-  });
-
-});
-```
-
-## Report Caught Exceptions
+## Report user error
 
 By default, in the Issue tab, you are only alerted for uncaught exceptions. Any exception that you catch is not reported. You can manually report them with the `notifyError()` method.
 
 ```javascript
 const io = require('@pm2/io');
 
-io.notifyError(new Error('This is an error'));
+io.notifyError(new Error('This is an error'), {
+  
+});
 ```
 
 ## Configuration
@@ -327,17 +287,6 @@ const io = require('@pm2/io')
 io.init({
   metrics: {
     v8: true
-  }
-})
-```
-
-If you want to activate all options of a section :
-```javascript
-const io = require('@pm2/io')
-
-io.init({
-  metrics: {
-    v8: 'all'
   }
 })
 ```

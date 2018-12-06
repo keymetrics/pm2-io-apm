@@ -1,10 +1,10 @@
 import Debug from 'debug'
 import { Feature, getObjectAtPath } from '../featureManager'
-import EventLoopHandlesRequestsMetric from '../metrics/eventLoopMetrics'
-import NetworkMetric from '../metrics/network'
-import HttpMetrics from '../metrics/httpMetrics'
-import V8Metric from '../metrics/v8'
-import GCMetrics from '../metrics/gc'
+import EventLoopHandlesRequestsMetric, { EventLoopMetricOption } from '../metrics/eventLoopMetrics'
+import NetworkMetric, { NetworkTrafficConfig } from '../metrics/network'
+import HttpMetrics, { HttpMetricsConfig } from '../metrics/httpMetrics'
+import V8Metric, { V8MetricsConfig } from '../metrics/v8'
+import GCMetrics, { GCMetricsOptions } from '../metrics/gc'
 
 export const defaultMetricConf = {
   eventLoopDelay: true,
@@ -13,6 +13,14 @@ export const defaultMetricConf = {
     http: true
   },
   v8: true
+}
+
+export class MetricConfig {
+  v8?: V8MetricsConfig | boolean
+  gc?: GCMetricsOptions | boolean
+  http?: HttpMetricsConfig | boolean
+  network?: NetworkTrafficConfig | boolean
+  eventLoop?: EventLoopMetricOption | boolean
 }
 
 class AvailableMetric {
@@ -42,12 +50,12 @@ const availableMetrics: AvailableMetric[] = [
   {
     name: 'eventloop',
     module: EventLoopHandlesRequestsMetric,
-    optionsPath: '.'
+    optionsPath: 'eventLoop'
   },
   {
     name: 'http',
     module: HttpMetrics,
-    optionsPath: 'transaction'
+    optionsPath: 'http'
   },
   {
     name: 'network',
@@ -62,7 +70,7 @@ const availableMetrics: AvailableMetric[] = [
   {
     name: 'gc',
     module: GCMetrics,
-    optionsPath: 'v8.GC'
+    optionsPath: 'gc'
   }
 ]
 

@@ -12,6 +12,14 @@ class SerializedAction {
   arity: number
 }
 
+export class ApmOptions {
+  sendLogs: boolean
+  serverName?: string
+  publicKey: string
+  privateKey: string
+  appName: string
+}
+
 export class ProcessMetadata {
   axm_actions: SerializedAction[] // tslint:disable-line
   axm_monitor: Object // tslint:disable-line

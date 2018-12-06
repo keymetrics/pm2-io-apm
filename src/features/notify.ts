@@ -10,9 +10,15 @@ export class NotifyOptions {
 }
 
 export class ErrorContext {
+  /**
+   * Add http context to your error
+   */
   http?: Object
+  /**
+   * Add any context that you may need to debug your issue
+   * example: the id of the user that made the request
+   */
   custom?: Object
-  level?: string
 }
 
 const optionsDefault: NotifyOptions = {

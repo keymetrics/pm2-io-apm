@@ -11,22 +11,14 @@ export class NetworkTrafficConfig {
   download: boolean
 }
 
-export class NetworkMetricConfig {
-  traffic: boolean | NetworkTrafficConfig
+const defaultConfig: NetworkTrafficConfig = {
+  upload: false,
+  download: false
 }
 
-const defaultConfig: NetworkMetricConfig = {
-  traffic: {
-    upload: false,
-    download: false
-  }
-}
-
-const allEnabled: NetworkMetricConfig = {
-  traffic: {
-    upload: true,
-    download: true
-  }
+const allEnabled: NetworkTrafficConfig = {
+  upload: true,
+  download: true
 }
 
 export default class NetworkMetric implements MetricInterface {
@@ -35,7 +27,7 @@ export default class NetworkMetric implements MetricInterface {
   private logger: Function = Debug('axm:features:metrics:network')
   private socketProto: any
 
-  init (config?: NetworkMetricConfig | boolean) {
+  init (config?: NetworkTrafficConfig | boolean) {
     if (config === false) return
     if (config === true) {
       config = allEnabled
@@ -44,24 +36,15 @@ export default class NetworkMetric implements MetricInterface {
       config = defaultConfig
     }
 
-    if (config.traffic === true) {
-      config.traffic = {
-        upload: true,
-        download: true
-      }
-    }
-
-    if (config.traffic === false) return
-
     this.metricService = ServiceManager.get('metrics')
     if (this.metricService === undefined) {
       return this.logger(`Failed to load metric service`)
     }
 
-    if (config.traffic.download === true) {
+    if (config.download === true) {
       this.catchDownload()
     }
-    if (config.traffic.upload === true) {
+    if (config.upload === true) {
       this.catchUpload()
     }
     this.logger('init')

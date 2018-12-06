@@ -1,6 +1,8 @@
 import pmx from '../../../src'
 pmx.init({
-  event_loop_dump: true
+  actions: {
+    eventLoopDump: true
+  }
 })
 
 setInterval(_ => {

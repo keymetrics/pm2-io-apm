@@ -14,7 +14,7 @@ const launch = (fixture) => {
 }
 
 describe('API', function () {
-  this.timeout(50000)
+  this.timeout(10000)
 
   describe('Notify', () => {
     it('should receive data from notify', (done) => {
@@ -62,23 +62,6 @@ describe('API', function () {
         } else if (res.type === 'axm:reply') {
           expect(res.data.action_name).to.equal('testAction')
           expect(res.data.return.data).to.equal('testActionReply')
-          child.kill('SIGINT')
-          done()
-        }
-      })
-    })
-
-    it('should receive data from scoped action', (done) => {
-      const child = launch('fixtures/apiActionsScopedChild')
-
-      child.on('message', res => {
-
-        if (res.type === 'axm:action' && res.data.action_name === 'testScopedAction') {
-          child.send({ action_name: res.data.action_name, uuid: 1000 })
-        } else if (res.type === 'axm:scoped_action:stream') {
-          expect(res.data.uuid).to.equal(1000)
-          expect(res.data.action_name).to.equal('testScopedAction')
-          expect(res.data.data).to.equal('testScopedActionReply')
           child.kill('SIGINT')
           done()
         }
@@ -188,28 +171,6 @@ describe('API', function () {
   })
 
   describe('Compatibility', () => {
-    it('should receive data', (done) => {
-      const child = launch('fixtures/apiBackwardChild')
-
-      child.on('message', res => {
-        if (res.type === 'axm:monitor') {
-          expect(res.data.hasOwnProperty('metricBackward')).to.equal(true)
-          expect(res.data.metricBackward.value).to.equal(10)
-
-          expect(res.data.hasOwnProperty('counterBackward')).to.equal(true)
-          expect(res.data.counterBackward.value).to.equal(2)
-
-          expect(res.data.hasOwnProperty('meterBackward')).to.equal(true)
-          expect(res.data.meterBackward.value).to.equal(0)
-
-          expect(res.data.hasOwnProperty('histogramBackward')).to.equal(true)
-          expect(res.data.histogramBackward.value).to.equal(0)
-
-          child.kill('SIGINT')
-          done()
-        }
-      })
-    })
 
     it('should return metrics object with clean keys', () => {
       // @ts-ignore
@@ -234,10 +195,11 @@ describe('API', function () {
           type: 'notExist'
         }
       ])
-      expect(metrics.hasOwnProperty('metricHistogram')).to.equal(true)
-      expect(metrics.hasOwnProperty('metric_with_spaces')).to.equal(true)
-      expect(metrics.hasOwnProperty('metric_with_special_chars__')).to.equal(true)
-      expect(Object.keys(metrics).length).to.equal(3)
+      expect(metrics[0].constructor.name === 'Histogram').to.equal(true)
+      expect(metrics[1].constructor.name === 'Histogram').to.equal(true)
+      expect(metrics[2].constructor.name === 'Histogram').to.equal(true)
+      expect(metrics[3].constructor.name === 'Object').to.equal(true)
+      expect(Object.keys(metrics).length).to.equal(4)
     })
 
     it('should receive data from event', (done) => {
@@ -395,15 +357,19 @@ describe('API', function () {
     it('should retrieve config of the previous instantiation', () => {
 
       pmx.init({ metrics: { v8: true } })
-      let conf = pmx.getInitialConfig()
+      let conf = pmx.getConfig()
+      // @ts-ignore
       expect(conf.metrics.v8).to.equal(true)
-      expect(conf.metrics.transaction).to.equal(undefined)
+      // @ts-ignore
+      expect(conf.metrics.http).to.equal(undefined)
 
-      pmx.init({ metrics: { transaction: { http: false } } })
-      conf = pmx.getInitialConfig()
+      pmx.init({ metrics: { http: false } })
+      conf = pmx.getConfig()
 
+      // @ts-ignore
       expect(conf.metrics.v8).to.equal(undefined)
-      expect(conf.metrics.transaction.http).to.equal(false)
+      // @ts-ignore
+      expect(conf.metrics.http).to.equal(false)
 
       pmx.destroy()
     })
