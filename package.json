@@ -20,8 +20,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "trash build && yarn build:main",
-    "build:main": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
     "lint": "tslint --project . src/**/*.ts",
     "unit": "yarn build && mocha  --exit -r ts-node/register ./test/*.spec.ts ./test/**/*.spec.ts",
