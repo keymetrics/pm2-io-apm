@@ -357,123 +357,6 @@ io.init({
 ```
 **Note** : if you do not disable the default options they will be kept (merged with your configuration)
 
-## Entrypoint
-
-### Usage
-
-```javascript
-const app = require('express')()
-const io = require('@pm2/io')
-
-class MyEntrypoint extends io.Entrypoint {
-
-    onStop (err, cb, code, signal) {
-      console.log(`Application stopped with code ${code} or signal ${signal} !`)
-      cb()
-    }
-
-    onStart (cb) {
-
-      const http = require('http').Server(app)
-
-      app.get('/ok', function(req, res) {
-        res.send('Ok')
-      });
-
-      http.listen(process.env.PORT || 3000, function(){
-        console.log('Server express', 'listening on port', http.address().port)
-        cb()
-      });
-    }
-}
-
-new MyEntrypoint()
-```
-
-### Configuration
-
-You can write your own configuration like you do for @pm2/io, just add a conf() method into your entrypoint which returns a json object.
-Details of configuration can be found in this section : [**Configuration**](#configuration)
-
-```javascript
-const io = require('@pm2/io')
-
-class MyEntrypoint extends io.Entrypoint {
-
-    ...
-
-    conf() {
-      return {
-        ...
-      }
-    }
-}
-
-new MyEntrypoint()
-```
-
-### Access @pm2/io features
-
-Entrypoint allow access to an instance of @pm2/io. So you can use all features described above by calling this.io.
-
-```javascript
-const app = require('express')()
-const io = require('@pm2/io')
-
-class MyEntrypoint extends io.Entrypoint {
-
-    onStart (cb) {
-
-      const http = require('http').Server(app)
-
-      app.get('/ok', function(req, res) {
-        res.send('Ok')
-      });
-
-      const counter = this.io.counter('start')
-
-      http.listen(process.env.PORT || 3000, () => {
-        console.log('Server express', 'listening on port', http.address().port)
-        counter.inc()
-        cb()
-      });
-    }
-}
-
-new MyEntrypoint()
-```
-
-### Actions et Metrics
-
-You can group all your actions and all your metrics into one methods.
-Use actions() and metrics(), their will be automatically called by the entrypoint.
-
-```javascript
-const io = require('@pm2/io')
-
-class MyEntrypoint extends io.Entrypoint {
-
-    ...
-
-    actions() {
-      this.io.action('db:clean', (cb) => {
-        clean.db(() => {
-          /**
-           * cb() must be called at the end of the action
-           */
-           cb({ success: true });
-        });
-      })
-    }
-
-    metrics() {
-      this.myMetric = io.metric('Inline');
-    }
-}
-
-new MyEntrypoint()
-```
-
 ## Development
 
 To auto rebuild on file change:
@@ -499,6 +382,18 @@ Run transpilation + test only:
 
 ```bash
 $ npm run unit <test>
+```
+
+## Notes
+
+Curently this package isn't compatible with `amqp` if you use the `network` metrics. We recommend to disable the metrics with the following configuration in this case :
+
+```javascript
+io.init({
+  metrics: {
+    network: false
+  }
+})
 ```
 
 ## Publishing

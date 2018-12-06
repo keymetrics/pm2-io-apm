@@ -5,7 +5,7 @@ import { resolve } from 'path'
 const launch = fixture => {
   return fork(resolve(__dirname, fixture), [], {
     execArgv: [ '-r', 'ts-node/register' ],
-    env: Object.assign(process.env, {
+    env: Object.assign(JSON.parse(JSON.stringify(process.env)), {
       DEBUG: 'axm:transport:ipc'
     })
   })
