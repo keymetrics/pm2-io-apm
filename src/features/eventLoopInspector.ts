@@ -27,7 +27,7 @@ export class EventLoopInspectorFeature implements Feature {
       return this.logger('cannot expose actions as action service isnt available')
     }
     // enable the dumper
-    this.eventLoopInspector = EventLoopInspector(true)
+    this.eventLoopInspector = EventLoopInspector(false)
 
     this.actionService.registerAction('km:event-loop-dump', (cb) => {
       return cb({

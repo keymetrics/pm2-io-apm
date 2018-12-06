@@ -2,7 +2,7 @@
 import Configuration from './configuration'
 import Debug from 'debug'
 import * as fs from 'fs'
-import { ServiceManager, Service } from './serviceManager'
+import { ServiceManager } from './serviceManager'
 import Entrypoint from './features/entrypoint'
 import { createTransport, TransportConfig, Transport } from './services/transport'
 import { FeatureManager } from './featureManager'
