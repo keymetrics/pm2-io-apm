@@ -7,10 +7,10 @@ pipeline:
       - node -v
       - yarn -v
       - uname -r
-      - yarn install
+      - yarn install --ignore-engines
       - export PATH=$PATH:./node_modules/.bin/
-      - yarn add v8-profiler-node8
-      - yarn add gc-stats
+      - yarn add v8-profiler-node8 --ignore-engines
+      - yarn add gc-stats --ignore-engines
       - yarn run test
     secrets: [ codecov_token ]
     when:
