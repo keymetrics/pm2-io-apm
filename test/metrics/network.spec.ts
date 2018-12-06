@@ -17,13 +17,14 @@ describe('Network', function () {
     child.on('message', pck => {
 
       if (pck.type === 'axm:monitor' && pck.data['Network Out']) {
+        child.kill('SIGKILL')
+
         expect(pck.data.hasOwnProperty('Network In')).to.equal(true)
         expect(pck.data['Network In'].historic).to.equal(true)
 
         expect(pck.data.hasOwnProperty('Network Out')).to.equal(true)
         expect(pck.data['Network Out'].historic).to.equal(true)
 
-        child.kill('SIGINT')
         done()
       }
     })
@@ -35,13 +36,12 @@ describe('Network', function () {
     child.on('message', pck => {
 
       if (pck.type === 'axm:monitor' && pck.data['Network Out'] && pck.data['Network Out'].value !== '0 B/sec') {
+        child.kill('SIGKILL')
 
         expect(pck.data.hasOwnProperty('Network Out')).to.equal(true)
         expect(pck.data['Network Out'].historic).to.equal(true)
 
         expect(pck.data.hasOwnProperty('Open ports')).to.equal(false)
-
-        child.kill('SIGINT')
         done()
       }
     })
@@ -54,14 +54,12 @@ describe('Network', function () {
       child.on('message', pck => {
 
         if (pck.type === 'axm:monitor') {
+          child.kill('SIGKILL')
           expect(pck.data.hasOwnProperty('Network Download')).to.equal(true)
-          child.kill('SIGINT')
+
+          done()
         }
       })
     }, 1500)
-
-    child.on('exit', () => {
-      done()
-    })
   })
 })
