@@ -32,12 +32,9 @@ describe('Network', function () {
   it('should only send upload data', (done) => {
     const child = launch('../fixtures/metrics/networkWithoutDownloadChild')
 
-    let called = false
     child.on('message', pck => {
-      if (called === true) return
-      called = true
 
-      if (pck.type === 'axm:monitor' && pck.data['Network Out']) {
+      if (pck.type === 'axm:monitor' && pck.data['Network Out'] && pck.data['Network Out'].value !== '0 B/sec') {
 
         expect(pck.data.hasOwnProperty('Network Out')).to.equal(true)
         expect(pck.data['Network Out'].historic).to.equal(true)
@@ -53,10 +50,7 @@ describe('Network', function () {
   it('should only send download data even with amqplib', (done) => {
     const child = launch('../fixtures/metrics/networkWithAmqChild')
 
-    let called = false
     setTimeout(() => {
-      if (called === true) return
-      called = true
       child.on('message', pck => {
 
         if (pck.type === 'axm:monitor') {
