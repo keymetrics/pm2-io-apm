@@ -82,10 +82,10 @@
     lodash "^4.17.5"
     to-fast-properties "^2.0.0"
 
-"@pm2/agent-node@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.0.9.tgz#428583fa04c3ba9f0f132b412e4f1b535eba8d82"
-  integrity sha512-jyYjoV+EY5tqAnUs3XUL1VXUI2LWBd7Re9JWwLrkP3fUMPm87ahmxtnge5qjH+vJNAqdIZktLfBHSW7+ztO5hg==
+"@pm2/agent-node@~1.0.9":
+  version "1.0.14"
+  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.0.14.tgz#08965ead2f02068e5b8a46d922c9603b2d7f3bcb"
+  integrity sha512-LkH56yNQxuKbRRQfDplLKHsb6z/kqEcZhLW27GsrbLqsAj4Fih5rjyZOt8zOdkvuj1mat+cjPNMIKGHselCFOw==
   dependencies:
     debug "^3.1.0"
     eventemitter2 "^5.0.1"
