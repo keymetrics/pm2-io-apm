@@ -6,12 +6,11 @@ import HttpMetrics, { HttpMetricsConfig } from '../metrics/httpMetrics'
 import V8Metric, { V8MetricsConfig } from '../metrics/v8'
 import GCMetrics, { GCMetricsOptions } from '../metrics/gc'
 
-export const defaultMetricConf = {
-  eventLoopDelay: true,
-  eventLoopActive: true,
-  transaction: {
-    http: true
-  },
+export const defaultMetricConf: MetricConfig = {
+  eventLoop: true,
+  network: false,
+  http: true,
+  gc: true,
   v8: true
 }
 
