@@ -8,11 +8,27 @@ pipeline:
       - yarn -v
       - uname -r
       - yarn install --ignore-engines
-      - export PATH=$PATH:./node_modules/.bin/
       - yarn add v8-profiler-node8 --ignore-engines
       - yarn add gc-stats --ignore-engines
-      - yarn run test
-    secrets: [ codecov_token ]
+      - export PATH=$PATH:./node_modules/.bin/
+      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - chmod +x ./cc-test-reporter
+      - ./cc-test-reporter before-build
+      - runTest () { if [ "$NODE_VERSION" = "11" ]; then nyc --clean false --require ts-node/register --require source-map-support/register mocha $*; else mocha --require ts-node/register $*; fi ;}
+      - runTest mocha test/api.spec.ts
+      - runTest mocha test/autoExit.spec.ts
+      - runTest test/features/eventLoopInspector.spec.ts
+      - runTest test/features/events.spec.ts
+      - runTest test/features/profiling.spec.ts
+      - runTest test/metrics/eventloop.spec.ts
+      - runTest test/metrics/http.spec.ts
+      - runTest test/metrics/network.spec.ts
+      - runTest test/metrics/v8.spec.ts
+      - runTest test/services/actions.spec.ts
+      - runTest test/services/metrics.spec.ts
+      - nyc report --reporter lcov || echo "No nyc coverage"
+      - ./cc-test-reporter after-build --exit-code 0 || echo “Skipping CC coverage upload” or upload-coverage || echo “Skipping CC coverage upload”
+    secrets: [ cc_test_reporter_id ]
     when:
       event: push
   slack:
