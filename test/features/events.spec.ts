@@ -10,16 +10,17 @@ const launch = (fixture) => {
   })
 }
 
-describe('EventsFeature', () => {
+describe('EventsFeature', function () {
+  this.timeout(5000)
   describe('emit', () => {
 
     it('should emit an event', (done) => {
       const child = launch('../fixtures/features/eventsChild')
       child.on('message', res => {
         if (res.type === 'human:event') {
+          child.kill('SIGKILL')
           expect(res.data.__name).to.equal('myEvent')
           expect(res.data.prop1).to.equal('value1')
-          child.kill('SIGINT')
           done()
         }
       })

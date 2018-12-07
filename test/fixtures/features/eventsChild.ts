@@ -5,4 +5,6 @@ pmx.init({
   profiling: true
 })
 
-pmx.emit('myEvent', { prop1: 'value1' })
+setInterval(_ => {
+  pmx.emit('myEvent', { prop1: 'value1' })
+}, 100)
