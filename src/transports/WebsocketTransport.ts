@@ -12,14 +12,6 @@ class SerializedAction {
   arity: number
 }
 
-export class ApmOptions {
-  sendLogs: boolean
-  serverName?: string
-  publicKey: string
-  privateKey: string
-  appName: string
-}
-
 export class ProcessMetadata {
   axm_actions: SerializedAction[] // tslint:disable-line
   axm_monitor: Object // tslint:disable-line
@@ -55,12 +47,7 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
       axm_options: {},
       axm_monitor: {}
     }
-    this.agent = new AgentNode({
-      publicKey: this.config.publicKey,
-      secretKey: this.config.secretKey,
-      appName: this.config.appName,
-      serverName: this.config.serverName
-    }, this.process)
+    this.agent = new AgentNode(this.config, this.process)
     this.agent.sendLogs = config.sendLogs || false
 
     this.agent.start()

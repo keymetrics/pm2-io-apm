@@ -11,7 +11,9 @@
 <br/>
 </div>
 
-The [@pm2/io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module comes along with PM2. It is the PM2 part responsible for gathering the metrics, reporting exceptions, exposing remote actions and every outside interaction with your application.
+The [@pm2/io](https://github.com/keymetrics/pm2-io-apm/tree/master/test) module comes along with PM2. It is the PM2 library responsible for gathering the metrics, reporting exceptions, exposing remote actions and every interaction with your application.
+
+You can also use it as a standalone agent, if you want to connect your nodejs process to PM2 Enterprise but without having to launch your application with PM2.
 
 # Table of Contents
 
@@ -41,7 +43,7 @@ yarn add @pm2/io
 
 ## Expose Custom Metrics
 
-@pm2/io allows you to gather metrics from your code to be reported in `pm2 monit` or in the Keymetrics dashboard.
+@pm2/io allows you to gather metrics from your code to be reported in the PM2 Plus/Enterprise dashboard.
 
 ### Create a custom metrics
 
@@ -50,22 +52,22 @@ You can create a new custom metrics with the method `metric()` of `@pm2/io`.
 ```javascript
 const io = require('@pm2/io');
 
-io.metric({
+const users = io.metric({
   name: 'Realtime user',
 });
+users.set(10)
 ```
 
 This arguments are available:
 
 - **name**: The metric name (required; string)
-- **type**: The type of metric (default 'metric', string)
-- **agg_type**: type of aggregation (default 'avg'; string: )
+- **id**: The type of metric (default 'metric', string)
 - **unit**: unit of the measure (default ''; string)
 - **historic**: keep the history in PM2 Plus (default: true; boolean)
 
 There are 4 different types of metrics:
 
-- **metric**: To expose a variable's value
+- **gauge**: To expose a variable's value
 - **counter**: A discrete counter to be triggered manually to count a number of occurrence
 - **meter**: To measure a frequency, a number of occurrences of a repeating event per unit of time
 - **histogram**: To measure a statistic, a statistic on a metric over the last 5 minutes
@@ -73,19 +75,6 @@ There are 4 different types of metrics:
 ### Metric: Variable Exposition
 
 The first type of metric, called `metric`, allows to expose a variable's value. The variable can be exposed passively, with a function that gets called every second, or actively, with a method that you use to update the value.
-
-#### Passive Mode
-
-```javascript
-const io = require('@pm2/io');
-
-io.metric({
-  name: 'Realtime user',
-  value: function() {
-    return Object.keys(users).length;
-  }
-});
-```
 
 #### Active Mode
 
@@ -195,7 +184,14 @@ By default, in the Issue tab, you are only alerted for uncaught exceptions. Any 
 const io = require('@pm2/io');
 
 io.notifyError(new Error('This is an error'), {
-  
+  // you can some http context that will be reported in the UI
+  http: {
+    url: req.url
+  },
+  // or anything that you can like an user id
+  custom: {
+    user: req.user.id
+  }
 });
 ```
 
@@ -204,107 +200,151 @@ io.notifyError(new Error('This is an error'), {
 ### Global configuration object
 
 ```javascript
-const io = require('@pm2/io')
-
-io.init({
-  metrics: {
-    eventLoopActive: true, // (default: true) Monitor active handles and active requests
-    eventLoopDelay: true,  // (default: true) Get event loop's average delay
-
-    // Network monitoring at the application level
-    network: {
-      traffic: true, // (default: true) Allow application level network monitoring
-      ports: true    // (default: false) Shows which ports your app is listening on
-    },
-
-    // Transaction Tracing system configuration
-    transaction: {
-      http: true,               // (default: true) HTTP routes logging
-      tracing: {                // (default: false) Enable transaction tracing
-        http_latency: 1,        // (default: 200) minimum latency in milliseconds to take into account
-        ignore_routes: ['/foo'] // (default: empty) exclude some routes
-      }
-    },
-
-    deepMetrics: {
-      mongo: true,             // (default: true) Mongo connections monitoring
-      mysql: true,             // (default: true) MySQL connections monitoring
-      mqtt: true,              // (default: true) Mqtt connections monitoring
-      socketio: true,          // (default: true) WebSocket monitoring
-      redis: true,             // (default: true) Redis monitoring
-      http: true,              // (default: true) Http incoming requests monitoring
-      https: true,             // (default: true) Https incoming requests monitoring
-      "http-outbound": true,   // (default: true) Http outbound requests monitoring
-      "https-outbound": true   // (default: true) Https outbound requests monitoring
-    },
-
-    v8: {
-      new_space: true,                    // (default: true) New objects space size
-      old_space: true,                    // (default: true) Old objects space size
-      map_space: true,                    // (default: true) Map space size
-      code_space: true,                   // (default: true) Executable space size
-      large_object_space: true,           // (default: true) Large objects space size
-      total_physical_size: false,         // (default: false) Physical heap size
-      total_heap_size: true,              // (default: true)  Heap size
-      total_available_size: false,        // (default: false) Total available size for the heap
-      total_heap_size_executable: true,   // (default: true)  Executable heap size
-      used_heap_size: true,               // (default: true)  Used heap size
-      heap_size_limit: true,              // (default: true)  Heap size maximum size
-      malloced_memory: false,             // (default: false) Allocated memory
-      peak_malloced_memory: false,        // (default: false) Peak of allocated memory
-      does_zap_garbage: false,            // (default: false) Zap garbage enable/disable
-      GC: {
-        totalHeapSize: true,              // (default: true)  GC heap size
-        totalHeapExecutableSize: true,    // (default: true)  GC executable heap size
-        usedHeapSize: true,               // (default: true)  GC used heap size
-        heapSizeLimit: false,             // (default: false) GC heap size maximum size
-        totalPhysicalSize: false,         // (default: false) GC heap physical size
-        totalAvailableSize: false,        // (default: false) GC available size
-        mallocedMemory: false,            // (default: false) GC allocated memory
-        peakMallocedMemory: false,        // (default: false) GC peak of allocated memory
-        gcType: true,                     // (default: true)  Type of GC (scavenge, mark/sweep/compact, ...)
-        gcPause: true                     // (default: true)  Duration of pause (in milliseconds)
-      }
-    },
-    worker: true, // (default false) : get number of workers and threads
-    fileRequests: true // (default false) : get requests to file system
-  },
-
-  actions: {
-    eventLoopDump: false, // (default: false) Enable event loop dump action
-    profilingCpu: true,   // (default: true) Enable CPU profiling actions
-    profilingHeap: true   // (default: true) Enable Heap profiling actions
+export class IOConfig {
+  /**
+   * Automatically catch unhandled errors
+   */
+  catchExceptions?: boolean = true
+  /**
+   * Configure the metrics to add automatically to your process
+   */
+  metrics?: {
+    eventLoop: boolean = true,
+    network: boolean = false,
+    http: boolean = true,
+    gc: boolean = true,
+    v8: boolean = true
   }
-});
-```
-
-### Custom configuration
-
-If you want to activate default options of a section :
-```javascript
-const io = require('@pm2/io')
-
-io.init({
-  metrics: {
-    v8: true
+  /**
+   * Configure the default actions that you can run
+   */
+  actions?: {
+    eventLoopDump?: boolean = true
   }
-})
-```
-
-If you want to customize a section :
-```javascript
-const io = require('@pm2/io')
-
-io.init({
-  metrics: {
-    v8: {
-      new_space: false, // don't take new_space into account
-      ...
+  /**
+   * Configure availables profilers that will be exposed
+   */
+  profiling?: {
+    /**
+     * Toggle the CPU profiling actions
+     */
+    cpuJS: boolean = true
+    /**
+     * Toggle the heap snapshot actions
+     */
+    heapSnapshot: boolean = true
+    /**
+     * Toggle the heap sampling actions
+     */
+    heapSampling: boolean = true
+    /**
+     * Force a specific implementation of profiler
+     * 
+     * available: 
+     *  - 'addon' (using the v8-profiler-node8 addon)
+     *  - 'inspector' (using the "inspector" api from node core)
+     *  - 'none' (disable the profilers)
+     *  - 'both' (will try to use inspector and fallback on addon if available)
+     */
+    implementation: string = 'both'
+  }
+  /**
+   * Configure the transaction tracing options
+   */
+  tracing?: {
+    /**
+     * Choose to enable the HTTP tracing system
+     * 
+     * default is false
+     */
+    enabled: boolean = false
+    /**
+     * Specify specific urls to ignore
+     */
+    ignoreFilter?: {
+      url?: string[]
+      method?: string[]
     }
+    // Log levels: 0-disabled,1-error,2-warn,3-info,4-debug
+    logLevel?: number
+    /**
+     * To disable a plugin in this list, you may override its path with a falsy
+     * value. Disabling any of the default plugins may cause unwanted behavior,
+     * so use caution.
+     */
+    plugins?: {
+      connect?: boolean
+      express?: boolean
+      'generic-pool'?: boolean
+      hapi?: boolean
+      http?: boolean
+      knex?: boolean
+      koa?: boolean
+      'mongodb-core'?: boolean
+      mysql?: boolean
+      pg?: boolean
+      redis?: boolean
+      restify?: boolean
+    }
+    /**
+     * An upper bound on the number of traces to gather each second. If set to 0,
+     * sampling is disabled and all traces are recorded. Sampling rates greater
+     * than 1000 are not supported and will result in at most 1000 samples per
+     * second.
+     */
+    samplingRate?: number
   }
-})
+  /**
+   * If you want to connect to PM2 Enterprise without using PM2, you should enable
+   * the standalone mode
+   * 
+   * default is false
+   */
+  standalone?: boolean = false
+  /**
+   * Define custom options for the standalone mode
+   */
+  apmOptions?: {
+    /**
+     * public key of the bucket to which the agent need to connect
+     */
+    publicKey: string
+    /**
+     * Secret key of the bucket to which the agent need to connect
+     */
+    secretKey: string
+    /**
+     * The name of the application/service that will be reported to PM2 Enterprise
+     */
+    appName: string
+    /**
+     * The name of the server as reported in PM2 Enterprise
+     *
+     * default is os.hostname()
+     */
+    serverName?: string
+    /**
+     * Broadcast all the logs from your application to our backend
+     */
+    sendLogs?: Boolean
+    /**
+     * Since logs can be forwared to our backend you may want to ignore specific
+     * logs (containing sensitive data for example)
+     */
+    logFilter?: string | RegExp
+    /**
+     * Proxy URI to use when reaching internet
+     * Supporting socks5,http,https,pac,socks4
+     * see https://github.com/TooTallNate/node-proxy-agent
+     *
+     * example: socks5://username:password@some-socks-proxy.com:9050
+     */
+    proxy?: string
+  }
+}
 ```
-**Note** : if you do not disable the default options they will be kept (merged with your configuration)
+
+You can pass whatever options you want to `io.init`, it will automatically update its configuration.
 
 ## Development
 

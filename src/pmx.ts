@@ -17,7 +17,6 @@ import { InspectorService } from './services/inspector'
 import { canUseInspector } from './constants'
 import { MetricConfig } from './features/metrics'
 import { ProfilingConfig } from './features/profiling'
-import { ApmOptions } from './transports/WebsocketTransport'
 
 export class IOConfig {
   /**
@@ -50,7 +49,7 @@ export class IOConfig {
   /**
    * Define custom options for the standalone mode
    */
-  apmOptions?: ApmOptions
+  apmOptions?: TransportConfig
 }
 
 export const defaultConfig: IOConfig = {
