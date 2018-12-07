@@ -8,7 +8,7 @@ process.env.FORCE_INSPECTOR = '1'
 
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
-    execArgv: [ '-r', 'ts-node/register' ]
+    execArgv: process.env.NYC_ROOT_ID ? process.execArgv : [ '-r', 'ts-node/register' ]
   })
 }
 

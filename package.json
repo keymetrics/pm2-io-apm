@@ -46,6 +46,8 @@
     "chai": "4.1.2",
     "express": "^4.16.4",
     "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "source-map-support": "^0.5.9",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
@@ -58,9 +60,13 @@
       ".ts"
     ],
     "exclude": [
-      "build/main/test/**/*",
-      "test/**/*"
-    ]
+      "build/",
+      "config/",
+      "examples/",
+      "test/"
+    ],
+    "cache": true,
+    "all": true
   },
   "dependencies": {
     "@pm2/agent-node": "^1.0.13",
