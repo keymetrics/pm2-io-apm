@@ -8,8 +8,7 @@ pipeline:
       - yarn -v
       - uname -r
       - yarn install --ignore-engines
-      - yarn add v8-profiler-node8 --ignore-engines
-      - yarn add gc-stats --ignore-engines
+      - yarn add express koa gc-stats v8-profiler-node8 --ignore-engines
       - export PATH=$PATH:./node_modules/.bin/
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter

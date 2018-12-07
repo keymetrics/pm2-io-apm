@@ -373,8 +373,21 @@ export default class PMX {
     return opts
   }
 
+  /**
+   * Return a custom express middleware that will send an error to the backend
+   * with all the details of the http request
+   */
   expressErrorHandler () {
     const notify = this.featureManager.get('notify') as NotifyFeature
     return notify.expressErrorHandler()
+  }
+
+  /**
+   * Return a custom koa middleware that will send an error to the backend
+   * with all the details of the http request
+   */
+  koaErrorHandler () {
+    const notify = this.featureManager.get('notify') as NotifyFeature
+    return notify.koaErrorHandler()
   }
 }

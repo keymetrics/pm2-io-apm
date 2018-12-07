@@ -133,7 +133,6 @@ export class NotifyFeature implements Feature {
     Configuration.configureModule({
       error : true
     })
-
     return function errorHandler (err, req, res, next) {
       const payload = {
         message: err.message,
@@ -144,10 +143,13 @@ export class NotifyFeature implements Feature {
             url: req.url,
             params: req.params,
             method: req.method,
+            query: req.query,
             body: req.body,
-            session: req.session,
             path: req.path,
             route: req.route && req.route.path ? req.route.path : undefined
+          },
+          custom: {
+            user: typeof req.user === 'object' ? req.user.id : undefined
           }
         }
       }
@@ -156,6 +158,40 @@ export class NotifyFeature implements Feature {
         ServiceManager.get('transport').send('process:exception', payload)
       }
       return next(err)
+    }
+  }
+
+  koaErrorHandler () {
+    Configuration.configureModule({
+      error : true
+    })
+    return async function (ctx, next) {
+      try {
+        await next()
+      } catch (err) {
+        const payload = {
+          message: err.message,
+          stack: err.stack,
+          name: err.name,
+          metadata: {
+            http: {
+              url: ctx.request.url,
+              params: ctx.params,
+              method: ctx.request.method,
+              query: ctx.request.query,
+              body: ctx.request.body,
+              path: ctx.request.path,
+              route: ctx._matchedRoute
+            },
+            custom: {
+              user: typeof ctx.user === 'object' ? ctx.user.id : undefined
+            }
+          }
+        }
+        if (ServiceManager.get('transport')) {
+          ServiceManager.get('transport').send('process:exception', payload)
+        }
+      }
     }
   }
 

@@ -14,6 +14,10 @@
     "lib" : [
       "es6"
     ],
+    "types": [
+      "node",
+      "mocha"
+    ],
     "baseUrl": ".", // required for "paths"
     "paths": {
       "pmx-2": ["src/index.ts"] // write tests without relative paths

@@ -246,6 +246,23 @@ describe('API', function () {
       })
     })
 
+    it('should receive data from koaErrorHandler', (done) => {
+      const child = launch('fixtures/apiKoaErrorHandler')
+
+      child.on('message', msg => {
+        if (msg === 'ready') {
+          const httpModule = require('http')
+          httpModule.get('http://localhost:3003/error')
+        } else if (msg.type === 'process:exception') {
+          expect(msg.data.message).to.equal('toto')
+          expect(msg.data.metadata.http.path).to.equal('/error')
+          expect(msg.data.metadata.http.method).to.equal('GET')
+          child.kill('SIGINT')
+          done()
+        }
+      })
+    })
+
     it('should enable tracing + metrics', (done) => {
       const child = launch('fixtures/apiBackwardConfChild')
       let tracingDone = false
