@@ -247,6 +247,7 @@ describe('API', function () {
     })
 
     it('should receive data from koaErrorHandler', (done) => {
+      if (semver.satisfies(process.version, '<= 6.0.0')) return done()
       const child = launch('fixtures/apiKoaErrorHandler')
 
       child.on('message', msg => {
