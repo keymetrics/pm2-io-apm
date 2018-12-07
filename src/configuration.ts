@@ -117,6 +117,6 @@ export default class Configuration {
   }
 
   static getMain (): any {
-    return require.main || {filename: './somefile.js'}
+    return require.main || { filename: './somefile.js' }
   }
 }
