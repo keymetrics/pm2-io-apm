@@ -216,18 +216,6 @@ describe('API', function () {
       })
     })
 
-    it('should receive data from notify', (done) => {
-      const child = launch('fixtures/apiBackwardNotifyChild')
-
-      child.on('message', msg => {
-        if (msg.data.message !== 'test' && msg.data.message !== 'testError' && msg.success) {
-          assert.fail()
-        }
-      })
-
-      child.on('exit', done)
-    })
-
     it('should receive data from expressErrorHandler', (done) => {
       const child = launch('fixtures/apiBackwardExpressChild')
 
