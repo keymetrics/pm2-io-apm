@@ -199,6 +199,12 @@ export default class InspectorProfiler implements ProfilerType {
      // run the callback to acknowledge that we received the action
     cb({ success: true, uuid: this.currentProfile.uuid })
 
+    // start the idle time reporter to tell V8 when node is idle
+    // See https://github.com/nodejs/node/issues/19009#issuecomment-403161559.
+    if (process.hasOwnProperty('_startProfilerIdleNotifier') === true) {
+      (process as any)._startProfilerIdleNotifier()
+    }
+
     this.profiler.getSession().post('Profiler.start')
 
     if (isNaN(parseInt(opts.timeout, 10))) return
@@ -229,6 +235,12 @@ export default class InspectorProfiler implements ProfilerType {
 
     // run the callback to acknowledge that we received the action
     cb({ success: true, uuid: this.currentProfile.uuid })
+
+    // stop the idle time reporter to tell V8 when node is idle
+    // See https://github.com/nodejs/node/issues/19009#issuecomment-403161559.
+    if (process.hasOwnProperty('_stopProfilerIdleNotifier') === true) {
+      (process as any)._stopProfilerIdleNotifier()
+    }
 
     this.profiler.getSession().post('Profiler.stop', (_: Error, res: any) => {
       // not possible but thanks mr typescript
