@@ -1,3 +1,4 @@
+'use strict'
 
 import Configuration from './configuration'
 import Debug from 'debug'
@@ -337,14 +338,15 @@ export default class PMX {
     }
   }
 
-  emit (name: string, data: any) {
+  /**
+   * Emit a custom event to Keymetrics
+   * @deprecated
+   *
+   * The feature has been removed from PM2 Plus and will be removed in future release
+   */
+  emit (name: string, data: Object) {
     const events = this.featureManager.get('events') as EventsFeature
     return events.emit(name, data)
-  }
-
-  notify (error: Error) {
-    const notify = this.featureManager.get('notify') as NotifyFeature
-    return notify.notifyError(error)
   }
 
   initModule (opts: any, cb?: Function) {
