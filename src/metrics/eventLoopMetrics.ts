@@ -1,11 +1,22 @@
+'use strict'
+
 import { MetricService, InternalMetric, MetricType } from '../services/metrics'
 import { ServiceManager } from '../serviceManager'
 import * as Debug from 'debug'
 import { MetricInterface } from '../features/metrics'
 import Histogram from '../utils/metrics/histogram'
+import { RuntimeStatsService } from 'src/services/runtimeStats'
 
 export class EventLoopMetricOption {
+  /**
+   * Toggle the metrics about the actives handles/requests in the event loop
+   * see http://docs.libuv.org/en/v1.x/design.html#handles-and-requests
+   */
   eventLoopActive: boolean
+  /**
+   * Toggle the metrics about how much time the event loop use to make one loop
+   * see http://docs.libuv.org/en/v1.x/design.html#the-i-o-loop
+   */
   eventLoopDelay: boolean
 }
 
@@ -22,6 +33,8 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
   private handleTimer: NodeJS.Timer | undefined
   private delayTimer: NodeJS.Timer | undefined
   private delayLoopInterval: number = 1000
+  private runtimeStatsService: RuntimeStatsService | undefined
+  private handle: (data: any) => void | undefined
 
   init (config?: EventLoopMetricOption | boolean) {
     if (config === false) return
@@ -35,30 +48,31 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
     if (this.metricService === undefined) return this.logger('Failed to load metric service')
 
     this.logger('init')
-    const _process = process as any
-    if (typeof _process._getActiveRequests === 'function' && config.eventLoopActive === true) {
+    if (typeof (process as any)._getActiveRequests === 'function' && config.eventLoopActive === true) {
       const requestMetric = this.metricService.metric({
         name : 'Active requests',
         id: 'internal/libuv/requests',
         historic: true
       })
       this.requestTimer = setInterval(_ => {
-        requestMetric.set(_process._getActiveRequests().length)
+        requestMetric.set((process as any)._getActiveRequests().length)
       }, 1000)
       this.requestTimer.unref()
     }
 
-    if (typeof _process._getActiveHandles === 'function' && config.eventLoopActive === true) {
+    if (typeof (process as any)._getActiveHandles === 'function' && config.eventLoopActive === true) {
       const handleMetric = this.metricService.metric({
         name : 'Active handles',
         id: 'internal/libuv/handles',
         historic: true
       })
       this.handleTimer = setInterval(_ => {
-        handleMetric.set(_process._getActiveHandles().length)
+        handleMetric.set((process as any)._getActiveHandles().length)
       }, 1000)
       this.handleTimer.unref()
     }
+
+    if (config.eventLoopDelay === false) return
 
     const histogram = new Histogram()
 
@@ -68,9 +82,9 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
       type: MetricType.histogram,
       historic: true,
       implementation: histogram,
-      handler: () => {
-        const percentiles = histogram.percentiles([ 0.95 ])
-        return percentiles[0.95]
+      handler: function () {
+        const percentiles = this.implementation.percentiles([ 0.5 ])
+        return percentiles[0.5]
       },
       unit: 'ms'
     }
@@ -80,27 +94,38 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
       type: MetricType.histogram,
       historic: true,
       implementation: histogram,
-      handler: () => {
-        const percentiles = histogram.percentiles([ 0.5 ])
-        return percentiles[0.5]
+      handler: function () {
+        const percentiles = this.implementation.percentiles([ 0.95 ])
+        return percentiles[0.95]
       },
       unit: 'ms'
     }
 
-    if (config.eventLoopDelay === false) return
-
     this.metricService.registerMetric(uvLatencyp50)
     this.metricService.registerMetric(uvLatencyp95)
 
-    let oldTime = process.hrtime()
-    this.delayTimer = setInterval(() => {
-      const newTime = process.hrtime()
-      const delay = (newTime[0] - oldTime[0]) * 1e3 + (newTime[1] - oldTime[1]) / 1e6 - this.delayLoopInterval
-      oldTime = newTime
-      histogram.update(delay)
-    }, this.delayLoopInterval)
+    this.runtimeStatsService = ServiceManager.get('runtimeStats')
+    if (this.runtimeStatsService === undefined) {
+      this.logger('runtimeStats module not found, fallbacking into pure js method')
+      let oldTime = process.hrtime()
+      this.delayTimer = setInterval(() => {
+        const newTime = process.hrtime()
+        const delay = (newTime[0] - oldTime[0]) * 1e3 + (newTime[1] - oldTime[1]) / 1e6 - this.delayLoopInterval
+        oldTime = newTime
+        histogram.update(delay)
+      }, this.delayLoopInterval)
 
-    this.delayTimer.unref()
+      this.delayTimer.unref()
+    } else {
+      this.logger('using runtimeStats module as data source for event loop latency')
+      this.handle = (stats: any) => {
+        if (typeof stats !== 'object' || !Array.isArray(stats.ticks)) return
+        stats.ticks.forEach((tick: number) => {
+          histogram.update(tick)
+        })
+      }
+      this.runtimeStatsService.on('data', this.handle)
+    }
   }
 
   destroy () {
@@ -112,6 +137,9 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
     }
     if (this.delayTimer !== undefined) {
       clearInterval(this.delayTimer)
+    }
+    if (this.runtimeStatsService !== undefined) {
+      this.runtimeStatsService.removeListener('data', this.handle)
     }
     this.logger('destroy')
   }
