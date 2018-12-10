@@ -28,20 +28,3 @@ describe('V8', function () {
     })
   })
 })
-
-describe('GC', function () {
-  this.timeout(50000)
-
-  it('should get GC stats', (done) => {
-    const child = launch('../fixtures/metrics/v8Child')
-
-    child.on('message', pck => {
-
-      if (pck.type === 'axm:monitor' && pck.data['GC Type']) {
-        expect(pck.data.hasOwnProperty('GC Type')).to.equal(true)
-        child.kill('SIGKILL')
-        done()
-      }
-    })
-  })
-})

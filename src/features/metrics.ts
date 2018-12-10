@@ -4,21 +4,38 @@ import EventLoopHandlesRequestsMetric, { EventLoopMetricOption } from '../metric
 import NetworkMetric, { NetworkTrafficConfig } from '../metrics/network'
 import HttpMetrics, { HttpMetricsConfig } from '../metrics/httpMetrics'
 import V8Metric, { V8MetricsConfig } from '../metrics/v8'
-import GCMetrics, { GCMetricsOptions } from '../metrics/gc'
+import RuntimeMetrics, { RuntimeMetricsOptions } from '../metrics/runtime'
 
 export const defaultMetricConf: MetricConfig = {
   eventLoop: true,
   network: false,
   http: true,
-  gc: true,
+  runtime: true,
   v8: true
 }
 
 export class MetricConfig {
+  /**
+   * Toggle metrics about the V8 Heap
+   */
   v8?: V8MetricsConfig | boolean
-  gc?: GCMetricsOptions | boolean
+  /**
+   * Toggle metrics about the event loop and GC
+   *
+   * Note: need to install @pm2/node-runtime-stats as a dependency
+   */
+  runtime?: RuntimeMetricsOptions | boolean
+  /**
+   * Toggle metrics about http/https requests
+   */
   http?: HttpMetricsConfig | boolean
+  /**
+   * Toggle network about network usage in your app
+   */
   network?: NetworkTrafficConfig | boolean
+  /**
+   * Toggle metrics about the event loop
+   */
   eventLoop?: EventLoopMetricOption | boolean
 }
 
@@ -67,9 +84,9 @@ const availableMetrics: AvailableMetric[] = [
     optionsPath: 'v8'
   },
   {
-    name: 'gc',
-    module: GCMetrics,
-    optionsPath: 'gc'
+    name: 'runtime',
+    module: RuntimeMetrics,
+    optionsPath: 'runtime'
   }
 ]
 
@@ -102,6 +119,12 @@ export class MetricsFeature implements Feature {
       metric.init(config)
       availableMetric.instance = metric
     }
+  }
+
+  get (name: string): MetricInterface | undefined {
+    const metric = availableMetrics.find(metric => metric.name === name)
+    if (metric === undefined) return undefined
+    return metric.instance
   }
 
   destroy () {

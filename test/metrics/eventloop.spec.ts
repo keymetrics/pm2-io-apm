@@ -8,34 +8,52 @@ const launch = (fixture) => {
   })
 }
 
-describe('EventLoopHandlesRequests', function () {
-  this.timeout(5000)
+const includes = (array, value) => {
+  array.forEach(tmp => {
+    if (tmp === value) return true
+  })
+  return false
+}
 
-  it('should send event loop handles and requests counter', (done) => {
-    const child = launch('../fixtures/metrics/eventLoopHandlesRequestsChild')
+describe('EventLoopHandlesRequests', function () {
+  this.timeout(10000)
+
+  it('should send event loop with runtime stats', (done) => {
+    const child = launch('../fixtures/metrics/gcv8Child')
 
     child.on('message', pck => {
-
       if (pck.type === 'axm:monitor') {
-        expect(pck.data['Active handles'].historic).to.equal(true)
-        expect(pck.data['Active handles'].type).to.equal('internal/libuv/handles')
-
-        child.kill('SIGINT')
-        done()
+        const metricsName = Object.keys(pck.data)
+        const metricsThatShouldBeThere = [
+          'Event Loop Latency',
+          'Active handles',
+          'Active requests',
+          'Event Loop Latency p95'
+        ]
+        if (metricsName.filter(name => includes(metricsThatShouldBeThere, name)).length === metricsThatShouldBeThere.length) {
+          child.kill('SIGINT')
+          done()
+        }
       }
     })
   })
-  it('should send event loop delay', (done) => {
-    const child = launch('../fixtures/metrics/eventLoopDelayChild')
+  it('should send event without runtime stats', (done) => {
+    process.env.PM2_APM_DISABLE_RUNTIME_STATS = 'true'
+    const child = launch('../fixtures/metrics/gcv8Child')
 
     child.on('message', pck => {
-      if (pck.type === 'axm:monitor' && pck.data['Event Loop Latency']) {
-        expect(pck.data['Event Loop Latency'].historic).to.equal(true)
-        expect(pck.data['Event Loop Latency'].type).to.equal('internal/libuv/latency/p50')
-        expect(pck.data['Event Loop Latency'].unit).to.equal('ms')
-
-        child.kill('SIGINT')
-        done()
+      if (pck.type === 'axm:monitor') {
+        const metricsName = Object.keys(pck.data)
+        const metricsThatShouldBeThere = [
+          'Event Loop Latency',
+          'Active handles',
+          'Active requests',
+          'Event Loop Latency p95'
+        ]
+        if (metricsName.filter(name => includes(metricsThatShouldBeThere, name)).length === metricsThatShouldBeThere.length) {
+          child.kill('SIGINT')
+          done()
+        }
       }
     })
   })

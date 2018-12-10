@@ -2,14 +2,14 @@ import pmx from '../../../src'
 pmx.init({
   metrics: {
     eventLoop: true,
-    gc: true,
+    runtime: true,
     v8: true
   }
 })
 
 setInterval(_ => {
   let str = 0
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 1000; i++) {
     str = str + str
   }
-}, 1000)
+}, 100)

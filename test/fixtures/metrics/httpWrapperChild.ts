@@ -2,7 +2,7 @@ import pmx from '../../../src'
 pmx.init({
   metrics: {
     eventLoop: true,
-    gc: true,
+    runtime: true,
     v8: true,
     http: true
   }

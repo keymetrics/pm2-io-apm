@@ -18,6 +18,7 @@ import { InspectorService } from './services/inspector'
 import { canUseInspector } from './constants'
 import { MetricConfig } from './features/metrics'
 import { ProfilingConfig } from './features/profiling'
+import { RuntimeStatsService } from './services/runtimeStats'
 
 export class IOConfig {
   /**
@@ -60,7 +61,7 @@ export const defaultConfig: IOConfig = {
     v8: true,
     network: false,
     eventLoop: true,
-    gc: true,
+    runtime: true,
     http: true
   },
   standalone: false,
@@ -74,6 +75,7 @@ export default class PMX {
   private featureManager: FeatureManager = new FeatureManager()
   private actionService: ActionService | null = null
   private metricService: MetricService | null = null
+  private runtimeStatsService: RuntimeStatsService | null = null
   private logger: Function = Debug('axm:main')
   private initialized: boolean = false
 
@@ -116,6 +118,12 @@ export default class PMX {
     this.metricService.init()
     ServiceManager.set('metrics', this.metricService)
 
+    this.runtimeStatsService = new RuntimeStatsService()
+    this.runtimeStatsService.init()
+    if (this.runtimeStatsService.isEnabled()) {
+      ServiceManager.set('runtimeStats', this.runtimeStatsService)
+    }
+
     // init features
     this.featureManager.init(config)
 
@@ -143,8 +151,11 @@ export default class PMX {
     if (this.metricService !== null) {
       this.metricService.destroy()
     }
+    if (this.runtimeStatsService !== null) {
+      this.runtimeStatsService.destroy()
+    }
     const inspectorService: InspectorService | undefined = ServiceManager.get('inspector')
-    if (inspectorService !== undefined && inspectorService !== null) {
+    if (inspectorService !== undefined) {
       inspectorService.destroy()
     }
   }

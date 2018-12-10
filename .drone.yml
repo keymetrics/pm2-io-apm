@@ -8,7 +8,7 @@ pipeline:
       - yarn -v
       - uname -r
       - yarn install --ignore-engines
-      - yarn add express koa gc-stats v8-profiler-node8 --ignore-engines
+      - yarn add express koa @pm2/node-runtime-stats v8-profiler-node8 --ignore-engines
       - export PATH=$PATH:./node_modules/.bin/
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
@@ -23,6 +23,7 @@ pipeline:
       - runTest test/metrics/http.spec.ts
       - runTest test/metrics/network.spec.ts
       - runTest test/metrics/v8.spec.ts
+      - runTest test/metrics/runtime.spec.ts
       - runTest test/services/actions.spec.ts
       - runTest test/services/metrics.spec.ts
       - nyc report --reporter lcov || echo "No nyc coverage"
