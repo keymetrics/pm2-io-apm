@@ -2,6 +2,8 @@ import { expect, assert } from 'chai'
 import { fork } from 'child_process'
 import { resolve } from 'path'
 
+process.env.DEBUG = 'axm:services:runtimeStats,axm:features:metrics:eventloop'
+
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
     execArgv: process.env.NYC_ROOT_ID ? process.execArgv : [ '-r', 'ts-node/register' ]
@@ -24,6 +26,7 @@ describe('EventLoopHandlesRequests', function () {
     child.on('message', pck => {
       if (pck.type === 'axm:monitor') {
         const metricsName = Object.keys(pck.data)
+        console.log(metricsName)
         const metricsThatShouldBeThere = [
           'Event Loop Latency',
           'Active handles',
@@ -44,6 +47,7 @@ describe('EventLoopHandlesRequests', function () {
     child.on('message', pck => {
       if (pck.type === 'axm:monitor') {
         const metricsName = Object.keys(pck.data)
+        console.log(metricsName)
         const metricsThatShouldBeThere = [
           'Event Loop Latency',
           'Active handles',
