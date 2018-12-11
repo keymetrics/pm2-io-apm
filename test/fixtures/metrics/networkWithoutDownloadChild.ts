@@ -1,4 +1,4 @@
-import pmx from '../../../src'
+import * as pmx from '../../../src'
 pmx.init({
   metrics: {
     network: {

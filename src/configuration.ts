@@ -7,9 +7,6 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as util from 'util'
 
-const prefix = __dirname.replace(/\\/g,'/').indexOf('/build/') >= 0 ? '../../../' : '../'
-const pkg = require(prefix + '/package.json')
-
 export default class Configuration {
 
   static configureModule (opts) {
@@ -49,7 +46,13 @@ export default class Configuration {
     if (!conf.module_conf) {
       conf.module_conf = {}
     }
-    conf.pmx_version = pkg.version || null
+
+    try {
+      const pkg = require('../package.json')
+      conf.pmx_version = pkg.version || null
+    } catch (err) {
+      // ignore
+    }
 
     if (conf.isModule === true) {
       /**

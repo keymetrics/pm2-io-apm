@@ -1,8 +1,9 @@
-import pmx from '../../../src'
+import * as pmx from '../../../src'
 pmx.init({
   tracing: true
 })
 
+// @ts-ignore added in ci only
 import * as express from 'express'
 const app = express()
 
