@@ -205,6 +205,11 @@ export class MetricService implements Service {
   }
 
   metric (opts: Metric): Gauge {
+    // @ts-ignore warn of backward compatbility
+    if (typeof opts.value === 'function') {
+      console.error(`We dropped the support for setting the value of a metrics with a function, see new docs`)
+      console.trace()
+    }
     const metric: InternalMetric = {
       name: opts.name,
       type: MetricType.gauge,
