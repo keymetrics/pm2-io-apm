@@ -1,5 +1,5 @@
 
-import pmx from '../../src'
+import * as pmx from '../../src'
 let timer
 let server
 

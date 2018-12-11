@@ -184,10 +184,10 @@ export default class HttpMetrics implements MetricInterface {
         // we first require the target module
         const returned = original.apply(original, arguments)
         // if it's a modue that we want to patch, install the patch on top of it
-        if (file === 'http') {
+        if (file === 'http' && self.modules['http'] === undefined) {
           self.registerHttpMetric()
           self.hookHttp(returned, file)
-        } else if (file === 'https') {
+        } else if (file === 'https' && self.modules['https'] === undefined) {
           self.registerHttpsMetric()
           self.hookHttp(returned, file)
         }

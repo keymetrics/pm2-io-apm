@@ -5,7 +5,7 @@ import * as semver from 'semver'
 import { resolve } from 'path'
 
 import { exec, fork } from 'child_process'
-import pmx from '../src'
+import * as pmx from '../src'
 
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
