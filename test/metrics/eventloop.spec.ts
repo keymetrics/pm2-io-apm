@@ -10,11 +10,8 @@ const launch = (fixture) => {
   })
 }
 
-const includes = (array, value) => {
-  array.forEach(tmp => {
-    if (tmp === value) return true
-  })
-  return false
+const includes = (array: string[], value: string): boolean => {
+  return array.some(tmp => tmp === value)
 }
 
 describe('EventLoopHandlesRequests', function () {
@@ -26,12 +23,11 @@ describe('EventLoopHandlesRequests', function () {
     child.on('message', pck => {
       if (pck.type === 'axm:monitor') {
         const metricsName = Object.keys(pck.data)
-        console.log(metricsName)
         const metricsThatShouldBeThere = [
           'Event Loop Latency',
+          'Event Loop Latency p95',
           'Active handles',
-          'Active requests',
-          'Event Loop Latency p95'
+          'Active requests'
         ]
         if (metricsName.filter(name => includes(metricsThatShouldBeThere, name)).length === metricsThatShouldBeThere.length) {
           child.kill('SIGINT')
@@ -47,7 +43,6 @@ describe('EventLoopHandlesRequests', function () {
     child.on('message', pck => {
       if (pck.type === 'axm:monitor') {
         const metricsName = Object.keys(pck.data)
-        console.log(metricsName)
         const metricsThatShouldBeThere = [
           'Event Loop Latency',
           'Active handles',

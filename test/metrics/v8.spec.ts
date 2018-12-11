@@ -11,7 +11,7 @@ const launch = (fixture) => {
 describe('V8', function () {
   this.timeout(5000)
   it('should send all data with v8 heap info', (done) => {
-    const child = launch('../fixtures/metrics/v8Child')
+    const child = launch('../fixtures/metrics/gcv8Child.ts')
     let receive = false
 
     child.on('message', pck => {
