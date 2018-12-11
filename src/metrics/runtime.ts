@@ -6,15 +6,28 @@ import * as Debug from 'debug'
 import { MetricInterface } from '../features/metrics'
 import Histogram from '../utils/metrics/histogram'
 import { RuntimeStatsService } from 'src/services/runtimeStats'
+import Gauge from 'src/utils/metrics/gauge'
 
 export class RuntimeMetricsOptions {
   gcOldPause: boolean
   gcNewPause: boolean
+  /**
+   * Toggle metrics about the page reclaims (soft and hard)
+   * see https://en.wikipedia.org/wiki/Page_fault
+   */
+  pageFaults: boolean
+  /**
+   * Toggle metrics about CPU context switch
+   * see https://en.wikipedia.org/wiki/Context_switch
+   */
+  contextSwitchs: boolean
 }
 
 const defaultOptions: RuntimeMetricsOptions = {
   gcNewPause: true,
-  gcOldPause: true
+  gcOldPause: true,
+  pageFaults: true,
+  contextSwitchs: true
 }
 
 export default class RuntimeMetrics implements MetricInterface {
@@ -23,6 +36,7 @@ export default class RuntimeMetrics implements MetricInterface {
   private logger: any = Debug('axm:features:metrics:runtime')
   private runtimeStatsService: RuntimeStatsService | undefined
   private handle: (data: Object) => void | undefined
+  private metrics: Map<String, Gauge> = new Map<String, Gauge>()
 
   init (config?: RuntimeMetricsOptions | boolean) {
     if (config === false) return
@@ -97,10 +111,53 @@ export default class RuntimeMetrics implements MetricInterface {
       })
     }
 
+    if (config.contextSwitchs === true) {
+      const volontarySwitchs = this.metricService.metric({
+        name: 'Volontary CPU Context Switch',
+        id: 'internal/uv/cpu/contextswitch/volontary'
+      })
+      const inVolontarySwitchs = this.metricService.metric({
+        name: 'Involuntary CPU Context Switch',
+        id: 'internal/uv/cpu/contextswitch/involontary'
+      })
+      this.metrics.set('inVolontarySwitchs', inVolontarySwitchs)
+      this.metrics.set('volontarySwitchs', volontarySwitchs)
+    }
+
+    if (config.pageFaults === true) {
+      const softPageFault = this.metricService.metric({
+        name: 'Minor Page Fault',
+        id: 'internal/uv/memory/pagefault/minor'
+      })
+      const hardPageFault = this.metricService.metric({
+        name: 'Major Page Fault',
+        id: 'internal/uv/memory/pagefault/major'
+      })
+      this.metrics.set('softPageFault', softPageFault)
+      this.metrics.set('hardPageFault', hardPageFault)
+    }
+
     this.handle = (stats: any) => {
       if (typeof stats !== 'object' || typeof stats.gc !== 'object') return
       newHistogram.update(stats.gc.newPause)
       oldHistogram.update(stats.gc.oldPause)
+      if (typeof stats.usage !== 'object') return
+      const volontarySwitchs = this.metrics.get('volontarySwitchs')
+      if (volontarySwitchs !== undefined) {
+        volontarySwitchs.set(stats.usage.ru_nvcsw)
+      }
+      const inVolontarySwitchs = this.metrics.get('inVolontarySwitchs')
+      if (inVolontarySwitchs !== undefined) {
+        inVolontarySwitchs.set(stats.usage.ru_nivcsw)
+      }
+      const softPageFault = this.metrics.get('softPageFault')
+      if (softPageFault !== undefined) {
+        softPageFault.set(stats.usage.ru_minflt)
+      }
+      const hardPageFault = this.metrics.get('hardPageFault')
+      if (hardPageFault !== undefined) {
+        hardPageFault.set(stats.usage.ru_majflt)
+      }
     }
 
     this.runtimeStatsService.on('data', this.handle)

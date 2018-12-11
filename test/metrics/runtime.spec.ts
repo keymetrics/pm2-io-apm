@@ -20,7 +20,9 @@ describe('RuntimeStatsMetrics', function () {
       if (pck.type === 'axm:monitor') {
         const metricsName = Object.keys(pck.data)
         const hasGCMetrics = metricsName.some(name => !!name.match(/GC/))
-        if (hasGCMetrics) {
+        const hasPFMetrics = metricsName.some(name => !!name.match(/Page Fault/))
+        const hasContextSwitchMetrics = metricsName.some(name => !!name.match(/Context Switch/))
+        if (hasGCMetrics && hasContextSwitchMetrics && hasPFMetrics) {
           console.log(`found GC metrics: ${metricsName.filter(name => !!name.match(/GC/)).join(',')}`)
           child.kill('SIGINT')
           done()
@@ -37,7 +39,9 @@ describe('RuntimeStatsMetrics', function () {
       child.on('message', pck => {
         if (pck.type === 'axm:monitor') {
           const metricsName = Object.keys(pck.data)
-          assert(metricsName.every(name => !name.match(/GC/)), 'should have got some metrics about GC')
+          assert(metricsName.every(name => !name.match(/GC/)), 'should have no GC metrics')
+          assert(metricsName.every(name => !name.match(/Page Fault/)), 'should have no Page fault metrics')
+          assert(metricsName.every(name => !name.match(/Context Switch/)), 'should have no context switch metrics')
           child.kill('SIGINT')
         }
       })
