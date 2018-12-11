@@ -92,7 +92,7 @@ export default class PMX {
       this.logger(`Calling init but was already the case, destroying and recreating`)
       this.destroy()
     }
-    if (config === undefined || config === null) {
+    if (config === undefined) {
       config = defaultConfig
     }
 
@@ -182,6 +182,7 @@ export default class PMX {
   metrics (metric: MetricBulk | Array<MetricBulk>): any[] {
 
     const res: any[] = []
+    // tslint:disable-next-line
     if (metric === undefined || metric === null) {
       console.error(`Received empty metric to create`)
       console.trace()
@@ -196,6 +197,7 @@ export default class PMX {
         res.push({})
         continue
       }
+      // tslint:disable-next-line
       if (metric.type === undefined) {
         metric.type = MetricType.gauge
       }
@@ -236,6 +238,7 @@ export default class PMX {
    * Create an histogram metric
    */
   histogram (config: HistogramOptions): Histogram {
+    // tslint:disable-next-line
     if (typeof config === 'string') {
       config = {
         name: config as string,
@@ -255,6 +258,7 @@ export default class PMX {
    * Create a gauge metric
    */
   metric (config: Metric): Gauge {
+    // tslint:disable-next-line
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -272,6 +276,7 @@ export default class PMX {
    * Create a gauge metric
    */
   gauge (config: Metric): Gauge {
+    // tslint:disable-next-line
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -289,6 +294,7 @@ export default class PMX {
    * Create a counter metric
    */
   counter (config: Metric): Counter {
+    // tslint:disable-next-line
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -307,6 +313,7 @@ export default class PMX {
    * Create a meter metric
    */
   meter (config: Metric): Meter {
+    // tslint:disable-next-line
     if (typeof config === 'string') {
       config = {
         name: config as string
@@ -327,6 +334,7 @@ export default class PMX {
    */
   action (name: string, opts?: Object, fn?: Function) {
     // backward compatiblity
+    // tslint:disable-next-line
     if (typeof name === 'object') {
       const tmp: any = name
       name = tmp.name
@@ -342,7 +350,8 @@ export default class PMX {
   }
 
   onExit (callback: Function) {
-    if (callback && typeof callback === 'function') {
+    // tslint:disable-next-line
+    if (typeof callback === 'function') {
       const onExit = require('signal-exit')
 
       return onExit(callback)
@@ -381,9 +390,7 @@ export default class PMX {
     opts.isModule = true
     opts = Configuration.init(opts)
 
-    if (cb && typeof(cb) === 'function') return cb(null, opts)
-
-    return opts
+    return typeof cb === 'function' ? cb(null, opts) : opts
   }
 
   /**

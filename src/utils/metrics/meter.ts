@@ -40,6 +40,6 @@ export default class Meter {
   }
 
   val = function () {
-    return Math.round(this._rate.rate(this._samples * units.SECONDS) * 100 ) / 100
+    return Math.round(this._rate.rate(this._samples * units.SECONDS) * 100) / 100
   }
 }

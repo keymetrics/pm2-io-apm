@@ -117,7 +117,7 @@ export class FeatureManager {
    */
   get (name: string): Feature {
     const feature = availablesFeatures.find(feature => feature.name === name)
-    if (feature === undefined || feature === null || feature.instance === undefined) {
+    if (feature === undefined || feature.instance === undefined) {
       throw new Error(`Tried to call feature ${name} which doesn't exist or wasn't initiated`)
     }
     return feature.instance
