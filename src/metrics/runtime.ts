@@ -1,12 +1,11 @@
 'use strict'
 
-import { MetricService, MetricType } from '../services/metrics'
+import { MetricService, MetricType, MetricMeasurements } from '../services/metrics'
 import { ServiceManager } from '../serviceManager'
 import * as Debug from 'debug'
 import { MetricInterface } from '../features/metrics'
 import Histogram from '../utils/metrics/histogram'
 import { RuntimeStatsService } from 'src/services/runtimeStats'
-import Gauge from 'src/utils/metrics/gauge'
 
 export class RuntimeMetricsOptions {
   gcOldPause: boolean
@@ -36,7 +35,7 @@ export default class RuntimeMetrics implements MetricInterface {
   private logger: any = Debug('axm:features:metrics:runtime')
   private runtimeStatsService: RuntimeStatsService | undefined
   private handle: (data: Object) => void | undefined
-  private metrics: Map<String, Gauge> = new Map<String, Gauge>()
+  private metrics: Map<String, Histogram> = new Map<String, Histogram>()
 
   init (config?: RuntimeMetricsOptions | boolean) {
     if (config === false) return
@@ -112,26 +111,30 @@ export default class RuntimeMetrics implements MetricInterface {
     }
 
     if (config.contextSwitchs === true) {
-      const volontarySwitchs = this.metricService.metric({
+      const volontarySwitchs = this.metricService.histogram({
         name: 'Volontary CPU Context Switch',
-        id: 'internal/uv/cpu/contextswitch/volontary'
+        id: 'internal/uv/cpu/contextswitch/volontary',
+        measurement: MetricMeasurements.mean
       })
-      const inVolontarySwitchs = this.metricService.metric({
+      const inVolontarySwitchs = this.metricService.histogram({
         name: 'Involuntary CPU Context Switch',
-        id: 'internal/uv/cpu/contextswitch/involontary'
+        id: 'internal/uv/cpu/contextswitch/involontary',
+        measurement: MetricMeasurements.mean
       })
       this.metrics.set('inVolontarySwitchs', inVolontarySwitchs)
       this.metrics.set('volontarySwitchs', volontarySwitchs)
     }
 
     if (config.pageFaults === true) {
-      const softPageFault = this.metricService.metric({
+      const softPageFault = this.metricService.histogram({
         name: 'Minor Page Fault',
-        id: 'internal/uv/memory/pagefault/minor'
+        id: 'internal/uv/memory/pagefault/minor',
+        measurement: MetricMeasurements.mean
       })
-      const hardPageFault = this.metricService.metric({
+      const hardPageFault = this.metricService.histogram({
         name: 'Major Page Fault',
-        id: 'internal/uv/memory/pagefault/major'
+        id: 'internal/uv/memory/pagefault/major',
+        measurement: MetricMeasurements.mean
       })
       this.metrics.set('softPageFault', softPageFault)
       this.metrics.set('hardPageFault', hardPageFault)
@@ -144,19 +147,19 @@ export default class RuntimeMetrics implements MetricInterface {
       if (typeof stats.usage !== 'object') return
       const volontarySwitchs = this.metrics.get('volontarySwitchs')
       if (volontarySwitchs !== undefined) {
-        volontarySwitchs.set(stats.usage.ru_nvcsw)
+        volontarySwitchs.update(stats.usage.ru_nvcsw)
       }
       const inVolontarySwitchs = this.metrics.get('inVolontarySwitchs')
       if (inVolontarySwitchs !== undefined) {
-        inVolontarySwitchs.set(stats.usage.ru_nivcsw)
+        inVolontarySwitchs.update(stats.usage.ru_nivcsw)
       }
       const softPageFault = this.metrics.get('softPageFault')
       if (softPageFault !== undefined) {
-        softPageFault.set(stats.usage.ru_minflt)
+        softPageFault.update(stats.usage.ru_minflt)
       }
       const hardPageFault = this.metrics.get('hardPageFault')
       if (hardPageFault !== undefined) {
-        hardPageFault.set(stats.usage.ru_majflt)
+        hardPageFault.update(stats.usage.ru_majflt)
       }
     }
 
