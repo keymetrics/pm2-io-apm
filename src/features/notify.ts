@@ -49,6 +49,8 @@ export class NotifyFeature implements Feature {
   }
 
   destroy () {
+    process.removeListener('uncaughtException', this.onUncaughtException)
+    process.removeListener('unhandledRejection', this.onUnhandledRejection)
     this.logger('destroy')
   }
 
@@ -78,55 +80,42 @@ export class NotifyFeature implements Feature {
     return this.transport.send('process:exception', payload)
   }
 
-  private catchAll (opts?: any): Boolean | void {
-    if (opts === undefined) {
-      opts = { errors: true }
+  private onUncaughtException (error) {
+    console.error(error)
+
+    const payload = {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
     }
 
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').send('process:exception', payload)
+    }
+    process.exit(1)
+  }
+
+  private onUnhandledRejection (error) {
+    console.error(error)
+
+    const payload = {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    }
+
+    if (ServiceManager.get('transport')) {
+      ServiceManager.get('transport').send('process:exception', payload)
+    }
+  }
+
+  private catchAll (): Boolean | void {
     if (process.env.exec_mode === 'cluster_mode') {
       return false
     }
 
-    const self = this
-
-    function getUncaughtExceptionListener (listener) {
-      return function uncaughtListener (err) {
-        let error = err && err.stack ? err.stack : err
-
-        if (listener === 'unhandledRejection') {
-          console.log('You have triggered an unhandledRejection, you may have forgotten to catch a Promise rejection:')
-        }
-
-        console.error(error)
-
-        let errObj
-        if (err) {
-          errObj = self._interpretError(err)
-        }
-
-        if (ServiceManager.get('transport')) {
-          ServiceManager.get('transport').send('process:exception', errObj !== undefined ? errObj : { message: 'No error but ' + listener + ' was caught!' })
-        }
-
-        if (!process.listeners(listener).filter(function (listener) {
-          return listener !== uncaughtListener
-        }).length) {
-
-          if (listener === 'uncaughtException') {
-            process.exit(1)
-          }
-        }
-      }
-    }
-
-    if (opts.errors === true && util.inspect(process.listeners('uncaughtException')).length === 2) {
-      process.once('uncaughtException', getUncaughtExceptionListener('uncaughtException'))
-      process.once('unhandledRejection', getUncaughtExceptionListener('unhandledRejection'))
-    } else if (opts.errors === false
-      && util.inspect(process.listeners('uncaughtException')).length !== 2) {
-      process.removeAllListeners('uncaughtException')
-      process.removeAllListeners('unhandledRejection')
-    }
+    process.on('uncaughtException', this.onUncaughtException)
+    process.on('unhandledRejection', this.onUnhandledRejection)
   }
 
   expressErrorHandler () {
@@ -193,27 +182,5 @@ export class NotifyFeature implements Feature {
         }
       }
     }
-  }
-
-  private _interpretError (err: Error | string | object) {
-    let sErr: any = {
-      message: null,
-      stack: null
-    }
-
-    if (err instanceof Error) {
-      // Error object type processing
-      sErr = err
-    } else {
-      // JSON processing
-      sErr.message = err
-      sErr.stack = err
-    }
-
-    return this.jsonize(sErr)
-  }
-
-  private jsonize (obj: Object) {
-    return JSON.parse(JSON.stringify(obj))
   }
 }
