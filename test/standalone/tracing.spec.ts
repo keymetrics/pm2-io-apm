@@ -1,6 +1,7 @@
 
 import * as assert from 'assert'
 import 'mocha'
+import * as semver from 'semver'
 import * as io from '../../src/'
 // install patch before requiring the helpers
 io.init({
@@ -8,6 +9,11 @@ io.init({
 })
 import * as http from 'http'
 import { WSServer, HandshakeServer } from './helper'
+
+if (semver.satisfies(process.version, '< 6')) {
+  console.log('standalone test need to be ran under at least node 6')
+  process.exit(0)
+}
 
 describe('Standalone Tracing', function () {
   this.timeout(10000)
