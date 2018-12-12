@@ -51,7 +51,7 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
     this.agent.sendLogs = config.sendLogs || false
 
     this.agent.start()
-    this.agent.transport.on('**', function (data) {
+    this.agent.transport.on('**', (data) => {
       this.logger(`Received reverse message from websocket transport`)
       this.emit('data', data)
     })
