@@ -68,14 +68,14 @@
     "all": true
   },
   "dependencies": {
-    "@pm2/agent-node": "^1.0.13",
-    "@pm2/legacy-tracing": "^1.4.2",
-    "async": "^2.6.1",
+    "@pm2/agent-node": "~1.1.0",
+    "@pm2/legacy-tracing": "~1.4.2",
+    "async": "~2.6.1",
     "debug": "3.1.0",
-    "event-loop-inspector": "^1.2.0",
-    "eventemitter2": "^5.0.1",
+    "event-loop-inspector": "~1.2.0",
+    "eventemitter2": "~5.0.1",
     "semver": "5.5.0",
-    "shimmer": "^1.2.0",
+    "shimmer": "~1.2.0",
     "signal-exit": "3.0.2",
     "tslib": "1.9.3"
   }
