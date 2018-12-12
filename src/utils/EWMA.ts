@@ -9,7 +9,7 @@ export default class ExponentiallyWeightedMovingAverage {
 
   private TICK_INTERVAL: number = 5 * units.SECONDS
 
-  constructor (timePeriod: number, tickInterval: number) {
+  constructor (timePeriod?: number, tickInterval?: number) {
     this._timePeriod = timePeriod || 1 * units.MINUTES
     this._tickInterval = tickInterval || this.TICK_INTERVAL
     this._alpha = 1 - Math.exp(-this._tickInterval / this._timePeriod)

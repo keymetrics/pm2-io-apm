@@ -137,6 +137,7 @@ export default class HttpMetrics implements MetricInterface {
       shimmer.unwrap(this.modules.https, 'emit')
     }
     if (Module['_load'] && Module['_load'].__io_apm === true) {
+      shimmer.unwrap(Module, '_load')
       Module['_load'].__io_apm = undefined
     }
     this.logger('destroy')

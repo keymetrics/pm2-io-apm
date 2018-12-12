@@ -71,8 +71,8 @@ export const defaultConfig: IOConfig = {
 export default class PMX {
 
   private initialConfig: IOConfig
-  private transport: Transport | null = null
   private featureManager: FeatureManager = new FeatureManager()
+  private transport: Transport | null = null
   private actionService: ActionService | null = null
   private metricService: MetricService | null = null
   private runtimeStatsService: RuntimeStatsService | null = null
@@ -97,8 +97,7 @@ export default class PMX {
     }
 
     // Register the transport before any other service
-    const transportConfig: TransportConfig = config as TransportConfig
-    this.transport = createTransport(config.standalone === true ? 'websocket' : 'ipc', transportConfig)
+    this.transport = createTransport(config.standalone === true ? 'websocket' : 'ipc', config.apmOptions as TransportConfig)
     ServiceManager.set('transport', this.transport)
 
     if (canUseInspector()) {

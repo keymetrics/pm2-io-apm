@@ -12,6 +12,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
   private logger: Function = Debug('axm:transport:ipc')
   private onMessage: any | undefined
   private eventLoopInspector = EventLoopInspector(false)
+  private autoExitHandle: NodeJS.Timer | undefined
 
   init (config?: TransportConfig): Transport {
     this.logger('Init new transport service')
@@ -38,7 +39,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
   private autoExitHook () {
     // clean listener if event loop is empty
     // important to ensure apm will not prevent application to stop
-    const timer = setInterval(() => {
+    this.autoExitHandle = setInterval(() => {
       const dump = this.eventLoopInspector.dump()
       const requests = Object.keys(dump.requests)
       const handles = Object.keys(dump.handles)
@@ -66,7 +67,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
       }, 200)
       tmp.unref()
     }, 5000)
-    timer.unref()
+    this.autoExitHandle.unref()
   }
 
   setMetrics (metrics: InternalMetric[]) {
@@ -110,9 +111,12 @@ export class IPCTransport extends EventEmitter2 implements Transport {
   }
 
   destroy () {
-    this.logger('destroy')
     if (this.onMessage !== undefined) {
       process.removeListener('message', this.onMessage)
     }
+    if (this.autoExitHandle !== undefined) {
+      clearInterval(this.autoExitHandle)
+    }
+    this.logger('destroy')
   }
 }
