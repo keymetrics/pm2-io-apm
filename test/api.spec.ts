@@ -163,6 +163,9 @@ describe('API', function () {
       const child = launch('fixtures/apiOnExitExceptionChild')
 
       child.on('message', res => {
+        if (res.type === 'process:exception') {
+          assert(!!res.data.message.match(/Cannot read property/))
+        }
         if (res === 'callback') {
           done()
         }
