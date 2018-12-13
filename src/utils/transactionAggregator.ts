@@ -184,9 +184,9 @@ export class TransactionAggregator extends EventEmitter2 {
 
     if (!matched) {
       this.cache.routes[path] = []
-      this.mergeTrace(this.cache.routes[path], packet, process)
+      this.mergeTrace(this.cache.routes[path], packet)
     } else {
-      this.mergeTrace(this.cache.routes[matched], packet, process)
+      this.mergeTrace(this.cache.routes[matched], packet)
     }
 
     return this.cache
@@ -198,7 +198,7 @@ export class TransactionAggregator extends EventEmitter2 {
    * @param {Object}  aggregated previous aggregated route
    * @param {Object}  trace
    */
-  mergeTrace (aggregated, trace, process) {
+  mergeTrace (aggregated, trace) {
     if (!aggregated || !trace) return
 
     // if the trace doesn't any spans stop aggregation here
@@ -405,14 +405,14 @@ export class TransactionAggregator extends EventEmitter2 {
 
         // get data for each span
         variance.spans.forEach((oldSpan) => {
-          const span = fclone({
+          const span: Span = fclone({
             name: oldSpan.name,
             labels: oldSpan.labels,
             kind: oldSpan.kind,
             startTime: oldSpan.startTime,
-            min: oldSpan.histogram.getMin(),
-            max: oldSpan.histogram.getMax(),
-            median: oldSpan.histogram.percentiles([0.5])[0.5]
+            min: oldSpan.histogram ? oldSpan.histogram.getMin() : undefined,
+            max: oldSpan.histogram ? oldSpan.histogram.getMax() : undefined,
+            median: oldSpan.histogram ? oldSpan.histogram.percentiles([0.5])[0.5] : undefined
           })
           tmp.spans.push(span)
         })
