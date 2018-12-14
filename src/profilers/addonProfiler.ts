@@ -88,7 +88,7 @@ export default class AddonProfiler implements ProfilerType {
       cb = opts
       opts = {}
     }
-    if (typeof opts !== 'object') {
+    if (typeof opts !== 'object' || opts === null) {
       opts = {}
     }
 
@@ -162,7 +162,7 @@ export default class AddonProfiler implements ProfilerType {
       cb = opts
       opts = {}
     }
-    if (typeof opts !== 'object') {
+    if (typeof opts !== 'object' || opts === null) {
       opts = {}
     }
 

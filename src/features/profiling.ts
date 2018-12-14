@@ -14,7 +14,7 @@ export class ProfilingConfig {
   cpuJS: boolean
   heapSnapshot: boolean
   heapSampling: boolean
-  implementation: string
+  implementation?: string
 }
 
 const defaultProfilingConfig: ProfilingConfig = {
@@ -50,7 +50,7 @@ export class ProfilingFeature implements Feature {
       config.implementation = 'addon'
     }
     // by default we check for the best suited one
-    if (config.implementation === 'both') {
+    if (config.implementation === undefined || config.implementation === 'both') {
       config.implementation = canUseInspector() === true ? 'inspector' : 'addon'
     }
 
