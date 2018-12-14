@@ -90,10 +90,10 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@pm2/agent-node@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.1.0.tgz#90d3ed23f0ff86814b9ab8730c074cef06828a6f"
-  integrity sha512-mgs/WwI2y+4CCn4wdkEwrbIxhRtp4uokKt7q2SvanZwR6MxnrWH9qU2uZGKJg23PGlv48imYG6MZv0zUFfWPoQ==
+"@pm2/agent-node@~1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.1.1.tgz#c0a2a5e5ec087b67e708b6b44732db8c57acdc17"
+  integrity sha512-HsGaz3KqJ4uh2b/n76ROmBqYB6HIPAoxD8/1EgZ5U9E5v2XGmmcRZD+Hnj4oU3QNwyE6FceRnl0SGMqIfTe/XA==
   dependencies:
     debug "^3.1.0"
     eventemitter2 "^5.0.1"
@@ -108,7 +108,7 @@
     async-listener "^0.6.10"
     emitter-listener "^1.1.1"
 
-"@pm2/legacy-tracing@^1.4.2":
+"@pm2/legacy-tracing@~1.4.2":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@pm2/legacy-tracing/-/legacy-tracing-1.4.2.tgz#ce0cd60900339964605426b8c94567eec381f125"
   integrity sha512-+5ACqEng6pvwx82kZbPg8Wrao7gBzwmwtZu2cCw+oiEvE+wLAJ77GW8cEJlgshHMmiI3/Bb+KiIRhTJrsu7jmw==
@@ -239,9 +239,10 @@ async-listener@^0.6.10:
     semver "^5.3.0"
     shimmer "^1.1.0"
 
-async@^2.5.0, async@^2.6.1:
+async@^2.5.0, async@~2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.1.tgz#b245a23ca71930044ec53fa46aa00a3e87c6a610"
+  integrity sha512-fNEiL2+AZt6AlAw/29Cr0UDe4sRAHCpEHh54WMz+Bb7QfNcFw4h3loofyJpLeQs4Yx7yuqu/2dLgM5hKOs6HlQ==
   dependencies:
     lodash "^4.17.10"
 
@@ -706,11 +707,12 @@ esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
 
-event-loop-inspector@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/event-loop-inspector/-/event-loop-inspector-1.2.0.tgz#144d50c08c2dc52e4699de25af32216b8af7e7b2"
+event-loop-inspector@~1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/event-loop-inspector/-/event-loop-inspector-1.2.2.tgz#e56ed73f50a8b0b9193cc36be877fea18641aceb"
+  integrity sha512-v7OqIPmO0jqpmSH4Uc6IrY/H6lOidYzrXHE8vPHLDDOfV1Pw+yu+KEIE/AWnoFheWYlunZbxzKpZBAezVlrU9g==
 
-eventemitter2@^5.0.1:
+eventemitter2@^5.0.1, eventemitter2@~5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-5.0.1.tgz#6197a095d5fb6b57e8942f6fd7eaad63a09c9452"
   integrity sha1-YZegldX7a1folC9v1+qtY6CclFI=
@@ -1981,7 +1983,7 @@ shebang-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
 
-shimmer@^1.0.0, shimmer@^1.1.0, shimmer@^1.2.0:
+shimmer@^1.0.0, shimmer@^1.1.0, shimmer@^1.2.0, shimmer@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/shimmer/-/shimmer-1.2.0.tgz#f966f7555789763e74d8841193685a5e78736665"
 
