@@ -53,7 +53,7 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
     this.agent.sendLogs = config.sendLogs || false
     this.traceAggregator = new TransactionAggregator()
     this.traceAggregator.init()
-    this.traceAggregator.on('data', packet => {
+    this.traceAggregator.on('packet', packet => {
       this.send('axm:transaction', packet)
     })
 

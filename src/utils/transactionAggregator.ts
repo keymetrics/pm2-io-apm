@@ -129,7 +129,6 @@ export class TransactionAggregator extends EventEmitter2 {
 
     // Get http path of current span
     let path = packet.spans[0].labels['http/path']
-
     // Cleanup spans
     this.censorSpans(packet.spans)
 
@@ -422,7 +421,7 @@ export class TransactionAggregator extends EventEmitter2 {
       // push the route into normalized data
       normalized.routes.push(routeCopy)
     })
-
+    log(`sending formatted trace to remote endpoint`)
     return normalized
   }
 
@@ -468,6 +467,7 @@ export class TransactionAggregator extends EventEmitter2 {
       delete span.spanId
       delete span.parentSpanId
       delete span.labels.values
+      delete span.labels.stacktrace
 
       Object.keys(span.labels).forEach((key) => {
         if (typeof (span.labels[key]) === 'string' && key !== 'stacktrace') {
