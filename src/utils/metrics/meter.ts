@@ -8,6 +8,7 @@ export default class Meter {
   private _timeframe: number
   private _rate
   private _interval
+  private used: boolean = false
 
   constructor (opts?: any) {
     const self = this
@@ -33,13 +34,16 @@ export default class Meter {
     this._interval.unref()
   }
 
-  mark = function (n?) {
-    n = n || 1
-
+  mark = function (n: number = 1) {
+    this.used = true
     this._rate.update(n)
   }
 
   val = function () {
     return Math.round(this._rate.rate(this._samples * units.SECONDS) * 100) / 100
+  }
+
+  isUsed () {
+    return this.used
   }
 }

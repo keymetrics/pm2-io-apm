@@ -121,7 +121,14 @@ export class MetricService implements Service {
       // send all the metrics value to the transporter
       const metricsToSend = Array.from(this.metrics.values())
         .filter(metric => {
-          return typeof metric.value === 'number' && !isNaN(metric.value)
+          if (metric === null || metric === undefined) return false
+          if (metric.value === undefined || metric.value === null) return false
+
+          const isNumber = typeof metric.value === 'number'
+          const isString = typeof metric.value === 'string'
+          const isValidNumber = !isNaN(metric.value)
+          // we send it only if it's a string or a valid number
+          return isString || (isNumber && isValidNumber)
         })
       this.transport.setMetrics(metricsToSend)
     }, constants.METRIC_INTERVAL)
@@ -158,7 +165,7 @@ export class MetricService implements Service {
       implementation: new Meter(opts),
       unit: opts.unit,
       handler: function () {
-        return this.implementation.val()
+        return this.implementation.isUsed() ? this.implementation.val() : NaN
       }
     }
     this.registerMetric(metric)
@@ -175,7 +182,7 @@ export class MetricService implements Service {
       implementation: new Counter(opts),
       unit: opts.unit,
       handler: function () {
-        return this.implementation.val()
+        return this.implementation.isUsed() ? this.implementation.val() : NaN
       }
     }
     this.registerMetric(metric)
@@ -196,7 +203,8 @@ export class MetricService implements Service {
       implementation: new Histogram(opts),
       unit: opts.unit,
       handler: function () {
-        return (Math.round(this.implementation.val() * 100) / 100)
+        return this.implementation.isUsed() ?
+          (Math.round(this.implementation.val() * 100) / 100) : NaN
       }
     }
     this.registerMetric(metric)
@@ -218,7 +226,7 @@ export class MetricService implements Service {
       implementation: new Gauge(),
       unit: opts.unit,
       handler: function () {
-        return this.implementation.val()
+        return this.implementation.isUsed() ? this.implementation.val() : NaN
       }
     }
     this.registerMetric(metric)

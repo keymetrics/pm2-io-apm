@@ -1,5 +1,6 @@
 export default class Counter {
   private _count: number
+  private used: boolean = false
 
   constructor (opts?) {
     opts = opts || {}
@@ -11,14 +12,20 @@ export default class Counter {
   }
 
   inc (n?: number) {
+    this.used = true
     this._count += (n || 1)
   }
 
   dec (n?: number) {
+    this.used = true
     this._count -= (n || 1)
   }
 
   reset (count?: number) {
     this._count = count || 0
+  }
+
+  isUsed () {
+    return this.used
   }
 }

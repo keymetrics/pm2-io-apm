@@ -16,6 +16,8 @@ export default class Histogram {
   private _varianceS: number = 0
   private _ema: number = 0
 
+  private used: boolean = false
+
   constructor (opts?) {
     opts = opts || {}
 
@@ -53,6 +55,7 @@ export default class Histogram {
   }
 
   update (value: number) {
+    this.used = true
     this._count++
     this._sum += value
 
@@ -182,6 +185,10 @@ export default class Histogram {
     return (this._count <= 1)
       ? null
       : this._varianceS / (this._count - 1)
+  }
+
+  isUsed () {
+    return this.used
   }
 
   // TODO still used ?
