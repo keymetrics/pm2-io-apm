@@ -18,8 +18,8 @@ describe('V8', function () {
 
       if (pck.type === 'axm:monitor' && receive === false) {
         receive = true
-        expect(Number.isInteger(pck.data['Heap size'].value)).to.equal(true)
-        expect(Number.isInteger(pck.data['Used heap size'].value)).to.equal(true)
+        expect(isNaN(pck.data['Heap size'].value)).to.equal(false)
+        expect(isNaN(pck.data['Used heap size'].value)).to.equal(false)
         expect(pck.data['Heap Usage'].value).to.not.equal(undefined)
 
         child.kill('SIGINT')

@@ -121,12 +121,15 @@ export class MetricService implements Service {
       // send all the metrics value to the transporter
       const metricsToSend = Array.from(this.metrics.values())
         .filter(metric => {
+          // thanks tslint but user can be dumb sometimes
+          /* tslint:disable */
           if (metric === null || metric === undefined) return false
           if (metric.value === undefined || metric.value === null) return false
 
           const isNumber = typeof metric.value === 'number'
           const isString = typeof metric.value === 'string'
           const isValidNumber = !isNaN(metric.value)
+          /* tslint:enable */
           // we send it only if it's a string or a valid number
           return isString || (isNumber && isValidNumber)
         })
@@ -136,7 +139,7 @@ export class MetricService implements Service {
   }
 
   registerMetric (metric: InternalMetric): void {
-    // thanks tslint but user can be dump sometimes
+    // thanks tslint but user can be dumb sometimes
     /* tslint:disable */
     if (typeof metric.name !== 'string') {
       console.error(`Invalid metric name declared: ${metric.name}`)
