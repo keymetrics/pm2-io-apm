@@ -37,7 +37,7 @@ export default class V8Metric implements MetricInterface {
   private logger: Function = Debug('axm:features:metrics:v8')
   private metricStore: Map<string, Gauge> = new Map<string, Gauge>()
 
-  private unitKB = 'kB'
+  private unitKB = 'MiB'
 
   private metricsDefinitions = {
     /*
@@ -123,7 +123,7 @@ export default class V8Metric implements MetricInterface {
         if (typeof stats[metricName] !== 'number') continue
         const gauge = this.metricStore.get(metricName)
         if (gauge === undefined) continue
-        gauge.set(stats[metricName])
+        gauge.set(this.formatMiBytes(stats[metricName]))
       }
       // manually compute the heap usage
       const usage = (stats.used_heap_size / stats.total_heap_size * 100).toFixed(2)
@@ -141,5 +141,9 @@ export default class V8Metric implements MetricInterface {
       clearInterval(this.timer)
     }
     this.logger('destroy')
+  }
+
+  private formatMiBytes (val: number) {
+    return (val / 1024 / 1024).toFixed(2)
   }
 }
