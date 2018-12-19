@@ -1,11 +1,17 @@
 export default class Gauge {
-  private value: number = 0
+  private value = 0
+  private used = false
 
-  val (): number {
+  val () {
     return this.value
   }
 
-  set (value: number) {
+  set (value) {
+    this.used = true
     this.value = value
+  }
+
+  isUsed () {
+    return this.used
   }
 }
