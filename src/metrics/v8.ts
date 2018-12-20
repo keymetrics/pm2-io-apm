@@ -74,7 +74,7 @@ export default class V8Metric implements MetricInterface {
     total_heap_size: {
       name: 'Heap size',
       id: 'internal/v8/heap/total',
-      unit: 'kB',
+      unit: this.unitKB,
       historic: true
     },
     heap_used_percent: {

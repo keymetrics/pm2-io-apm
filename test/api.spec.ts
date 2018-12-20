@@ -41,9 +41,11 @@ describe('API', function () {
           expect(res.data.hasOwnProperty('metric wi!th special chars % ///')).to.equal(false)
           expect(res.data.hasOwnProperty('metricHistogram')).to.equal(true)
           expect(res.data.hasOwnProperty('metricInline')).to.equal(true)
+          expect(res.data.hasOwnProperty('toto')).to.equal(true)
           expect(res.data.metricHistogram.value).to.equal(10)
           expect(res.data.metricHistogram.type).to.equal('metric/custom')
           expect(res.data.metricInline.value).to.equal(11)
+          expect(res.data.toto.value).to.equal(42)
 
           child.kill('SIGINT')
           return done()

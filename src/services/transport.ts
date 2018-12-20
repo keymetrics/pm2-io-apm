@@ -1,6 +1,6 @@
 
 import { Action } from './actions'
-import { Metric } from './metrics'
+import { Metric, InternalMetric } from './metrics'
 import { IPCTransport } from '../transports/IPCTransport'
 import { WebsocketTransport } from '../transports/WebsocketTransport'
 import { EventEmitter2 } from 'eventemitter2'
@@ -63,7 +63,7 @@ export interface Transport extends EventEmitter2 {
   /**
    * Declare metrics
    */
-  setMetrics: (metrics: Metric[]) => void
+  setMetrics: (metrics: InternalMetric[]) => void
   /**
    * Declare options for process
    */
