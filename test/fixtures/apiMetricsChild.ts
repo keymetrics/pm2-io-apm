@@ -29,6 +29,11 @@ one.update(10)
 const metric = io.metric('metricInline')
 metric.set(11)
 
+io.metric({
+  name: 'toto',
+  value: () => 42
+})
+
 // set something into event loop. Else test will exit immediately
 const timer = setInterval(function () {
   return

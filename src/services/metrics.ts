@@ -89,6 +89,12 @@ export class Metric {
    * Unit of the metric
    */
   unit?: string
+  /**
+   * Allow to automatically update the metric value
+   * Note: only available with io.metric
+   * Note: if you use this property, you will not be able to set the value with .set
+   */
+  value?: () => number
 }
 
 export class MetricBulk extends Metric {
@@ -216,22 +222,31 @@ export class MetricService implements Service {
   }
 
   metric (opts: Metric): Gauge {
-    // @ts-ignore warn of backward compatbility
+    let metric: InternalMetric
     if (typeof opts.value === 'function') {
-      console.error(`We dropped the support for setting the value of a metrics with a function, see new docs`)
-      console.trace()
-    }
-    const metric: InternalMetric = {
-      name: opts.name,
-      type: MetricType.gauge,
-      id: opts.id,
-      historic: opts.historic,
-      implementation: new Gauge(),
-      unit: opts.unit,
-      handler: function () {
-        return this.implementation.isUsed() ? this.implementation.val() : NaN
+      metric = {
+        name: opts.name,
+        type: MetricType.gauge,
+        id: opts.id,
+        implementation: undefined,
+        historic: opts.historic,
+        unit: opts.unit,
+        handler: opts.value
+      }
+    } else {
+      metric = {
+        name: opts.name,
+        type: MetricType.gauge,
+        id: opts.id,
+        historic: opts.historic,
+        implementation: new Gauge(),
+        unit: opts.unit,
+        handler: function () {
+          return this.implementation.isUsed() ? this.implementation.val() : NaN
+        }
       }
     }
+
     this.registerMetric(metric)
 
     return metric.implementation

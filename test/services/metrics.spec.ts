@@ -25,6 +25,17 @@ describe('MetricsService', function () {
       })
       gauge.set(10)
     })
+    it('register gauge (with custom handler)', (done) => {
+      transport.setMetrics = function (metrics: InternalMetric[]) {
+        const gauge = metrics.find(metric => metric.name === 'gauge')
+        assert(gauge !== undefined)
+        return done()
+      }
+      const gauge = service.metric({
+        name: 'gauge',
+        value: () => 10
+      })
+    })
     it('register meter', (done) => {
       transport.setMetrics = function (metrics: InternalMetric[]) {
         const meter = metrics.find(metric => metric.name === 'meter')
