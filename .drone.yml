@@ -18,6 +18,7 @@ pipeline:
       - runTest test/api.spec.ts
       - runTest test/autoExit.spec.ts
       - runTest test/standalone/tracing.spec.ts
+      - runTest test/standalone/events.spec.ts
       - runTest test/features/eventLoopInspector.spec.ts
       - runTest test/features/events.spec.ts
       - runTest test/features/profiling.spec.ts
