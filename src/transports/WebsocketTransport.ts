@@ -95,13 +95,18 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
     return this.process.axm_options = Object.assign(this.process.axm_options, options)
   }
 
-  private getFormattedPayload (channel, payload) {
+  private getFormattedPayload (channel: string, payload: any) {
     // Reformat for backend
     switch (channel) {
       case 'axm:reply':
         return { data: payload }
       case 'process:exception':
         return { data: payload }
+      case 'human:event': {
+        const name = payload.__name
+        payload.__name = undefined
+        return { name, data: payload }
+      }
     }
     return payload
   }
