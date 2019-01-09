@@ -1,18 +1,18 @@
-import Debug from 'debug'
-import PMX from '../pmx'
-const debug = Debug('PM2-IO-APM')
+
+import IO, { IOConfig } from '../pmx'
 const IO_KEY = Symbol.for('@pm2/io')
 
-export default class Entrypoint {
-  private io: PMX
+export class Entrypoint {
+  private io: IO
 
   constructor () {
     try {
-      this.io = global[IO_KEY]
+      this.io = global[IO_KEY].init(this.conf())
 
       this.onStart(err => {
         if (err) {
-          debug(err)
+          console.error(err)
+          process.exit(1)
         }
 
         this.sensors()
@@ -38,15 +38,15 @@ export default class Entrypoint {
   }
 
   events () {
-    debug('No events !')
+    return
   }
 
   sensors () {
-    debug('No metrics !')
+    return
   }
 
   actuators () {
-    debug('No metrics !')
+    return
   }
 
   onStart (cb: Function) {
@@ -54,10 +54,10 @@ export default class Entrypoint {
   }
 
   onStop (err: Error, cb: Function, code: number, signal: string) {
-    cb() // by default only execute callback
+    return cb()
   }
 
-  conf () {
-    return this.io.getConfig()
+  conf (): IOConfig | undefined {
+    return undefined
   }
 }
