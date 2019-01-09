@@ -37,7 +37,7 @@ pipeline:
       event: push
   slack:
     image: plugins/slack
-    channel: ci
+    channel: dev-stream-ci
     status: [ success, failure ]
     template: |
       {{#success build.status}}
