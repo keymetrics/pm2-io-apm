@@ -19,6 +19,7 @@ import { canUseInspector } from './constants'
 import { MetricConfig } from './features/metrics'
 import { ProfilingConfig } from './features/profiling'
 import { RuntimeStatsService } from './services/runtimeStats'
+import { Entrypoint } from './features/entrypoint'
 
 export class IOConfig {
   /**
@@ -78,6 +79,7 @@ export default class PMX {
   private runtimeStatsService: RuntimeStatsService | null = null
   private logger: Function = Debug('axm:main')
   private initialized: boolean = false
+  public Entrypoint: { new(): Entrypoint } = Entrypoint
 
   /**
    * Init the APM instance, you should *always* init it before using any method
