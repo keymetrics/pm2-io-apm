@@ -72,7 +72,7 @@ export default class V8Metric implements MetricInterface {
       historic: false
     },*/
     total_heap_size: {
-      name: 'Heap size',
+      name: 'Heap Size',
       id: 'internal/v8/heap/total',
       unit: this.unitKB,
       historic: true
@@ -84,7 +84,7 @@ export default class V8Metric implements MetricInterface {
       historic: true
     },
     used_heap_size: {
-      name: 'Used heap size',
+      name: 'Used Heap Size',
       id: 'internal/v8/heap/used',
       unit: this.unitKB,
       historic: true

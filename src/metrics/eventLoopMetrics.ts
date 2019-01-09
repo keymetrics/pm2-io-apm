@@ -84,7 +84,8 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
       implementation: histogram,
       handler: function () {
         const percentiles = this.implementation.percentiles([ 0.5 ])
-        return percentiles[0.5]
+        if (percentiles[0.5] === null) return null
+        return percentiles[0.5].toFixed(2)
       },
       unit: 'ms'
     }
@@ -96,7 +97,8 @@ export default class EventLoopHandlesRequestsMetric implements MetricInterface {
       implementation: histogram,
       handler: function () {
         const percentiles = this.implementation.percentiles([ 0.95 ])
-        return percentiles[0.95]
+        if (percentiles[0.95] === null) return null
+        return percentiles[0.95].toFixed(2)
       },
       unit: 'ms'
     }
