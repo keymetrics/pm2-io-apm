@@ -384,20 +384,3 @@ io.init({
   }
 })
 ```
-
-## Publishing
-
-Just run :
-```bash
-$ npm publish
-```
-
-And for beta
-```bash
-$ npm publish --tag beta
-```
-
-
-## License
-
-MIT

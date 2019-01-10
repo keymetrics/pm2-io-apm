@@ -18,7 +18,7 @@
       "url": "https://github.com/wallet77"
     }
   ],
-  "license": "MIT",
+  "license": "Apache-2",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
