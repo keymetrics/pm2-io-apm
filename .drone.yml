@@ -36,18 +36,6 @@ pipeline:
     secrets: [ cc_test_reporter_id ]
     when:
       event: push
-  slack:
-    image: plugins/slack
-    channel: dev-stream-ci
-    status: [ success, failure ]
-    template: |
-      {{#success build.status}}
-        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} succeeded in {{since build.started}}
-      {{else}}
-        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} failed in {{since build.started}}
-      {{/success}}
-      see {{ build.link }}
-    secrets: [ slack_webhook ]
   build:
     image: node:${NODE_VERSION}
     commands:
@@ -65,6 +53,19 @@ pipeline:
     secrets: [ npm_username, npm_password, npm_email ]
     when:
       event: [ tag ]
+  slack:
+    image: plugins/slack
+    channel: dev-stream-ci
+    when:
+      status: [ success, failure ]
+    template: |
+      {{#success build.status}}
+        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} succeeded in {{since build.started}}
+      {{else}}
+        {{repo.name}} : {{build.event}} with commit {{truncate build.commit 8}} on branch "{{build.branch}}" with node:${NODE_VERSION} done by {{build.author}} failed in {{since build.started}}
+      {{/success}}
+      see {{ build.link }}
+    secrets: [ slack_webhook ]
 matrix:
   NODE_VERSION:
     - 4
