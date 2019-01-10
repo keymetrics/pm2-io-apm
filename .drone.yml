@@ -17,6 +17,7 @@ pipeline:
       - runTest () { if [ "$NODE_VERSION" = "11" ]; then nyc --clean false --require ts-node/register --require source-map-support/register mocha --exit $*; else mocha --exit --require ts-node/register $*; fi ;}
       - runTest test/api.spec.ts
       - runTest test/autoExit.spec.ts
+      - runTest test/entrypoint.spec.ts
       - runTest test/standalone/tracing.spec.ts
       - runTest test/standalone/events.spec.ts
       - runTest test/features/eventLoopInspector.spec.ts
@@ -57,6 +58,11 @@ pipeline:
       - export PATH=$PATH:./node_modules/.bin/
       - mkdir build
       - yarn build
+    when:
+      event: [ tag ]
+  publish:
+    image: plugins/npm
+    secrets: [ npm_username, npm_password, npm_email ]
     when:
       event: [ tag ]
 matrix:
