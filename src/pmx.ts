@@ -43,7 +43,7 @@ export class IOConfig {
   /**
    * Configure the transaction tracing options
    */
-  tracing?: TracingConfig | boolean = false
+  tracing?: TracingConfig
   /**
    * If you want to connect to PM2 Enterprise without using PM2, you should enable
    * the standalone mode
@@ -66,7 +66,11 @@ export const defaultConfig: IOConfig = {
     http: true
   },
   standalone: false,
-  tracing: false
+  tracing: {
+    enabled: false,
+    serviceName: '@pm2/io',
+    outboundHttp: false
+  }
 }
 
 export default class PMX {
