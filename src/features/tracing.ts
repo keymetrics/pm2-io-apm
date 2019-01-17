@@ -1,4 +1,5 @@
 import { Feature } from '../featureManager'
+import * as semver from 'semver'
 import * as Debug from 'debug'
 import { CustomCensusExporter } from '../utils/census-exporter'
 import * as tracing from '@opencensus/nodejs'
@@ -21,8 +22,12 @@ export class TracingFeature implements Feature {
 
   async init (config: IOConfig): Promise<void> {
     debug('init tracing')
-    this.options = config.tracing === undefined ? defaultConfig.tracing! : Object.assign(defaultConfig.tracing!, config.tracing)
+    if (!semver.satisfies(process.version, '>= 6.0.0')) {
+      console.error('[STANDALONE MODE] Unable to set standalone mode with node < 6.0.0')
+      return process.exit(1)
+    }
 
+    this.options = config.tracing === undefined ? defaultConfig.tracing! : Object.assign(defaultConfig.tracing!, config.tracing)
     if (this.options && this.options.enabled) {
       // prepare service name
       if (config.apmOptions !== undefined && config.apmOptions.appName) {

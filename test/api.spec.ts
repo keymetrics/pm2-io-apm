@@ -260,6 +260,10 @@ describe('API', function () {
     })
 
     it('should enable tracing + metrics', (done) => {
+      if (semver.satisfies(process.version, '< 6')) {
+        console.log('tracing test need to be ran under at least node 6')
+        done()
+      }
       const child = launch('fixtures/apiBackwardConfChild')
       let tracingDone = false
       let metricsDone = false
