@@ -267,8 +267,8 @@ describe('API', function () {
 
       child.on('message', packet => {
 
-        if (packet.type === 'axm:trace') {
-          expect(packet.data.hasOwnProperty('projectId')).to.equal(true)
+        if (packet.type === 'trace-span') {
+          expect(packet.data.hasOwnProperty('id')).to.equal(true)
           expect(packet.data.hasOwnProperty('traceId')).to.equal(true)
           tracingDone = true
         }
