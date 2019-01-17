@@ -25,10 +25,10 @@ export class TracingFeature implements Feature {
 
     if (this.options && this.options.enabled) {
       // prepare service name
-      if (config.apmOptions !== undefined && config.apmOptions!.appName !== undefined) {
-        this.options.serviceName = config.apmOptions!.appName
+      if (config.apmOptions !== undefined && config.apmOptions.appName) {
+        this.options.serviceName = config.apmOptions.appName
       } else if (process.env.name !== undefined) {
-        this.options.serviceName =  process.env.name!.toString()
+        this.options.serviceName = process.env.name.toString()
       }
 
       this.exporter = new CustomCensusExporter(this.options)
