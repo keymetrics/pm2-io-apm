@@ -2,7 +2,6 @@ import { Feature } from '../featureManager'
 import * as Debug from 'debug'
 import { CustomCensusExporter } from '../utils/census-exporter'
 import * as tracing from '@opencensus/nodejs'
-import { B3Format } from '@opencensus/propagation-b3'
 import * as core from '@opencensus/core'
 import Configuration from '../configuration'
 import { IOConfig, defaultConfig } from '../pmx'
@@ -11,8 +10,8 @@ const debug = Debug('axm:tracing')
 
 export class TracingConfig {
   enabled: boolean
-  serviceName: string
-  outboundHttp: boolean
+  serviceName?: string
+  outboundHttp?: boolean
 }
 
 export class TracingFeature implements Feature {
@@ -22,9 +21,16 @@ export class TracingFeature implements Feature {
 
   async init (config: IOConfig): Promise<void> {
     debug('init tracing')
-    this.options = config.tracing === undefined ? defaultConfig.tracing! : config.tracing
+    this.options = config.tracing === undefined ? defaultConfig.tracing! : Object.assign(defaultConfig.tracing!, config.tracing)
+
     if (this.options && this.options.enabled) {
-      this.options.serviceName = config.apmOptions!.appName || process.env.name!.toString()
+      // prepare service name
+      if (config.apmOptions !== undefined && config.apmOptions!.appName !== undefined) {
+        this.options.serviceName = config.apmOptions!.appName
+      } else if (process.env.name !== undefined) {
+        this.options.serviceName =  process.env.name!.toString()
+      }
+
       this.exporter = new CustomCensusExporter(this.options)
       await this.start(this.options)
     }
@@ -37,8 +43,7 @@ export class TracingFeature implements Feature {
     }
     debug('start census tracer')
     this.tracer = tracing.start({
-      exporter: this.exporter,
-      propagation: new B3Format()
+      exporter: this.exporter
     })
     Configuration.configureModule({
       census_tracing: true
@@ -52,7 +57,7 @@ export class TracingFeature implements Feature {
     Configuration.configureModule({
       census_tracing: false
     })
-    return this.tracer.stop() 
+    return this.tracer.stop()
   }
 
   async destroy () {

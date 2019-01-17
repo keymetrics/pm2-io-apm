@@ -1,6 +1,8 @@
 import * as pmx from '../../../src'
 pmx.init({
-  tracing: true
+  tracing: {
+    enabled: true
+  }
 })
 
 // @ts-ignore added in ci only

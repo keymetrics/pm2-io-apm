@@ -14,12 +14,12 @@ describe('Tracing with IPC transport', function () {
     const child = launch('../fixtures/metrics/tracingChild')
     let called = false
     child.on('message', pck => {
-      if (pck.type === 'axm:trace' && called === false) {
+      if (pck.type === 'trace-span' && called === false) {
         called = true
-        expect(pck.data.hasOwnProperty('projectId')).to.equal(true)
+        expect(pck.data.hasOwnProperty('id')).to.equal(true)
         expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
-        expect(pck.data.spans[0].labels['http/method']).to.equal('GET')
-        expect(pck.data.spans[0].labels['http/status_code']).to.equal('200')
+        expect(pck.data.tags['http.method']).to.equal('GET')
+        expect(pck.data.tags['http.status_code']).to.equal('200')
 
         child.kill('SIGINT')
         done()
