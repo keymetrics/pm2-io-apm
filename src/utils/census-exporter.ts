@@ -1,7 +1,7 @@
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, Logger, logger } from '@opencensus/core'
 import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
+import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, Logger, logger } from '@opencensus/core'
 
 export interface ZipkinExporterOptions extends ExporterConfig {
   serviceName: string

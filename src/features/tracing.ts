@@ -1,9 +1,6 @@
 import { Feature } from '../featureManager'
 import * as semver from 'semver'
 import * as Debug from 'debug'
-import { CustomCensusExporter } from '../utils/census-exporter'
-import * as tracing from '@opencensus/nodejs'
-import * as core from '@opencensus/core'
 import Configuration from '../configuration'
 import { IOConfig, defaultConfig } from '../pmx'
 
@@ -16,19 +13,20 @@ export class TracingConfig {
 }
 
 export class TracingFeature implements Feature {
-  private exporter: CustomCensusExporter
+  private exporter: any
   private options: TracingConfig
-  private tracer: core.Tracing | null
+  private tracer: any
 
   async init (config: IOConfig): Promise<void> {
     debug('init tracing')
-    if (!semver.satisfies(process.version, '>= 6.0.0')) {
-      console.error('[STANDALONE MODE] Unable to set standalone mode with node < 6.0.0')
-      return process.exit(1)
-    }
 
     this.options = config.tracing === undefined ? defaultConfig.tracing! : Object.assign(defaultConfig.tracing!, config.tracing)
     if (this.options && this.options.enabled) {
+      if (!semver.satisfies(process.version, '>= 6.0.0')) {
+        console.error('[TRACING] Unable to use tracing with node < 6.0.0')
+        return process.exit(1)
+      }
+
       // prepare service name
       if (config.apmOptions !== undefined && config.apmOptions.appName) {
         this.options.serviceName = config.apmOptions.appName
@@ -36,7 +34,9 @@ export class TracingFeature implements Feature {
         this.options.serviceName = process.env.name.toString()
       }
 
+      const CustomCensusExporter = require('../utils/census-exporter').CustomCensusExporter
       this.exporter = new CustomCensusExporter(this.options)
+
       await this.start(this.options)
     }
   }
@@ -47,6 +47,8 @@ export class TracingFeature implements Feature {
       throw new Error(`Tracing was already enabled`)
     }
     debug('start census tracer')
+
+    const tracing = require('@opencensus/nodejs')
     this.tracer = tracing.start({
       exporter: this.exporter
     })
