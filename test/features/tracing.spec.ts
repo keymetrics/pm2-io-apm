@@ -1,3 +1,9 @@
+import * as semver from 'semver'
+if (semver.satisfies(process.version, '< 6')) {
+  console.log('tracing test need to be ran under at least node 6')
+  process.exit(0)
+}
+
 import { expect, assert } from 'chai'
 import { fork } from 'child_process'
 import { resolve } from 'path'
