@@ -382,6 +382,24 @@ export class IOConfig {
 
 You can pass whatever options you want to `io.init`, it will automatically update its configuration.
 
+## Migration Guides
+
+### 2.x to 3.x
+
+Here the list of breaking changes :
+
+- Removed `io.scopedAction` because of low user adoption
+- Removed `io.notify` in favor of `io.notifyError` (droppin replacement)
+- Removed support for `gc-stats` module
+- Removed Heap profiling support when using the profiler addon (which wasn't possible at all)
+- Removed deep-metrics support (the module that allowed to get metrics about websocket/mongo out of the box), we are working on a better solution.
+- Removed `io.transpose`
+- **Changed the configuration structure**
+
+High chance that if you used a custom configuration for `io.init`, you need to change it to reflect the new configuration.
+Apart from that and the `io.notify` removal, it shouldn't break the way you instanciated metrics.
+If you find something else that breaks please report it to us (tech@keymetrics.io).
+
 ## Development
 
 To auto rebuild on file change:
