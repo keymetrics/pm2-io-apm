@@ -310,32 +310,23 @@ export default class InspectorProfiler implements ProfilerType {
   }
 
   takeSnapshot () {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       // not possible but thanks mr typescript
       if (this.profiler === undefined) return reject(new Error(`Profiler not available`))
 
       const chunks: Array<string> = []
-      const chunkHandler = (data: inspector.HeapProfiler.AddHeapSnapshotChunkEventDataType) => {
+      const chunkHandler = (raw: any) => {
+        const data = raw.params as inspector.HeapProfiler.AddHeapSnapshotChunkEventDataType
         chunks.push(data.chunk)
       }
-      const progressHandler = ({ params }) => {
-        params = params as inspector.HeapProfiler.ReportHeapSnapshotProgressEventDataType
-        // not possible but thanks mr typescript
-        if (this.profiler === undefined) return reject(new Error(`Profiler not available`))
-        this.logger('received heap snapshot progress', params)
-        if (params.finished !== true) return
-
-        // remove the listeners
-        this.profiler.getSession().removeListener('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
-        this.profiler.getSession().removeListener('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
-        return resolve(chunks.join(''))
-      }
-
       this.profiler.getSession().on('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
-      this.profiler.getSession().on('HeapProfiler.reportHeapSnapshotProgress', progressHandler)
-      this.profiler.getSession().post('HeapProfiler.takeHeapSnapshot', {
-        reportProgress: true
+      // tslint:disable-next-line
+      await this.profiler.getSession().post('HeapProfiler.takeHeapSnapshot', {
+        reportProgress: false
       })
+      // remove the listeners
+      this.profiler.getSession().removeListener('HeapProfiler.addHeapSnapshotChunk', chunkHandler)
+      return resolve(chunks.join(''))
     })
   }
 }

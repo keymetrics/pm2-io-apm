@@ -50,13 +50,15 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
       axm_monitor: {}
     }
     this.agent = new AgentNode(this.config, this.process)
+    if (this.agent instanceof Error) {
+      throw this.agent
+    }
     this.agent.sendLogs = config.sendLogs || false
     this.traceAggregator = new TransactionAggregator()
     this.traceAggregator.init()
     this.traceAggregator.on('packet', packet => {
       this.send('axm:transaction', packet)
     })
-
     this.agent.start()
     this.agent.transport.on('**', (data) => {
       this.logger(`Received reverse message from websocket transport`)

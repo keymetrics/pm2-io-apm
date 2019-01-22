@@ -42,7 +42,7 @@ export class ProfilingFeature implements Feature {
     } else if (config === false) {
       config = disabledProfilingConfig
     } else if (config === undefined) {
-      config = disabledProfilingConfig
+      config = defaultProfilingConfig
     }
 
     // allow to force the fallback to addon via the environment

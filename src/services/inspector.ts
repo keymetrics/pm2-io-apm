@@ -11,6 +11,8 @@ export class InspectorService {
     this.session = new inspector.Session()
     this.session.connect()
     this.logger('Connected to inspector')
+    this.session.post('Profiler.enable')
+    this.session.post('HeapProfiler.enable')
     return this.session
   }
 
