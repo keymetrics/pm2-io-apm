@@ -64,9 +64,7 @@ export default class InspectorProfiler implements ProfilerType {
       return this.logger(`Fail to get action service`)
     }
     this.logger('register')
-    if (this.isNode11 === false) {
-      this.actionService.registerAction('km:heapdump', this.onHeapdump.bind(this))
-    }
+    this.actionService.registerAction('km:heapdump', this.onHeapdump.bind(this))
     this.actionService.registerAction('km:cpu:profiling:start', this.onCPUProfileStart.bind(this))
     this.actionService.registerAction('km:cpu:profiling:stop', this.onCPUProfileStop.bind(this))
     this.actionService.registerAction('km:heap:sampling:start', this.onHeapProfileStart.bind(this))
