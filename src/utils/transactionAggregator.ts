@@ -130,7 +130,9 @@ export class TransactionAggregator extends EventEmitter2 {
     // Get http path of current span
     let path = packet.spans[0].labels['http/path']
     // Cleanup spans
-    this.censorSpans(packet.spans)
+    if (process.env.PM2_APM_CENSOR_SPAMS !== '0') {
+      this.censorSpans(packet.spans)
+    }
 
     // remove spans with startTime == endTime
     packet.spans = packet.spans.filter((span) => {
