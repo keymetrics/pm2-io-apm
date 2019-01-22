@@ -195,6 +195,42 @@ io.notifyError(new Error('This is an error'), {
 });
 ```
 
+#### Express error reporting
+
+If you want you can configure your express middleware to automatically send you an error with the error middleware of express :
+
+```javascript
+const io = require('@pm2/io')
+const express = require('express')
+const app = express()
+
+// add the routes that you want
+app.use('/toto', () => {
+  throw new Error('ajdoijerr')
+})
+
+// always add the middleware as the last one
+app.use(io.expressErrorHandler())
+```
+
+#### Koa error reporting
+
+We also expose a custom koa middleware to report error with a specific koa middleware :
+
+```javascript
+const io = require('@pm2/io')
+const Koa = require('koa')
+const app = new Koa()
+
+// the order isn't important with koa
+app.use(pmx.koaErrorHandler())
+
+// add the routes that you want
+app.use(async ctx => {
+  ctx.throw(new Error('toto'))
+})
+```
+
 ## Configuration
 
 ### Global configuration object
