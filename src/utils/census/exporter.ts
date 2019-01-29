@@ -1,7 +1,7 @@
-import { Transport } from '../services/transport'
-import { ServiceManager } from '../serviceManager'
+import { Transport } from '../../services/transport'
+import { ServiceManager } from '../../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, Logger, logger } from '@opencensus/core'
+import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span } from '@opencensus/core'
 
 export interface ZipkinExporterOptions extends ExporterConfig {
   serviceName: string
@@ -25,12 +25,10 @@ export class CustomCensusExporter implements Exporter {
   private config: TracingConfig
   private transport: Transport = ServiceManager.get('transport')
   buffer: ExporterBuffer
-  logger: Logger
 
   constructor (config: TracingConfig) {
     this.config = config
     this.buffer = new ExporterBuffer(this, {})
-    this.logger = logger.logger()
   }
 
   /**
@@ -51,7 +49,7 @@ export class CustomCensusExporter implements Exporter {
   private sendTraces (zipkinTraces: TranslatedSpan[]) {
     return new Promise((resolve, reject) => {
       zipkinTraces.forEach(span => {
-        if (span.kind === 'CLIENT' && !this.config.outboundHttp) return
+        if (span.kind === 'CLIENT' && !this.config.outbound) return
 
         this.transport.send('trace-span', span)
       })

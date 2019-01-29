@@ -42,6 +42,7 @@
   "devDependencies": {
     "@types/chai": "4.1.4",
     "@types/mocha": "5.2.5",
+    "@types/mongodb": "^3.1.19",
     "@types/node": "10.5.2",
     "chai": "4.1.2",
     "express": "^4.16.4",
@@ -70,13 +71,15 @@
     "all": true
   },
   "dependencies": {
-    "@opencensus/nodejs": "^0.0.8",
+    "@opencensus/core": "^0.0.8",
+    "@opencensus/propagation-b3": "^0.0.8",
     "@pm2/agent-node": "~1.1.3",
     "@pm2/legacy-tracing": "~1.4.2",
     "async": "~2.6.1",
     "debug": "3.1.0",
     "event-loop-inspector": "~1.2.0",
     "eventemitter2": "~5.0.1",
+    "require-in-the-middle": "3.0.0",
     "semver": "5.5.0",
     "shimmer": "~1.2.0",
     "signal-exit": "3.0.2",

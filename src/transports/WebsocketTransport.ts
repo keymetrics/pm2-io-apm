@@ -4,7 +4,6 @@ import Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
 import { EventEmitter2 } from 'eventemitter2'
-import { TransactionAggregator } from '../utils/transactionAggregator'
 
 class SerializedAction {
   action_name: string // tslint:disable-line
@@ -29,7 +28,6 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
   private process: ProcessMetadata
   private initiated: Boolean = false // tslint:disable-line
   private logger: Function = Debug('axm:transport:websocket')
-  private traceAggregator: TransactionAggregator | undefined
 
   init (config: TransportConfig): Transport {
     if (!semver.satisfies(process.version, '>= 6.0.0')) {
@@ -54,11 +52,6 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
       throw this.agent
     }
     this.agent.sendLogs = config.sendLogs || false
-    this.traceAggregator = new TransactionAggregator()
-    this.traceAggregator.init()
-    this.traceAggregator.on('packet', packet => {
-      this.send('axm:transaction', packet)
-    })
     this.agent.start()
     this.agent.transport.on('**', (data) => {
       this.logger(`Received reverse message from websocket transport`)
@@ -114,17 +107,11 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
   }
 
   send (channel: string, payload: Object) {
-    if (channel === 'axm:trace' && this.traceAggregator !== undefined) {
-      return this.traceAggregator.aggregate(payload)
-    }
     return this.agent.send(channel, this.getFormattedPayload(channel, payload)) ? 0 : -1
   }
 
   destroy () {
     this.agent.transport.disconnect()
-    if (this.traceAggregator !== undefined) {
-      this.traceAggregator.destroy()
-    }
     this.logger('destroy')
   }
 

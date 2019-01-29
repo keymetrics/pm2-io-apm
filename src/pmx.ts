@@ -68,8 +68,7 @@ export const defaultConfig: IOConfig = {
   standalone: false,
   tracing: {
     enabled: false,
-    serviceName: '@pm2/io',
-    outboundHttp: false
+    outbound: false
   }
 }
 

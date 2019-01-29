@@ -3,22 +3,27 @@ import * as semver from 'semver'
 import * as Debug from 'debug'
 import Configuration from '../configuration'
 import { IOConfig, defaultConfig } from '../pmx'
-
-const debug = Debug('axm:tracing')
+import { resolve } from 'path'
+import { CustomCensusExporter } from '../utils/census/exporter'
+import { B3Format } from '@opencensus/propagation-b3'
 
 export class TracingConfig {
   enabled: boolean
   serviceName?: string
-  outboundHttp?: boolean
+  /**
+   * Generate trace for outgoing request that aren't connected to a incoming
+   */
+  outbound?: boolean
 }
 
 export class TracingFeature implements Feature {
   private exporter: any
   private options: TracingConfig
   private tracer: any
+  private logger: Function = Debug('axm:tracing')
 
   async init (config: IOConfig): Promise<void> {
-    debug('init tracing')
+    this.logger('init tracing')
 
     this.options = config.tracing === undefined ? defaultConfig.tracing! : Object.assign(defaultConfig.tracing!, config.tracing)
     if (this.options && this.options.enabled) {
@@ -34,7 +39,6 @@ export class TracingFeature implements Feature {
         this.options.serviceName = process.env.name.toString()
       }
 
-      const CustomCensusExporter = require('../utils/census-exporter').CustomCensusExporter
       this.exporter = new CustomCensusExporter(this.options)
 
       await this.start(this.options)
@@ -46,11 +50,20 @@ export class TracingFeature implements Feature {
     if (this.tracer && this.tracer.active) {
       throw new Error(`Tracing was already enabled`)
     }
-    debug('start census tracer')
+    this.logger('start census tracer')
 
-    const tracing = require('@opencensus/nodejs')
-    this.tracer = tracing.start({
-      exporter: this.exporter
+    const Tracing = require('../utils/census/tracer').Tracing
+    const tracer = Tracing.instance
+    this.tracer = tracer.start({
+      exporter: this.exporter,
+      plugins: {
+        'http': resolve(__dirname, '../utils/census/plugins/http'),
+        'http2': resolve(__dirname, '../utils/census/plugins/http2'),
+        'https': resolve(__dirname, '../utils/census/plugins/https'),
+        'mongodb': resolve(__dirname, '../utils/census/plugins/mongodb')
+      }
+      // propagation: new B3Format(),
+      // logLevel: 4
     })
     Configuration.configureModule({
       census_tracing: true
@@ -58,17 +71,12 @@ export class TracingFeature implements Feature {
     return this.tracer
   }
 
-  async stop () {
-    if (!this.tracer) throw new Error(`Tracing was not enabled`)
-    debug('stop census tracer')
+  destroy () {
+    if (!this.tracer) return
+    this.logger('stop census tracer')
     Configuration.configureModule({
       census_tracing: false
     })
-    return this.tracer.stop()
-  }
-
-  async destroy () {
-    if (!this.tracer) return
-    await this.stop()
+    this.tracer.stop()
   }
 }
