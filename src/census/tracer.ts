@@ -95,9 +95,7 @@ export class Tracing implements core.Tracing {
   /** Gets the exporter. */
   get exporter (): core.Exporter {
     // @ts-ignore thanks mr typescript but it's the api interface that force us
-    return this.configLocal.exporter ?
-        this.configLocal.exporter as core.Exporter :
-        undefined
+    return this.configLocal.exporter
   }
 
   /**
