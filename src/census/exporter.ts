@@ -1,5 +1,5 @@
-import { Transport } from '../../services/transport'
-import { ServiceManager } from '../../serviceManager'
+import { Transport } from '../services/transport'
+import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
 import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span } from '@opencensus/core'
 

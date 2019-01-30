@@ -36,7 +36,7 @@ export class TracingFeature implements Feature {
       } else if (process.env.name !== undefined) {
         this.options.serviceName = process.env.name.toString()
       }
-      const CustomCensusExporter = require('../utils/census/exporter').CustomCensusExporter
+      const CustomCensusExporter = require('../census/exporter').CustomCensusExporter
       this.exporter = new CustomCensusExporter(this.options)
 
       await this.start(this.options)
@@ -50,15 +50,15 @@ export class TracingFeature implements Feature {
     }
     this.logger('start census tracer')
 
-    const Tracing = require('../utils/census/tracer').Tracing
+    const Tracing = require('../census/tracer').Tracing
     const tracer = Tracing.instance
     this.tracer = tracer.start({
       exporter: this.exporter,
       plugins: {
-        'http': resolve(__dirname, '../utils/census/plugins/http'),
-        'http2': resolve(__dirname, '../utils/census/plugins/http2'),
-        'https': resolve(__dirname, '../utils/census/plugins/https'),
-        'mongodb': resolve(__dirname, '../utils/census/plugins/mongodb')
+        'http': resolve(__dirname, '../census/plugins/http'),
+        'http2': resolve(__dirname, '../census/plugins/http2'),
+        'https': resolve(__dirname, '../census/plugins/https'),
+        'mongodb': resolve(__dirname, '../census/plugins/mongodb')
       }
       // propagation: new B3Format(),
       // logLevel: 4
