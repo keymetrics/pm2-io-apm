@@ -29,5 +29,5 @@ export const defaultConfig = {
   plugins: {},
   bufferSize: Constants.DEFAULT_BUFFER_SIZE,
   bufferTimeout: Constants.DEFAULT_BUFFER_TIMEOUT,
-  samplingRate: 0.5
+  samplingRate: process.env.NODE_ENV === 'test' ? 1 : 0.5
 }
