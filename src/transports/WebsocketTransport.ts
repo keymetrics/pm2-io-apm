@@ -1,5 +1,4 @@
 import { Transport, TransportConfig } from '../services/transport'
-import * as semver from 'semver'
 import Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
@@ -30,10 +29,6 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
   private logger: Function = Debug('axm:transport:websocket')
 
   init (config: TransportConfig): Transport {
-    if (!semver.satisfies(process.version, '>= 6.0.0')) {
-      console.error('[STANDALONE MODE] Unable to set standalone mode with node < 6.0.0')
-      return process.exit(1)
-    }
     if (this.initiated === true) {
       console.error(`Trying to re-init the transport, please avoid`)
       return this
