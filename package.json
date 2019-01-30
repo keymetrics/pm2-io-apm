@@ -37,7 +37,7 @@
     "watch": "Watch source files, rebuild library on changes, rerun relevant tests"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=6.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.4",
