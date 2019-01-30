@@ -4,8 +4,6 @@ import * as Debug from 'debug'
 import Configuration from '../configuration'
 import { IOConfig, defaultConfig } from '../pmx'
 import { resolve } from 'path'
-import { CustomCensusExporter } from '../utils/census/exporter'
-import { B3Format } from '@opencensus/propagation-b3'
 
 export class TracingConfig {
   enabled: boolean
@@ -38,7 +36,7 @@ export class TracingFeature implements Feature {
       } else if (process.env.name !== undefined) {
         this.options.serviceName = process.env.name.toString()
       }
-
+      const CustomCensusExporter = require('../utils/census/exporter').CustomCensusExporter
       this.exporter = new CustomCensusExporter(this.options)
 
       await this.start(this.options)
