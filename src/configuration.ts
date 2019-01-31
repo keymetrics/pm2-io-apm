@@ -46,11 +46,15 @@ export default class Configuration {
     if (!conf.module_conf) {
       conf.module_conf = {}
     }
+    conf.apm = {
+      type: 'node',
+      version: null
+    }
 
     try {
       const prefix = __dirname.replace(/\\/g,'/').indexOf('/build/') >= 0 ? '../../' : '../'
       const pkg = require(prefix + 'package.json')
-      conf.pmx_version = pkg.version || null
+      conf.apm.version = pkg.version || null
     } catch (err) {
       debug('Failed to fetch current apm version: ', err.message)
     }

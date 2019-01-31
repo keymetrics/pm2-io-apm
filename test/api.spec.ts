@@ -319,7 +319,8 @@ describe('API', function () {
       expect(typeof conf.module_version).to.equal('string')
       expect(typeof conf.module_name).to.equal('string')
       expect(typeof conf.description).to.equal('string')
-      expect(typeof conf.pmx_version).to.equal('string')
+      expect(conf.apm.type).to.equal('node')
+      expect(typeof conf.apm.version).to.equal('string')
     })
 
     it('should return module conf with callback', () => {
@@ -332,7 +333,8 @@ describe('API', function () {
         expect(typeof conf.module_version).to.equal('string')
         expect(typeof conf.module_name).to.equal('string')
         expect(typeof conf.description).to.equal('string')
-        expect(typeof conf.pmx_version).to.equal('string')
+        expect(conf.apm.type).to.equal('node')
+        expect(typeof conf.apm.version).to.equal('string')
         expect(conf.test2).to.equal('toto')
         expect(conf.module_name).to.equal('mocha')
         expect(err).to.equal(null)
@@ -346,7 +348,8 @@ describe('API', function () {
       expect(typeof conf.module_version).to.equal('string')
       expect(typeof conf.module_name).to.equal('string')
       expect(typeof conf.description).to.equal('string')
-      expect(typeof conf.pmx_version).to.equal('string')
+      expect(conf.apm.type).to.equal('node')
+      expect(typeof conf.apm.version).to.equal('string')
     })
 
     it('should receive data from init module', (done) => {
@@ -357,7 +360,8 @@ describe('API', function () {
           const conf = pck.data
           expect(conf.module_version).to.equal('0.0.1')
           expect(typeof conf.module_name).to.equal('string')
-          expect(typeof conf.pmx_version).to.equal('string')
+          expect(conf.apm.type).to.equal('node')
+          expect(typeof conf.apm.version).to.equal('string')
           child.kill('SIGINT')
           done()
         }
