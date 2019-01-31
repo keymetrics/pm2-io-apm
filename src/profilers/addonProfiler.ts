@@ -45,7 +45,7 @@ export default class AddonProfiler implements ProfilerType {
         'feature.profiler.heap_sampling': false,
         'feature.profiler.cpu_js': false
       })
-      return console.error(`Failed to require the profiler via addon, disabling profiling ...`)
+      return this.logger(`Failed to require the profiler via addon, disabling profiling ...`)
     }
     this.logger('init')
 

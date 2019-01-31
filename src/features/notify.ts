@@ -96,6 +96,9 @@ export class NotifyFeature implements Feature {
   }
 
   private onUnhandledRejection (error) {
+    // see  https://github.com/keymetrics/pm2-io-apm/issues/223
+    if (error === undefined) return
+
     console.error(error)
 
     const payload = {
