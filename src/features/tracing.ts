@@ -1,10 +1,11 @@
 import { Feature } from '../featureManager'
-import * as semver from 'semver'
 import * as Debug from 'debug'
 import Configuration from '../configuration'
-import { IOConfig, defaultConfig } from '../pmx'
+import { IOConfig } from '../pmx'
 import { resolve } from 'path'
 import { B3Format } from '@opencensus/propagation-b3'
+import { CustomCensusExporter } from '../census/exporter'
+import { Tracing } from '../census/tracer'
 
 export class TracingConfig {
   /**
@@ -26,43 +27,50 @@ export class TracingConfig {
   samplingRate?: number
 }
 
+const defaultTracingConfig: TracingConfig = {
+  enabled: false,
+  outbound: false,
+  samplingRate: 0
+}
+
+const enabledTracingConfig: TracingConfig = {
+  enabled: true,
+  outbound: false,
+  samplingRate: 0.5
+}
+
 export class TracingFeature implements Feature {
   private exporter: any
   private options: TracingConfig
   private tracer: any
   private logger: Function = Debug('axm:tracing')
 
-  async init (config: IOConfig): Promise<void> {
+  init (config: IOConfig): void {
     this.logger('init tracing')
 
-    this.options = config.tracing === undefined ? defaultConfig.tracing! : Object.assign(defaultConfig.tracing!, config.tracing)
-    if (this.options && this.options.enabled) {
-      if (!semver.satisfies(process.version, '>= 6.0.0')) {
-        console.error('[TRACING] Unable to use tracing with node < 6.0.0')
-        return process.exit(1)
-      }
-
-      // prepare service name
-      if (config.apmOptions !== undefined && config.apmOptions.appName) {
-        this.options.serviceName = config.apmOptions.appName
-      } else if (process.env.name !== undefined) {
-        this.options.serviceName = process.env.name.toString()
-      }
-      const CustomCensusExporter = require('../census/exporter').CustomCensusExporter
-      this.exporter = new CustomCensusExporter(this.options)
-
-      await this.start(this.options)
+    if (config.tracing === undefined) {
+      config.tracing = defaultTracingConfig
+    } else if (config.tracing === true) {
+      config.tracing = enabledTracingConfig
+    } else if (config.tracing === false) {
+      config.tracing = defaultTracingConfig
     }
-  }
+    if (config.tracing.enabled === false) {
+      return this.logger('tracing disabled')
+    }
 
-  async start (config: TracingConfig) {
-    // don't enable tracing twice
+    this.options = Object.assign(enabledTracingConfig, config.tracing)
+    // tslint:disable-next-line
+    if (typeof config.apmOptions === 'object' && typeof config.apmOptions.appName === 'string') {
+      this.options.serviceName = config.apmOptions.appName
+    } else if (typeof process.env.name === 'string') {
+      this.options.serviceName = process.env.name
+    }
+    this.exporter = new CustomCensusExporter(this.options)
     if (this.tracer && this.tracer.active) {
       throw new Error(`Tracing was already enabled`)
     }
     this.logger('start census tracer')
-
-    const Tracing = require('../census/tracer').Tracing
     const tracer = Tracing.instance
     this.tracer = tracer.start({
       exporter: this.exporter,
@@ -73,13 +81,12 @@ export class TracingFeature implements Feature {
         'mongodb': resolve(__dirname, '../census/plugins/mongodb')
       },
       propagation: new B3Format(),
-      samplingRate: config.samplingRate || 0.5
+      samplingRate: this.options.samplingRate || 0.5
       // logLevel: 4
     })
     Configuration.configureModule({
       census_tracing: true
     })
-    return this.tracer
   }
 
   destroy () {

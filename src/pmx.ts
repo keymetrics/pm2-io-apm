@@ -43,7 +43,7 @@ export class IOConfig {
   /**
    * Configure the transaction tracing options
    */
-  tracing?: TracingConfig
+  tracing?: TracingConfig | boolean = false
   /**
    * If you want to connect to PM2 Enterprise without using PM2, you should enable
    * the standalone mode
