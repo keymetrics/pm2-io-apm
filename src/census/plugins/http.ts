@@ -67,7 +67,24 @@ export class HttpPlugin extends BasePlugin {
     // here too.
     if (semver.satisfies(this.version, '>=8.0.0')) {
       shimmer.wrap(
-          this.moduleExports, 'get', this.getPatchOutgoingRequestFunction())
+          this.moduleExports, 'get', () => {
+            // Re-implement http.get. This needs to be done (instead of using
+            // makeRequestTrace to patch it) because we need to set the trace
+            // context header before the returned ClientRequest is ended.
+            // The Node.js docs state that the only differences between request and
+            // get are that (1) get defaults to the HTTP GET method and (2) the
+            // returned request object is ended immediately.
+            // The former is already true (at least in supported Node versions up to
+            // v9), so we simply follow the latter.
+            // Ref:
+            // https://nodejs.org/dist/latest/docs/api/http.html#http_http_get_options_callback
+            // https://github.com/googleapis/cloud-trace-nodejs/blob/master/src/plugins/plugin-http.ts#L198
+            return function getTrace (options, callback) {
+              const req = httpModule.request(options, callback)
+              req.end()
+              return req
+            }
+          })
     }
 
     if (this.moduleExports && this.moduleExports.Server &&
@@ -267,8 +284,7 @@ export class HttpPlugin extends BasePlugin {
         if (typeof (options) === 'string') {
           const parsedUrl = url.parse(options)
           options = parsedUrl
-          // @ts-ignore
-          pathname = parsedUrl.pathname
+          pathname = parsedUrl.pathname || '/'
           origin = `${parsedUrl.protocol || 'http:'}//${parsedUrl.host}`
         } else {
           // Do not trace ourselves

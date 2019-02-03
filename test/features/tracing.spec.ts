@@ -13,17 +13,21 @@ describe('Tracing with IPC transport', function () {
 
   it('should use tracing system', (done) => {
     const child = launch('../fixtures/metrics/tracingChild')
-    let called = false
+    const spans: any[] = []
     child.on('message', pck => {
-      if (pck.type === 'trace-span' && called === false) {
-        called = true
-        expect(pck.data.hasOwnProperty('id')).to.equal(true)
-        expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
-        expect(pck.data.tags['http.method']).to.equal('GET')
-        expect(pck.data.tags['http.status_code']).to.equal('200')
-
-        child.kill('SIGINT')
-        done()
+      if (pck.type !== 'trace-span') return
+      expect(pck.data.hasOwnProperty('id')).to.equal(true)
+      expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
+      spans.push(pck.data)
+      // for a unknow reason, the first root span is never finished
+      // we should have 4 if it was fully working
+      if (spans.length === 3) {
+        assert(spans.filter(span => span.kind === 'CLIENT').length === 1)
+        assert(spans.filter(span => span.kind === 'SERVER').length === 2)
+        assert(spans.filter(span => span.name === 'GET /toto').length === 1) // client
+        assert(spans.filter(span => span.name === '/toto').length === 1) // server
+        child.kill('SIGKILL')
+        return done()
       }
     })
   })

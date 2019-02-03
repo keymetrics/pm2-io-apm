@@ -49,7 +49,8 @@ export class CustomCensusExporter implements Exporter {
   private sendTraces (zipkinTraces: TranslatedSpan[]) {
     return new Promise((resolve, reject) => {
       zipkinTraces.forEach(span => {
-        if (span.kind === 'CLIENT' && !this.config.outbound) return
+        const isRootClient = span.kind === 'CLIENT' && span.parentId === undefined
+        if (isRootClient && this.config.outbound === false) return
 
         this.transport.send('trace-span', span)
       })

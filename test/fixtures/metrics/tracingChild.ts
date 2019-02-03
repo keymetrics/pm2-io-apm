@@ -1,7 +1,8 @@
 import * as pmx from '../../../src'
 pmx.init({
   tracing: {
-    enabled: true
+    enabled: true,
+    samplingRate: 1
   }
 })
 
@@ -9,13 +10,16 @@ pmx.init({
 import * as express from 'express'
 const app = express()
 
-const httpModule = require('http')
+const http = require('http')
+const https = require('https')
 
 // test http outbound
 let timer
 
 app.get('/', function (req, res) {
-  res.send('home')
+  http.get('http://localhost:' + server.address().port + '/toto', (_) => {
+    res.send('home')
+  })
 })
 
 app.get('/toto', function (req, res) {
@@ -24,12 +28,14 @@ app.get('/toto', function (req, res) {
 
 const server = app.listen(3001, function () {
   timer = setTimeout(function () {
-    httpModule.get('http://localhost:' + server.address().port)
-    httpModule.get('http://localhost:' + server.address().port + '/toto')
-  }, 200)
+    http.get('http://localhost:' + server.address().port, (_) => {
+      return
+    })
+    https.get('https://google.fr')
+  }, 500)
 })
 
 process.on('SIGINT', function () {
-  clearInterval(timer)
+  clearTimeout(timer)
   server.close()
 })

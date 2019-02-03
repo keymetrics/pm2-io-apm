@@ -10,7 +10,8 @@ io.init({
     appName: 'service'
   },
   tracing: {
-    enabled: true
+    enabled: true,
+    samplingRate: 1
   }
 })
 

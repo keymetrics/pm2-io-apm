@@ -4,14 +4,26 @@ import * as Debug from 'debug'
 import Configuration from '../configuration'
 import { IOConfig, defaultConfig } from '../pmx'
 import { resolve } from 'path'
+import { B3Format } from '@opencensus/propagation-b3'
 
 export class TracingConfig {
+  /**
+   * Enabled the tracing infrastructure.
+   */
   enabled: boolean
+  /**
+   * If you want to report a specific service name, by default we use the same
+   * as in apmOptions
+   */
   serviceName?: string
   /**
-   * Generate trace for outgoing request that aren't connected to a incoming
+   * Generate trace for outgoing request that aren't connected to a incoming one
    */
   outbound?: boolean
+  /**
+   * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
+   */
+  samplingRate?: number
 }
 
 export class TracingFeature implements Feature {
@@ -43,7 +55,7 @@ export class TracingFeature implements Feature {
     }
   }
 
-  async start (config) {
+  async start (config: TracingConfig) {
     // don't enable tracing twice
     if (this.tracer && this.tracer.active) {
       throw new Error(`Tracing was already enabled`)
@@ -59,8 +71,9 @@ export class TracingFeature implements Feature {
         'http2': resolve(__dirname, '../census/plugins/http2'),
         'https': resolve(__dirname, '../census/plugins/https'),
         'mongodb': resolve(__dirname, '../census/plugins/mongodb')
-      }
-      // propagation: new B3Format(),
+      },
+      propagation: new B3Format(),
+      samplingRate: config.samplingRate || 0.5
       // logLevel: 4
     })
     Configuration.configureModule({
