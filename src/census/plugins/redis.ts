@@ -34,7 +34,7 @@ export class RedisPlugin extends BasePlugin {
   protected applyPatch () {
     this.logger.debug('Patched redis')
 
-    if (semver.lt(this.version, '<2.4')) {
+    if (semver.lt(this.version, '2.4.0')) {
       this.logger.info('disabling redis plugin because version isnt supported')
       return this.moduleExports
     }
@@ -54,7 +54,7 @@ export class RedisPlugin extends BasePlugin {
 
   /** Unpatches all Redis patched functions. */
   applyUnpatch (): void {
-    if (semver.lt(this.version, '<2.4')) return
+    if (semver.lt(this.version, '2.4.0')) return
 
     shimmer.unwrap(this.moduleExports.RedisClient.prototype, 'internal_send_command')
     shimmer.unwrap(this.moduleExports, 'createClient')
