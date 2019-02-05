@@ -8,7 +8,7 @@ pipeline:
       - yarn -v
       - uname -r
       - yarn install
-      - yarn add express koa mongodb @pm2/node-runtime-stats v8-profiler-node8
+      - yarn add express koa mongodb redis @pm2/node-runtime-stats v8-profiler-node8
       - export PATH=$PATH:./node_modules/.bin/
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
@@ -35,6 +35,7 @@ pipeline:
       - runTest src/census/plugins/__tests__/http2.spec.ts
       - runTest src/census/plugins/__tests__/https.spec.ts
       - OPENCENSUS_MONGODB_TESTS=1 runTest src/census/plugins/__tests__/mongodb.spec.ts
+      - OPENCENSUS_REDIS_TESTS=1 runTest src/census/plugins/__tests__/redis.spec.ts
       - nyc report --reporter lcov || echo "No nyc coverage"
       - ./cc-test-reporter after-build --exit-code 0 || echo “Skipping CC coverage upload” or upload-coverage || echo “Skipping CC coverage upload”
     secrets: [ cc_test_reporter_id ]

@@ -24,7 +24,7 @@ export type MongoDB = typeof mongodb
 export class MongoDBPlugin extends BasePlugin {
   private readonly SERVER_FNS = ['insert', 'update', 'remove', 'auth']
   private readonly CURSOR_FNS_FIRST = ['_find', '_getmore']
-  private readonly SPAN_MONGODB_QUERY_TYPE = 'db.mongodb.query'
+  private readonly SPAN_MONGODB_QUERY_TYPE = 'MONGODB-CLIENT'
 
   /** Constructs a new MongoDBPlugin instance. */
   constructor (moduleName: string) {

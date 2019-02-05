@@ -6,9 +6,10 @@ import { resolve } from 'path'
 import { B3Format } from '@opencensus/propagation-b3'
 import { CustomCensusExporter } from '../census/exporter'
 import { Tracing } from '../census/tracer'
-import { HttpPluginConfig } from '../census/plugins/http'
+import * as httpModule from 'http'
+import { IgnoreMatcher } from '../census/plugins/http'
 
-interface InternalTracingConfig {
+export interface TracingConfig {
   /**
    * Enabled the distributed tracing feature.
    */
@@ -27,17 +28,28 @@ interface InternalTracingConfig {
    * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
    * default is 0.5
    */
-  samplingRate?: number
+  samplingRate?: number,
+  /**
+   * Add details about databases calls (redis, mongodb)
+   */
+  detailedDatabasesCalls?: boolean,
+  /**
+   * Ignore specific incoming request depending on their path
+   */
+  ignoreIncomingPaths?: Array<IgnoreMatcher<httpModule.IncomingMessage>>
+  /**
+   * Ignore specific outgoing request depending on their url
+   */
+  ignoreOutgoingUrls?: Array<IgnoreMatcher<httpModule.ClientRequest>>
 }
-
-export type TracingConfig = InternalTracingConfig & HttpPluginConfig
 
 const defaultTracingConfig: TracingConfig = {
   enabled: false,
   outbound: false,
   samplingRate: 0,
   ignoreIncomingPaths: [],
-  ignoreOutgoingUrls: []
+  ignoreOutgoingUrls: [],
+  detailedDatabasesCalls: false
 }
 
 const enabledTracingConfig: TracingConfig = {
@@ -45,7 +57,8 @@ const enabledTracingConfig: TracingConfig = {
   outbound: false,
   samplingRate: 0.5,
   ignoreIncomingPaths: [],
-  ignoreOutgoingUrls: []
+  ignoreOutgoingUrls: [],
+  detailedDatabasesCalls: false
 }
 
 export class TracingFeature implements Feature {
@@ -75,6 +88,12 @@ export class TracingFeature implements Feature {
     } else if (typeof process.env.name === 'string') {
       this.options.serviceName = process.env.name
     }
+    if (config.tracing.ignoreOutgoingUrls === undefined) {
+      config.tracing.ignoreOutgoingUrls = []
+    }
+    if (config.tracing.ignoreIncomingPaths === undefined) {
+      config.tracing.ignoreIncomingPaths = []
+    }
     this.exporter = new CustomCensusExporter(this.options)
     if (this.tracer && this.tracer.active) {
       throw new Error(`Tracing was already enabled`)
@@ -84,10 +103,17 @@ export class TracingFeature implements Feature {
     this.tracer = tracer.start({
       exporter: this.exporter,
       plugins: {
-        'http': resolve(__dirname, '../census/plugins/http'),
+        'http': {
+          module: resolve(__dirname, '../census/plugins/http'),
+          config: config.tracing
+        },
         'http2': resolve(__dirname, '../census/plugins/http2'),
         'https': resolve(__dirname, '../census/plugins/https'),
-        'mongodb': resolve(__dirname, '../census/plugins/mongodb')
+        'mongodb': resolve(__dirname, '../census/plugins/mongodb'),
+        'redis': {
+          module: resolve(__dirname, '../census/plugins/redis'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        }
       },
       propagation: new B3Format(),
       samplingRate: this.options.samplingRate || 0.5,
