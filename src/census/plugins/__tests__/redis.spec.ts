@@ -68,7 +68,7 @@ describe('RedisPlugin', () => {
   }
 
   const URL = 'redis://localhost:6379'
-  const VERSION = process.versions.node
+  const VERSION = '2.8'
   const REDIS_QUERY_TYPE = 'REDIS-CLIENT'
 
   const tracer = new CoreTracer()

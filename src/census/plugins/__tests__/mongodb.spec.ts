@@ -91,7 +91,7 @@ describe('MongoDBPlugin', () => {
   const URL = 'mongodb://localhost:27017'
   const DB_NAME = 'opencensus-tests'
   const COLLECTION_NAME = 'test'
-  const VERSION = process.versions.node
+  const VERSION = '3.1.13'
 
   const tracer = new CoreTracer()
   const rootSpanVerifier = new RootSpanVerifier()

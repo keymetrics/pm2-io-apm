@@ -3,6 +3,7 @@
 
 import { BasePlugin, Span } from '@pm2/opencensus-core'
 import * as shimmer from 'shimmer'
+import * as semver from 'semver'
 import * as redis from 'redis'
 
 export type Redis = typeof redis
@@ -33,6 +34,11 @@ export class RedisPlugin extends BasePlugin {
   protected applyPatch () {
     this.logger.debug('Patched redis')
 
+    if (semver.lt(this.version, '<2.4')) {
+      this.logger.info('disabling redis plugin because version isnt supported')
+      return this.moduleExports
+    }
+
     if (this.moduleExports.RedisClient) {
       this.logger.debug('patching redis.RedisClient.prototype.create_stream')
       shimmer.wrap(this.moduleExports.RedisClient.prototype, 'create_stream',
@@ -48,6 +54,8 @@ export class RedisPlugin extends BasePlugin {
 
   /** Unpatches all Redis patched functions. */
   applyUnpatch (): void {
+    if (semver.lt(this.version, '<2.4')) return
+
     shimmer.unwrap(this.moduleExports.RedisClient.prototype, 'internal_send_command')
     shimmer.unwrap(this.moduleExports, 'createClient')
     shimmer.unwrap(this.moduleExports.RedisClient.prototype, 'create_stream')
