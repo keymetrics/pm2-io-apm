@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  mongodb:
+    image: mongo:3.4
+    ports:
+      - "27017:27017"
+    environment:
+      AUTH: "no"
+  redis:
+    image: eywek/redis:5
+    ports:
+      - "6379:6379"
