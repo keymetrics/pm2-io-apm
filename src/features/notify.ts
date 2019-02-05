@@ -1,9 +1,11 @@
-import * as util from 'util'
+'use strict'
+
 import { Feature } from '../featureManager'
 import Configuration from '../configuration'
 import { ServiceManager } from '../serviceManager'
 import Debug from 'debug'
 import { Transport } from '../services/transport'
+import * as semver from 'semver'
 
 export class NotifyOptions {
   catchExceptions: boolean
@@ -81,7 +83,11 @@ export class NotifyFeature implements Feature {
   }
 
   private onUncaughtException (error) {
-    console.error(error)
+    if (semver.satisfies(process.version, '< 6')) {
+      console.error(error.stack)
+    } else {
+      console.error(error)
+    }
 
     const payload = {
       message: error.message,
