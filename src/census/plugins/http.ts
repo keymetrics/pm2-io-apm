@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BasePlugin, Func, HeaderGetter, HeaderSetter, Span, TraceOptions } from '@opencensus/core'
+import { BasePlugin, Func, HeaderGetter, HeaderSetter, Span, TraceOptions } from '@pm2/opencensus-core'
 import * as httpModule from 'http'
 import * as semver from 'semver'
 import * as shimmer from 'shimmer'
@@ -368,7 +368,7 @@ export class HttpPlugin extends BasePlugin {
         propagation.inject(setter, span.spanContext)
       }
 
-      request.on('response', (response: httpModule.ClientResponse) => {
+      request.on('response', (response: httpModule.IncomingMessage) => {
         plugin.tracer.wrapEmitter(response)
         plugin.logger.debug('outgoingRequest on response()')
 
@@ -378,21 +378,16 @@ export class HttpPlugin extends BasePlugin {
           const headers = options.headers
           const userAgent =
               headers ? (headers['user-agent'] || headers['User-Agent']) : null
-          // @ts-ignore
-          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_HOST, options.hostname)
+          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_HOST, `${options.hostname}`)
           span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_METHOD, method)
-          // @ts-ignore
-          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_PATH, options.path)
-          // @ts-ignore
-          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ROUTE, options.path)
+          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_PATH, `${options.path}`)
+          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ROUTE, `${options.path}`)
           if (userAgent) {
             span.addAttribute(
                 HttpPlugin.ATTRIBUTE_HTTP_USER_AGENT, userAgent.toString())
           }
-          // @ts-ignore
-          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_STATUS_CODE, response.statusCode.toString())
-          // @ts-ignore
-          span.status = HttpPlugin.convertTraceStatus(response.statusCode)
+          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_STATUS_CODE, `${response.statusCode}`)
+          span.status = HttpPlugin.convertTraceStatus(response.statusCode || 0)
 
           // Message Event ID is not defined
           span.addMessageEvent(

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Func } from '@opencensus/core'
+import { Func } from '@pm2/opencensus-core'
 import { HttpPlugin } from './http'
 import * as http from 'http'
 import * as https from 'https'

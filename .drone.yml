@@ -31,6 +31,9 @@ pipeline:
       - runTest test/metrics/runtime.spec.ts
       - runTest test/services/actions.spec.ts
       - runTest test/services/metrics.spec.ts
+      - runTest src/census/plugins/__tests__/http.spec.ts
+      - runTest src/census/plugins/__tests__/http2.spec.ts
+      - runTest src/census/plugins/__tests__/https.spec.ts
       - nyc report --reporter lcov || echo "No nyc coverage"
       - ./cc-test-reporter after-build --exit-code 0 || echo “Skipping CC coverage upload” or upload-coverage || echo “Skipping CC coverage upload”
     secrets: [ cc_test_reporter_id ]

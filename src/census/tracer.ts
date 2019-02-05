@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as core from '@opencensus/core'
+import * as core from '@pm2/opencensus-core'
 
 import { defaultConfig } from './config/default-config'
 import { Constants } from './constants'

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-import { Func, HeaderGetter, HeaderSetter, Span, TraceOptions, Tracer } from '@opencensus/core'
+import { Func, HeaderGetter, HeaderSetter, Span, TraceOptions, Tracer } from '@pm2/opencensus-core'
 import { HttpPlugin } from './http'
-import * as http from 'http'
 import * as http2 from 'http2'
-import * as net from 'net'
 import * as shimmer from 'shimmer'
-import * as tls from 'tls'
 import * as url from 'url'
 import * as uuid from 'uuid'
 
@@ -138,13 +135,10 @@ export class Http2Plugin extends HttpPlugin {
       }
 
       request.on('response', (responseHeaders: http2.IncomingHttpHeaders) => {
+        const status = `${responseHeaders[':status']}`
         span.addAttribute(
-            Http2Plugin.ATTRIBUTE_HTTP_STATUS_CODE,
-            `${responseHeaders[':status']}`)
-        if (typeof responseHeaders[':status'] === 'string') {
-          // @ts-ignore
-          span.status = Http2Plugin.convertTraceStatus(parseInt(responseHeaders[':status'], 10))
-        }
+            Http2Plugin.ATTRIBUTE_HTTP_STATUS_CODE, status)
+        span.status = Http2Plugin.convertTraceStatus(parseInt(status, 10))
       })
 
       request.on('end', () => {
@@ -236,7 +230,6 @@ export class Http2Plugin extends HttpPlugin {
         }
 
         return plugin.tracer.startRootSpan(traceOptions, rootSpan => {
-          // @ts-ignore thanks mr typescript in know that
           if (!rootSpan) return original.apply(this, arguments)
 
           plugin.tracer.wrapEmitter(stream)
@@ -269,7 +262,6 @@ export class Http2Plugin extends HttpPlugin {
             rootSpan.end()
             return returned
           }
-          // @ts-ignore thanks mr typescript in know that
           return original.apply(this, arguments)
         })
       }

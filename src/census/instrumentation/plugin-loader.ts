@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Logger, Plugin, PluginNames, Tracer } from '@opencensus/core'
+import { Logger, Plugin, PluginNames, Tracer, PluginConfig } from '@pm2/opencensus-core'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as hook from 'require-in-the-middle'
@@ -124,10 +124,12 @@ export class PluginLoader {
         this.logger.debug('applying patch to %s@%s module', name, version)
 
         let moduleName
+        let moduleConfig: PluginConfig = {}
         if (typeof plugin === 'string') {
           moduleName = plugin
         } else {
-          throw new Error(`Plugin name should be a string`)
+          moduleConfig = plugin.config
+          moduleName = plugin.module
         }
         this.logger.debug('using package %s to patch %s', moduleName, name)
 
@@ -135,7 +137,7 @@ export class PluginLoader {
         try {
           const plugin: Plugin = require(moduleName as string).plugin
           this.plugins.push(plugin)
-          return plugin.enable(exports, this.tracer, version, basedir)
+          return plugin.enable(exports, this.tracer, version, moduleConfig, basedir)
         } catch (e) {
           this.logger.error(
               'could not load plugin %s of module %s. Error: %s', moduleName,

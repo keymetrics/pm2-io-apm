@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BasePlugin, Func, Span } from '@opencensus/core'
+import { BasePlugin, Func, Span } from '@pm2/opencensus-core'
 import * as mongodb from 'mongodb'
 import * as semver from 'semver'
 import * as shimmer from 'shimmer'
