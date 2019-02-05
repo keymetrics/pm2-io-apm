@@ -24,7 +24,13 @@ import * as uuid from 'uuid'
 export type IgnoreMatcher<T> = string | RegExp | ((url: string, request: T) => boolean)
 
 export type HttpPluginConfig = {
+  /**
+   * Ignore specific incoming request depending on their path
+   */
   ignoreIncomingPaths: Array<IgnoreMatcher<httpModule.IncomingMessage>>
+  /**
+   * Ignore specific outgoing request depending on their url
+   */
   ignoreOutgoingUrls: Array<IgnoreMatcher<httpModule.ClientRequest>>
 }
 

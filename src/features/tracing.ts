@@ -6,37 +6,46 @@ import { resolve } from 'path'
 import { B3Format } from '@opencensus/propagation-b3'
 import { CustomCensusExporter } from '../census/exporter'
 import { Tracing } from '../census/tracer'
+import { HttpPluginConfig } from '../census/plugins/http'
 
-export class TracingConfig {
+interface InternalTracingConfig {
   /**
-   * Enabled the tracing infrastructure.
+   * Enabled the distributed tracing feature.
    */
   enabled: boolean
   /**
-   * If you want to report a specific service name, by default we use the same
-   * as in apmOptions
+   * If you want to report a specific service name
+   * the default is the same as in apmOptions
    */
   serviceName?: string
   /**
    * Generate trace for outgoing request that aren't connected to a incoming one
+   * default is false
    */
   outbound?: boolean
   /**
    * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
+   * default is 0.5
    */
   samplingRate?: number
 }
 
+export type TracingConfig = InternalTracingConfig & HttpPluginConfig
+
 const defaultTracingConfig: TracingConfig = {
   enabled: false,
   outbound: false,
-  samplingRate: 0
+  samplingRate: 0,
+  ignoreIncomingPaths: [],
+  ignoreOutgoingUrls: []
 }
 
 const enabledTracingConfig: TracingConfig = {
   enabled: true,
   outbound: false,
-  samplingRate: 0.5
+  samplingRate: 0.5,
+  ignoreIncomingPaths: [],
+  ignoreOutgoingUrls: []
 }
 
 export class TracingFeature implements Feature {
@@ -81,12 +90,17 @@ export class TracingFeature implements Feature {
         'mongodb': resolve(__dirname, '../census/plugins/mongodb')
       },
       propagation: new B3Format(),
-      samplingRate: this.options.samplingRate || 0.5
-      // logLevel: 4
+      samplingRate: this.options.samplingRate || 0.5,
+      logLevel: this.isDebugEnabled() ? 4 : 1
     })
     Configuration.configureModule({
       census_tracing: true
     })
+  }
+
+  private isDebugEnabled () {
+    return typeof process.env.DEBUG === 'string' &&
+      (process.env.DEBUG.indexOf('axm:*') >= 0 || process.env.DEBUG.indexOf('axm:tracing') >= 0)
   }
 
   destroy () {
