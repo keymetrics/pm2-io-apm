@@ -92,8 +92,8 @@ export class CustomCensusExporter implements Exporter {
       kind: span.kind,
       timestamp: span.startTime.getTime() * 1000,
       duration: Math.round(span.duration * 1000),
-      debug: true,
-      shared: true,
+      debug: false,
+      shared: false,
       localEndpoint: { serviceName: this.config.serviceName },
       tags: span.attributes
     } as TranslatedSpan
