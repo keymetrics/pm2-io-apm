@@ -1,5 +1,4 @@
 {
-  "extends": "./config/tsconfig.flexible", // also available: "./config/tsconfig.strict"
   "compilerOptions": {
     "target": "es6",
     "outDir": "build/main",
@@ -9,6 +8,7 @@
     "declaration": true,
     "importHelpers": true,
     "inlineSourceMap": true,
+    "strictNullChecks": true,
     "traceResolution": false,
     "downlevelIteration": true,
     "resolveJsonModule": true,
