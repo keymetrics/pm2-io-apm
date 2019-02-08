@@ -125,7 +125,7 @@ describe('HttpsPlugin', () => {
             (url: string) => url === `${urlHost}/ignored/function`
           ]
         },
-        path.resolve(__dirname, '../https'))
+        '')
     tracer.registerSpanEventListener(rootSpanVerifier)
     server = https.createServer(httpsOptions, (request, response) => {
       response.end('Test Server Response')

@@ -18,7 +18,6 @@ import { CoreTracer, RootSpan, Span, SpanEventListener, logger } from '@pm2/open
 import * as assert from 'assert'
 import * as http2 from 'http2'
 import * as semver from 'semver'
-import * as path from 'path'
 
 import { plugin, Http2Plugin } from '../http2'
 
@@ -97,7 +96,7 @@ describe('Http2Plugin', () => {
   before(() => {
     tracer.registerSpanEventListener(rootSpanVerifier)
 
-    plugin.enable(http2, tracer, VERSION, {}, path.resolve(__dirname, '../http2'))
+    plugin.enable(http2, tracer, VERSION, {}, '')
     server = http2.createServer()
     server.on('stream', (stream, requestHeaders) => {
       const pathHeader = requestHeaders[':path']

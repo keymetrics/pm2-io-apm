@@ -3,6 +3,10 @@ pipeline:
     image: node:${NODE_VERSION}
     environment:
       - NODE_ENV=test
+      - OPENCENSUS_MONGODB_TESTS=1
+      - OPENCENSUS_REDIS_TESTS=1
+      - OPENCENSUS_REDIS_HOST=redis
+      - OPENCENSUS_MONGODB_HOST=mongodb
     commands:
       - node -v
       - yarn -v
@@ -34,8 +38,8 @@ pipeline:
       - runTest src/census/plugins/__tests__/http.spec.ts
       - runTest src/census/plugins/__tests__/http2.spec.ts
       - runTest src/census/plugins/__tests__/https.spec.ts
-      - OPENCENSUS_MONGODB_TESTS=1 runTest src/census/plugins/__tests__/mongodb.spec.ts
-      - OPENCENSUS_REDIS_TESTS=1 runTest src/census/plugins/__tests__/redis.spec.ts
+      - runTest src/census/plugins/__tests__/mongodb.spec.ts
+      - runTest src/census/plugins/__tests__/redis.spec.ts
       - nyc report --reporter lcov || echo "No nyc coverage"
       - ./cc-test-reporter after-build --exit-code 0 || echo “Skipping CC coverage upload” or upload-coverage || echo “Skipping CC coverage upload”
     secrets: [ cc_test_reporter_id ]

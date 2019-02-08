@@ -105,8 +105,9 @@ export class RedisPlugin extends BasePlugin {
         // New versions of redis (2.4+) use a single options object instead
         // of separate named arguments.
         if (arguments.length === 1 && typeof cmd === 'object') {
-          const span = plugin.tracer.startChildSpan(`redis-${cmd.command}`,
-            plugin.SPAN_QUERY_TYPE)
+          const span = plugin.tracer.startChildSpan(`redis-${cmd.command}`, plugin.SPAN_QUERY_TYPE)
+          if (span === null) return original.apply(this, arguments)
+
           span.addAttribute('command', cmd.command)
           if (addArguments) {
             span.addAttribute('arguments', JSON.stringify(cmd.args || []))
@@ -116,8 +117,9 @@ export class RedisPlugin extends BasePlugin {
         }
         // older commands where using multiple arguments, focus on supporting
         if (typeof cmd === 'string' && Array.isArray(args) && typeof cb === 'function') {
-          const span = plugin.tracer.startChildSpan(`redis-${cmd}`,
-            plugin.SPAN_QUERY_TYPE)
+          const span = plugin.tracer.startChildSpan(`redis-${cmd}`, plugin.SPAN_QUERY_TYPE)
+          if (span === null) return original.apply(this, arguments)
+
           span.addAttribute('command', cmd)
           if (addArguments) {
             span.addAttribute('arguments', JSON.stringify(args))
@@ -137,11 +139,11 @@ export class RedisPlugin extends BasePlugin {
    * @param resultHandler A callback function.
    */
   patchEnd (span: Span, resultHandler: Function): Function {
-    // tslint:disable-next-line:no-any
-    return function patchedEnd (this: any) {
+    const patchedEnd = function () {
       span.end()
       return resultHandler.apply(this, arguments)
     }
+    return this.tracer.wrap(patchedEnd)
   }
 }
 

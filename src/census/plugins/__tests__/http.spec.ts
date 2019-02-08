@@ -19,7 +19,6 @@ import * as assert from 'assert'
 import * as http from 'http'
 import * as nock from 'nock'
 import * as shimmer from 'shimmer'
-import { resolve } from 'path'
 
 import { plugin, HttpPlugin } from '../http'
 
@@ -126,7 +125,7 @@ describe('HttpPlugin', () => {
             (url: string) => url === `${urlHost}/ignored/function`
           ]
         },
-        resolve(__dirname, '../http'))
+        '')
     tracer.registerSpanEventListener(rootSpanVerifier)
     server = http.createServer((request, response) => {
       response.end('Test Server Response')

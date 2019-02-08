@@ -109,7 +109,10 @@ export class TracingFeature implements Feature {
         },
         'http2': resolve(__dirname, '../census/plugins/http2'),
         'https': resolve(__dirname, '../census/plugins/https'),
-        'mongodb': resolve(__dirname, '../census/plugins/mongodb'),
+        'mongodb-core': {
+          module: resolve(__dirname, '../census/plugins/mongodb'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
         'redis': {
           module: resolve(__dirname, '../census/plugins/redis'),
           config: { detailedCommands: config.tracing.detailedDatabasesCalls }

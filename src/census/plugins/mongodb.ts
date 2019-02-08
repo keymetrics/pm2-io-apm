@@ -20,11 +20,23 @@ import * as shimmer from 'shimmer'
 
 export type MongoDB = typeof mongodb
 
+export type MongoPluginConfig = {
+  /**
+   * Add arguments to the span metadata for a every command
+   */
+  detailedCommands: boolean
+}
+
 /** MongoDB instrumentation plugin for Opencensus */
 export class MongoDBPlugin extends BasePlugin {
-  private readonly SERVER_FNS = ['insert', 'update', 'remove', 'auth']
-  private readonly CURSOR_FNS_FIRST = ['_find', '_getmore']
   private readonly SPAN_MONGODB_QUERY_TYPE = 'MONGODB-CLIENT'
+
+  protected options: MongoPluginConfig
+  protected readonly internalFileList = {
+    '1 - 3': {
+      'ConnectionPool': 'mongodb-core/lib/connection/pool'
+    }
+  }
 
   /** Constructs a new MongoDBPlugin instance. */
   constructor (moduleName: string) {
@@ -38,24 +50,23 @@ export class MongoDBPlugin extends BasePlugin {
     this.logger.debug('Patched MongoDB')
 
     if (this.moduleExports.Server) {
-      this.logger.debug('patching mongodb-core.Server.prototype.command')
-      shimmer.wrap(
-          this.moduleExports.Server.prototype, 'command' as never,
-          this.getPatchCommand())
-      this.logger.debug(
-          'patching mongodb-core.Server.prototype functions:', this.SERVER_FNS)
-      shimmer.massWrap(
-          [this.moduleExports.Server.prototype], this.SERVER_FNS as never[],
-          this.getPatchQuery())
+      this.logger.debug('patching mongodb-core.Server.prototype functions: insert, remove, command, update')
+      shimmer.wrap(this.moduleExports.Server.prototype, 'insert', this.getPatchCommand('mongodb-insert'))
+      shimmer.wrap(this.moduleExports.Server.prototype, 'remove', this.getPatchCommand('mongodb-remove'))
+      shimmer.wrap(this.moduleExports.Server.prototype, 'command', this.getPatchCommand('mongodb-command'))
+      shimmer.wrap(this.moduleExports.Server.prototype, 'update', this.getPatchCommand('mongodb-update'))
     }
 
     if (this.moduleExports.Cursor) {
-      this.logger.debug(
-          'patching mongodb-core.Cursor.prototype functions:',
-          this.CURSOR_FNS_FIRST)
-      shimmer.massWrap(
-          [this.moduleExports.Cursor.prototype],
-          this.CURSOR_FNS_FIRST as never[], this.getPatchCursor())
+      this.logger.debug('patching mongodb-core.Cursor.prototype.next')
+      shimmer.wrap(this.moduleExports.Cursor.prototype, 'next', this.getPatchCursor())
+    }
+
+    if (this.internalFilesExports.ConnectionPool) {
+      this.logger.debug('patching mongodb-core/lib/connection/pool')
+      shimmer.wrap(
+        this.internalFilesExports.ConnectionPool.prototype, 'once' as never,
+        this.getPatchEventEmitter())
     }
 
     return this.moduleExports
@@ -63,24 +74,21 @@ export class MongoDBPlugin extends BasePlugin {
 
   /** Unpatches all MongoDB patched functions. */
   applyUnpatch (): void {
+    shimmer.unwrap(this.moduleExports.Server.prototype, 'insert')
+    shimmer.unwrap(this.moduleExports.Server.prototype, 'remove')
     shimmer.unwrap(this.moduleExports.Server.prototype, 'command')
-    shimmer.massUnwrap(this.moduleExports.Server.prototype, this.SERVER_FNS)
-    shimmer.massUnwrap(
-        this.moduleExports.Cursor.prototype, this.CURSOR_FNS_FIRST)
+    shimmer.unwrap(this.moduleExports.Server.prototype, 'update')
+    shimmer.unwrap(this.moduleExports.Cursor.prototype, 'next')
+    shimmer.unwrap(this.internalFilesExports.ConnectionPool.prototype, 'once')
   }
 
   /** Creates spans for Command operations */
-  private getPatchCommand () {
+  private getPatchCommand (label: string) {
     const plugin = this
     return (original: Func<mongodb.Server>) => {
-      return function (
-                 // tslint:disable-next-line:no-any
-                 this: mongodb.Server, ns: string, command: any,
-                 // tslint:disable-next-line:no-any
-                 ...args: any[]): mongodb.Server {
-        let resultHandler = args[args.length - 1]
-        if (plugin.tracer.currentRootSpan && arguments.length > 0 &&
-            typeof resultHandler === 'function') {
+      return function (ns: string, command: any, options: any, callback: Function): mongodb.Server {
+        const resultHandler = typeof options === 'function' ? options : callback
+        if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
           let type: string
           if (command.createIndexes) {
             type = 'createIndexes'
@@ -94,29 +102,21 @@ export class MongoDBPlugin extends BasePlugin {
             type = 'command'
           }
 
-          const span = plugin.tracer.startChildSpan(
-              ns + '.' + type, plugin.SPAN_MONGODB_QUERY_TYPE)
-          resultHandler = plugin.patchEnd(span, resultHandler)
-        }
+          const span = plugin.tracer.startChildSpan(label, plugin.SPAN_MONGODB_QUERY_TYPE)
+          if (span === null) return original.apply(this, arguments)
+          span.addAttribute('database', ns)
+          span.addAttribute('type', type)
 
-        return original.apply(this, arguments)
-      }
-    }
-  }
+          if (plugin.options.detailedCommands === true) {
+            span.addAttribute('command', JSON.stringify(command))
+          }
 
-  /** Creates spans for Query operations */
-  private getPatchQuery () {
-    const plugin = this
-    return (original: Func<mongodb.Server>) => {
-      // tslint:disable-next-line:no-any
-      return function (this: mongodb.Server, ns: string, ...args: any[]):
-          mongodb.Server {
-        let resultHandler = args[args.length - 1]
-        if (plugin.tracer.currentRootSpan && arguments.length > 0 &&
-            typeof resultHandler === 'function') {
-          const span = plugin.tracer.startChildSpan(
-              ns + '.query', plugin.SPAN_MONGODB_QUERY_TYPE)
-          resultHandler = plugin.patchEnd(span, resultHandler)
+          if (typeof options === 'function') {
+            return original.call(this, ns, command, plugin.patchEnd(span, options))
+          } else {
+            return original.call(this, ns, command,
+                options, plugin.patchEnd(span, callback))
+          }
         }
 
         return original.apply(this, arguments)
@@ -128,16 +128,27 @@ export class MongoDBPlugin extends BasePlugin {
   private getPatchCursor () {
     const plugin = this
     return (original: Func<mongodb.Cursor>) => {
-      return function (this: any, ...args: any[]): mongodb.Cursor {
+      return function (...args: any[]): mongodb.Cursor {
         let resultHandler = args[0]
-        if (plugin.tracer.currentRootSpan && arguments.length > 0 &&
-            typeof resultHandler === 'function') {
-          const span = plugin.tracer.startChildSpan(
-              this.ns + '.cursor', plugin.SPAN_MONGODB_QUERY_TYPE)
+        if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
+          const span = plugin.tracer.startChildSpan('mongodb-find', plugin.SPAN_MONGODB_QUERY_TYPE)
           resultHandler = plugin.patchEnd(span, resultHandler)
+          span.addAttribute('database', this.ns)
+          if (plugin.options.detailedCommands === true && typeof this.cmd.query === 'object') {
+            span.addAttribute('command', JSON.stringify(this.cmd.query))
+          }
         }
 
-        return original.apply(this, arguments)
+        return original.call(this, resultHandler)
+      }
+    }
+  }
+  /** Propagate context in the event emitter of the connection pool */
+  private getPatchEventEmitter () {
+    const plugin = this
+    return (original: Function) => {
+      return function (event, cb) {
+        return original.call(this, event, plugin.tracer.wrap(cb))
       }
     }
   }
@@ -148,13 +159,17 @@ export class MongoDBPlugin extends BasePlugin {
    * @param resultHandler A callback function.
    */
   patchEnd (span: Span, resultHandler: Function): Function {
-    // tslint:disable-next-line:no-any
-    return function patchedEnd (this: any) {
+    const plugin = this
+    const patchedEnd = function (err, res) {
+      if (plugin.options.detailedCommands === true && err instanceof Error) {
+        span.addAttribute('error', err.message)
+      }
       span.end()
       return resultHandler.apply(this, arguments)
     }
+    return this.tracer.wrap(patchedEnd)
   }
 }
 
-const plugin = new MongoDBPlugin('mongodb')
+const plugin = new MongoDBPlugin('mongodb-core')
 export { plugin }

@@ -17,7 +17,6 @@
 import { CoreTracer, RootSpan, SpanEventListener, Span } from '@pm2/opencensus-core'
 import * as assert from 'assert'
 import * as redis from 'redis'
-import * as path from 'path'
 
 import { plugin, RedisPluginConfig } from '../redis'
 
@@ -61,13 +60,15 @@ describe('RedisPlugin', () => {
   // these tests.
   const OPENCENSUS_REDIS_TESTS =
       process.env.OPENCENSUS_REDIS_TESTS as string
+  const OPENCENSUS_REDIS_HOST =
+      process.env.OPENCENSUS_REDIS_HOST as string
   let shouldTest = true
   if (!OPENCENSUS_REDIS_TESTS) {
     console.log('Skipping test-redis. Run REDIS to test')
     shouldTest = false
   }
 
-  const URL = 'redis://localhost:6379'
+  const URL = `redis://${OPENCENSUS_REDIS_HOST || 'localhost'}:6379`
   const VERSION = '2.8.0'
   const REDIS_QUERY_TYPE = 'REDIS-CLIENT'
 
@@ -78,7 +79,7 @@ describe('RedisPlugin', () => {
   before((done) => {
     tracer.start({ samplingRate: 1 })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    plugin.enable(redis, tracer, VERSION, {}, path.resolve(__dirname, '../redis'))
+    plugin.enable(redis, tracer, VERSION, {}, '')
     client = redis.createClient({
       url: URL
     })
@@ -165,7 +166,7 @@ describe('RedisPlugin', () => {
     it('should create a child span for set (with attributes)', (done) => {
       plugin.disable()
       const conf: RedisPluginConfig = { detailedCommands: true }
-      plugin.enable(redis, tracer, VERSION, conf, path.resolve(__dirname, '../redis'))
+      plugin.enable(redis, tracer, VERSION, conf, '')
       tracer.startRootSpan({ name: 'insertRootSpan' }, (rootSpan: RootSpan) => {
         client.set('test', 'data', (err, result) => {
           assert.ifError(err)
