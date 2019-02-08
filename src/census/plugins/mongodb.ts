@@ -132,6 +132,8 @@ export class MongoDBPlugin extends BasePlugin {
         let resultHandler = args[0]
         if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
           const span = plugin.tracer.startChildSpan('mongodb-find', plugin.SPAN_MONGODB_QUERY_TYPE)
+          if (span === null) return original.apply(this, arguments)
+
           resultHandler = plugin.patchEnd(span, resultHandler)
           span.addAttribute('database', this.ns)
           if (plugin.options.detailedCommands === true && typeof this.cmd.query === 'object') {
