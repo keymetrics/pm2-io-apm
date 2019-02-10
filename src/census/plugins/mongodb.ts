@@ -15,10 +15,7 @@
  */
 
 import { BasePlugin, Func, Span } from '@pm2/opencensus-core'
-import * as mongodb from 'mongodb'
 import * as shimmer from 'shimmer'
-
-export type MongoDB = typeof mongodb
 
 export type MongoPluginConfig = {
   /**
@@ -85,8 +82,8 @@ export class MongoDBPlugin extends BasePlugin {
   /** Creates spans for Command operations */
   private getPatchCommand (label: string) {
     const plugin = this
-    return (original: Func<mongodb.Server>) => {
-      return function (ns: string, command: any, options: any, callback: Function): mongodb.Server {
+    return (original: Function) => {
+      return function (ns: string, command: any, options: any, callback: Function) {
         const resultHandler = typeof options === 'function' ? options : callback
         if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
           let type: string
@@ -127,8 +124,8 @@ export class MongoDBPlugin extends BasePlugin {
   /** Creates spans for Cursor operations */
   private getPatchCursor () {
     const plugin = this
-    return (original: Func<mongodb.Cursor>) => {
-      return function (...args: any[]): mongodb.Cursor {
+    return (original: Function) => {
+      return function (...args: any[]) {
         let resultHandler = args[0]
         if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
           const span = plugin.tracer.startChildSpan('mongodb-find', plugin.SPAN_MONGODB_QUERY_TYPE)
