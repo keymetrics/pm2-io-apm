@@ -159,7 +159,7 @@ describe('HttpPlugin', () => {
       await httpRequest.get(`${urlHost}${testPath}`).then((result) => {
         assert.strictEqual(result, 'Ok')
         assert.ok(
-            rootSpanVerifier.endedRootSpans[0].name.indexOf(testPath) >= 0)
+            rootSpanVerifier.endedRootSpans[0].name.indexOf('http-get') >= 0)
         assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
 
         const span = rootSpanVerifier.endedRootSpans[0]
@@ -181,7 +181,7 @@ describe('HttpPlugin', () => {
            await httpRequest.get(`${urlHost}${testPath}`).then((result) => {
              assert.strictEqual(result, httpErrorCodes[i].toString())
              assert.ok(
-                 rootSpanVerifier.endedRootSpans[0].name.indexOf(testPath) >=
+                 rootSpanVerifier.endedRootSpans[0].name.indexOf('http-get') >=
                  0)
              assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
              const span = rootSpanVerifier.endedRootSpans[0]
@@ -199,7 +199,7 @@ describe('HttpPlugin', () => {
         await httpRequest.get(`${urlHost}${testPath}`).then((result) => {
           assert.ok(root.name.indexOf('TestRootSpan') >= 0)
           assert.strictEqual(root.spans.length, 1)
-          assert.ok(root.spans[0].name.indexOf(testPath) >= 0)
+          assert.ok(root.spans[0].name.indexOf('http-get') >= 0)
           assert.strictEqual(root.traceId, root.spans[0].traceId)
           const span = root.spans[0]
           assertSpanAttributes(span, 200, 'GET', hostName, testPath, undefined)
@@ -220,7 +220,7 @@ describe('HttpPlugin', () => {
              await httpRequest.get(`${urlHost}${testPath}`).then((result) => {
                assert.ok(root.name.indexOf('TestRootSpan') >= 0)
                assert.strictEqual(root.spans.length, 1)
-               assert.ok(root.spans[0].name.indexOf(testPath) >= 0)
+               assert.ok(root.spans[0].name.indexOf('http-get') >= 0)
                assert.strictEqual(root.traceId, root.spans[0].traceId)
 
                const span = root.spans[0]
@@ -242,7 +242,7 @@ describe('HttpPlugin', () => {
         for (let i = 0; i < num; i++) {
           await httpRequest.get(`${urlHost}${testPath}`).then((result) => {
             assert.strictEqual(root.spans.length, i + 1)
-            assert.ok(root.spans[i].name.indexOf(testPath) >= 0)
+            assert.ok(root.spans[i].name.indexOf('http-get') >= 0)
             assert.strictEqual(root.traceId, root.spans[i].traceId)
           })
         }
@@ -293,7 +293,7 @@ describe('HttpPlugin', () => {
          await httpRequest.get(`http://google.fr/`).then((result) => {
            assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
            assert.ok(
-               rootSpanVerifier.endedRootSpans[0].name.indexOf('GET /') >= 0)
+               rootSpanVerifier.endedRootSpans[0].name.indexOf('http-get') >= 0)
 
            const span = rootSpanVerifier.endedRootSpans[0]
            assertSpanAttributes(span, 301, 'GET', 'google.fr', '/', undefined)

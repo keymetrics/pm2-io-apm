@@ -163,7 +163,7 @@ describe('HttpsPlugin', () => {
              await requestMethod(`${urlHost}${testPath}`).then((result) => {
                assert.strictEqual(result, 'Ok')
                assert.ok(
-                   rootSpanVerifier.endedRootSpans[0].name.indexOf(testPath) >=
+                   rootSpanVerifier.endedRootSpans[0].name.indexOf('https-get') >=
                    0)
                assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
 
@@ -188,7 +188,7 @@ describe('HttpsPlugin', () => {
                  assert.strictEqual(result, httpErrorCodes[i].toString())
                  assert.ok(
                      rootSpanVerifier.endedRootSpans[0].name.indexOf(
-                         testPath) >= 0)
+                      'https-get') >= 0)
                  assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
                  const span = rootSpanVerifier.endedRootSpans[0]
                  assertSpanAttributes(
@@ -206,7 +206,7 @@ describe('HttpsPlugin', () => {
             await requestMethod(`${urlHost}${testPath}`).then((result) => {
               assert.ok(root.name.indexOf('TestRootSpan') >= 0)
               assert.strictEqual(root.spans.length, 1)
-              assert.ok(root.spans[0].name.indexOf(testPath) >= 0)
+              assert.ok(root.spans[0].name.indexOf('https-get') >= 0)
               assert.strictEqual(root.traceId, root.spans[0].traceId)
               const span = root.spans[0]
               assertSpanAttributes(
@@ -228,7 +228,7 @@ describe('HttpsPlugin', () => {
                  await requestMethod(`${urlHost}${testPath}`).then((result) => {
                    assert.ok(root.name.indexOf('TestRootSpan') >= 0)
                    assert.strictEqual(root.spans.length, 1)
-                   assert.ok(root.spans[0].name.indexOf(testPath) >= 0)
+                   assert.ok(root.spans[0].name.indexOf('https-get') >= 0)
                    assert.strictEqual(root.traceId, root.spans[0].traceId)
 
                    const span = root.spans[0]
@@ -250,7 +250,7 @@ describe('HttpsPlugin', () => {
             for (let i = 0; i < num; i++) {
               await requestMethod(`${urlHost}${testPath}`).then((result) => {
                 assert.strictEqual(root.spans.length, i + 1)
-                assert.ok(root.spans[i].name.indexOf(testPath) >= 0)
+                assert.ok(root.spans[i].name.indexOf('https-get') >= 0)
                 assert.strictEqual(root.traceId, root.spans[i].traceId)
               })
             }

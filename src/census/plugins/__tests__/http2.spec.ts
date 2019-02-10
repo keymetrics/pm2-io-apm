@@ -133,7 +133,7 @@ describe('Http2Plugin', () => {
         assert.strictEqual(result, `${statusCode}`)
         assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 2)
         assert.ok(
-            rootSpanVerifier.endedRootSpans[1].name.indexOf(testPath) >= 0)
+            rootSpanVerifier.endedRootSpans[1].name.indexOf('http2-get') >= 0)
 
         const span = rootSpanVerifier.endedRootSpans[1]
         assertSpanAttributes(span, 200, 'GET', host, testPath, undefined)
@@ -153,7 +153,7 @@ describe('Http2Plugin', () => {
              assert.strictEqual(result, errorCode.toString())
              assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 2)
              assert.ok(
-                 rootSpanVerifier.endedRootSpans[1].name.indexOf(testPath) >=
+                 rootSpanVerifier.endedRootSpans[1].name.indexOf('http2-get') >=
                  0)
 
              const span = rootSpanVerifier.endedRootSpans[1]
@@ -173,7 +173,7 @@ describe('Http2Plugin', () => {
         await http2Request.get(client, requestOptions).then((result) => {
           assert.ok(root.name.indexOf('TestRootSpan') >= 0)
           assert.strictEqual(root.spans.length, 1)
-          assert.ok(root.spans[0].name.indexOf(testPath) >= 0)
+          assert.ok(root.spans[0].name.indexOf('http2-get') >= 0)
           assert.strictEqual(root.traceId, root.spans[0].traceId)
           const span = root.spans[0]
           assertSpanAttributes(
@@ -194,7 +194,7 @@ describe('Http2Plugin', () => {
              await http2Request.get(client, requestOptions).then((result) => {
                assert.ok(root.name.indexOf('TestRootSpan') >= 0)
                assert.strictEqual(root.spans.length, 1)
-               assert.ok(root.spans[0].name.indexOf(testPath) >= 0)
+               assert.ok(root.spans[0].name.indexOf('http2-get') >= 0)
                assert.strictEqual(root.traceId, root.spans[0].traceId)
 
                const span = root.spans[0]
@@ -217,7 +217,7 @@ describe('Http2Plugin', () => {
         for (let i = 0; i < num; i++) {
           await http2Request.get(client, requestOptions).then((result) => {
             assert.strictEqual(root.spans.length, i + 1)
-            assert.ok(root.spans[i].name.indexOf(testPath) >= 0)
+            assert.ok(root.spans[i].name.indexOf('http2-get') >= 0)
             assert.strictEqual(root.traceId, root.spans[i].traceId)
           })
         }

@@ -94,7 +94,7 @@ export class Http2Plugin extends HttpPlugin {
         plugin.tracer.wrapEmitter(request)
 
         const traceOptions = {
-          name: `${headers[':method'] || 'GET'} ${headers[':path']}`,
+          name: `http2-${(headers[':method'] as string || 'GET').toLowerCase()}`,
           kind: 'CLIENT'
         }
 
@@ -213,7 +213,7 @@ export class Http2Plugin extends HttpPlugin {
 
         const traceOptions = {
           name: headers[':path'],
-          kind: 'SERVER',
+          kind: 'HTTP2-SERVER',
           spanContext: propagation ? propagation.extract(getter) : null
         } as TraceOptions
 

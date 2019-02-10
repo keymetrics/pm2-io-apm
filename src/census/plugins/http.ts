@@ -166,6 +166,7 @@ export class HttpPlugin extends BasePlugin {
   protected getPatchIncomingRequestFunction () {
     return (original: (event: string) => boolean) => {
       const plugin = this
+      const kind = plugin.moduleName === 'https' ? 'HTTPS' : 'HTTP'
       if (plugin.options === undefined) {
         plugin.options = {
           ignoreIncomingPaths: [],
@@ -203,12 +204,11 @@ export class HttpPlugin extends BasePlugin {
         const context = propagation ? propagation.extract(getter) : null
         const traceOptions: TraceOptions = {
           name: path,
-          kind: 'SERVER',
+          kind: `${kind}-SERVER`,
           spanContext: context !== null ? context : undefined
         }
 
         return plugin.tracer.startRootSpan(traceOptions, rootSpan => {
-          // @ts-ignore
           if (!rootSpan) return original.apply(this, arguments)
 
           plugin.tracer.wrapEmitter(request)
@@ -270,6 +270,7 @@ export class HttpPlugin extends BasePlugin {
     return (original: Func<httpModule.ClientRequest>): Func<
                httpModule.ClientRequest> => {
       const plugin = this
+      const kind = plugin.moduleName === 'https' ? 'HTTPS' : 'HTTP'
       if (plugin.options === undefined) {
         plugin.options = {
           ignoreIncomingPaths: [],
@@ -323,8 +324,8 @@ export class HttpPlugin extends BasePlugin {
 
         plugin.logger.debug('%s plugin outgoingRequest', plugin.moduleName)
         const traceOptions = {
-          name: `${method || 'GET'} ${pathname}`,
-          kind: 'CLIENT'
+          name: `${kind.toLowerCase()}-${(method || 'GET').toLowerCase()}`,
+          kind: `${kind}-CLIENT`
         }
         // Checks if this outgoing request is part of an operation by checking
         // if there is a current root span, if so, we create a child span. In
