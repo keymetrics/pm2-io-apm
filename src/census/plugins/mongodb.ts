@@ -31,7 +31,7 @@ export class MongoDBPlugin extends BasePlugin {
   protected options: MongoPluginConfig
   protected readonly internalFileList = {
     '1 - 3': {
-      'ConnectionPool': 'mongodb-core/lib/connection/pool'
+      'ConnectionPool': '/lib/connection/pool'
     }
   }
 
