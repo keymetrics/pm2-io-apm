@@ -139,8 +139,14 @@ export class RedisPlugin extends BasePlugin {
    * @param resultHandler A callback function.
    */
   patchEnd (span: Span, resultHandler: Function): Function {
-    const patchedEnd = function () {
-      span.end()
+    const plugin = this
+    const patchedEnd = function (err?: Error) {
+      if (plugin.options.detailedCommands === true && err instanceof Error) {
+        span.addAttribute('error', err.message)
+      }
+      if (span.ended === false) {
+        span.end()
+      }
       return resultHandler.apply(this, arguments)
     }
     return this.tracer.wrap(patchedEnd)

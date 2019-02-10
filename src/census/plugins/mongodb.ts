@@ -166,7 +166,9 @@ export class MongoDBPlugin extends BasePlugin {
       if (plugin.options.detailedCommands === true && err instanceof Error) {
         span.addAttribute('error', err.message)
       }
-      span.end()
+      if (span.ended === false) {
+        span.end()
+      }
       return resultHandler.apply(this, arguments)
     }
     return this.tracer.wrap(patchedEnd)
