@@ -116,6 +116,10 @@ export class TracingFeature implements Feature {
         'redis': {
           module: resolve(__dirname, '../census/plugins/redis'),
           config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'ioredis': {
+          module: resolve(__dirname, '../census/plugins/ioredis'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
         }
       },
       propagation: new B3Format(),
