@@ -12,7 +12,7 @@ pipeline:
       - yarn -v
       - uname -r
       - yarn install
-      - yarn add express koa mongodb redis ioredis @pm2/node-runtime-stats v8-profiler-node8
+      - yarn add express koa mongodb-core redis ioredis @pm2/node-runtime-stats v8-profiler-node8
       - export PATH=$PATH:./node_modules/.bin/
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter

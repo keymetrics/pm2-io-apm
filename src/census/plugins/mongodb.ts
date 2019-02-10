@@ -31,7 +31,7 @@ export class MongoDBPlugin extends BasePlugin {
   protected options: MongoPluginConfig
   protected readonly internalFileList = {
     '1 - 3': {
-      'ConnectionPool': '/lib/connection/pool'
+      'ConnectionPool': 'mongodb-core/lib/connection/pool'
     }
   }
 
@@ -76,7 +76,9 @@ export class MongoDBPlugin extends BasePlugin {
     shimmer.unwrap(this.moduleExports.Server.prototype, 'command')
     shimmer.unwrap(this.moduleExports.Server.prototype, 'update')
     shimmer.unwrap(this.moduleExports.Cursor.prototype, 'next')
-    shimmer.unwrap(this.internalFilesExports.ConnectionPool.prototype, 'once')
+    if (this.internalFilesExports.ConnectionPool) {
+      shimmer.unwrap(this.internalFilesExports.ConnectionPool.prototype, 'once')
+    }
   }
 
   /** Creates spans for Command operations */

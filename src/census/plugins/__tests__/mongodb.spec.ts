@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoreTracer, RootSpan, SpanEventListener } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
 import * as assert from 'assert'
 import * as mongodb from 'mongodb-core'
 import { parse } from 'url'
@@ -93,7 +93,7 @@ describe('MongoDBPlugin', () => {
   let client: any
 
   before((done) => {
-    tracer.start({ samplingRate: 1 })
+    tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
     plugin.enable(mongodb, tracer, VERSION, {}, '')
     connect(URL)

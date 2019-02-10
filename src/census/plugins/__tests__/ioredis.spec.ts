@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoreTracer, RootSpan, SpanEventListener, Span } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, Span, logger } from '@pm2/opencensus-core'
 import * as assert from 'assert'
 import * as ioredis from 'ioredis'
 
@@ -77,7 +77,7 @@ describe('RedisPlugin', () => {
   let client: ioredis.Redis
 
   before((done) => {
-    tracer.start({ samplingRate: 1 })
+    tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
     plugin.enable(ioredis, tracer, VERSION, {}, '')
     client = new ioredis(URL)

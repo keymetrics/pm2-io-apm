@@ -103,10 +103,9 @@ describe('HttpsPlugin', () => {
   let serverPort = 3000
 
   let server: https.Server
-  const log = logger.logger()
   const tracer = new CoreTracer()
   const rootSpanVerifier = new RootSpanVerifier()
-  tracer.start({ samplingRate: 1, logger: log })
+  tracer.start({ samplingRate: 1, logger: logger.logger(4) })
 
   it('should return a plugin', () => {
     assert.ok(plugin instanceof HttpsPlugin)

@@ -84,10 +84,9 @@ describe('Http2Plugin', () => {
   const host = `localhost:${serverPort}`
   const authority = `http://${host}`
 
-  const log = logger.logger()
   const tracer = new CoreTracer()
   const rootSpanVerifier = new RootSpanVerifier()
-  tracer.start({ samplingRate: 1, logger: log })
+  tracer.start({ samplingRate: 1, logger: logger.logger(4) })
 
   it('should return a plugin', () => {
     assert.ok(plugin instanceof Http2Plugin)

@@ -99,12 +99,11 @@ describe('HttpPlugin', () => {
 
   let server: http.Server
   let serverPort = 0
-  const log = logger.logger()
   const tracer = new CoreTracer()
   const rootSpanVerifier = new RootSpanVerifier()
   tracer.start({
     samplingRate: 1,
-    logger: log,
+    logger: logger.logger(4),
     propagation: new DummyPropagation()
   })
 
