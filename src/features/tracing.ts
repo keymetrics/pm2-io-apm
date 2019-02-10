@@ -133,6 +133,10 @@ export class TracingFeature implements Feature {
         'pg': {
           module: resolve(__dirname, '../census/plugins/pg'),
           config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'vue-server-renderer': {
+          module: resolve(__dirname, '../census/plugins/vue'),
+          config: {}
         }
       },
       propagation: new B3Format(),
