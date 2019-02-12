@@ -11,3 +11,10 @@ services:
     image: eywek/redis:5
     ports:
       - "6379:6379"
+  mysql:
+    image: mysql:5
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: 'test'
+      MYSQL_ROOT_PASSWORD: 'password'
