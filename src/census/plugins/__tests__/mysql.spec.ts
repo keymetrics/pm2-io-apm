@@ -20,7 +20,7 @@ class RootSpanVerifier implements SpanEventListener {
  * Access the mysql database.
  * @param url The mysql URL to access.
  */
-function connect (url: string): Promise<any> {
+function connectConnection (url: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const server = new mysql.createConnection(url)
     server.connect(err => {
@@ -28,6 +28,10 @@ function connect (url: string): Promise<any> {
       resolve(server)
     })
   })
+}
+
+function createPool (url: string): any {
+  return new mysql.createPool(url)
 }
 
 /**
@@ -73,14 +77,16 @@ describe('MysqlPlugin', () => {
   const tracer = new CoreTracer()
   const rootSpanVerifier = new RootSpanVerifier()
   let client: any
+  let pool: any
 
   before((done) => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
     plugin.enable(mysql, tracer, VERSION, {}, '')
-    connect(URL)
+    connectConnection(URL)
       .then(server => {
         client = server
+        pool = createPool(URL)
         done()
       })
       .catch((err: Error) => {
@@ -109,7 +115,7 @@ describe('MysqlPlugin', () => {
   })
 
   /** Should intercept query */
-  describe('Instrumenting query operations', () => {
+  describe('Instrumenting connection operations', () => {
     it('should create a child span for select', done => {
       tracer.startRootSpan({ name: 'selectRootSpan' }, (rootSpan: RootSpan) => {
         const q = 'SELECT 1'
@@ -119,6 +125,7 @@ describe('MysqlPlugin', () => {
           rootSpan.end()
           assert.ifError(err)
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
+          assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
           assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
           done()
@@ -135,9 +142,32 @@ describe('MysqlPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
+          assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
           assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
           done()
+        })
+      })
+    })
+  })
+
+  describe('instrumenting pool operations', () => {
+    it('should create a child span for select', done => {
+      tracer.startRootSpan({ name: 'selectRootSpan' }, (rootSpan: RootSpan) => {
+        const q = 'SELECT 1'
+        pool.getConnection((err, conn) => {
+          assert.ifError(err)
+          conn.query(q, (err, result) => {
+            assert.strictEqual(result[0]['1'], 1)
+            assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
+            rootSpan.end()
+            assert.ifError(err)
+            assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
+            assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
+            assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
+            assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+            done()
+          })
         })
       })
     })
