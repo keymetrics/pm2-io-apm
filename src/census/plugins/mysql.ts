@@ -53,7 +53,7 @@ export class MysqlPlugin extends BasePlugin {
     }
 
     if (this.internalFilesExports.Pool) {
-      this.logger.debug('patching mysql.Pool.getConnection')
+      this.logger.debug('patching mysql.Pool.prototype.getConnection')
       shimmer.wrap(this.internalFilesExports.Pool.prototype, 'getConnection', this.getPatchGetConnection())
     }
 
@@ -70,9 +70,9 @@ export class MysqlPlugin extends BasePlugin {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
-        var span = plugin.tracer.startChildSpan('mysql-query', plugin.SPAN_MYSQL_QUERY_TYPE)
+        const span = plugin.tracer.startChildSpan('mysql-query', plugin.SPAN_MYSQL_QUERY_TYPE)
         if (span === null) return original.apply(this, arguments)
-        var query = original.apply(this, arguments)
+        const query = original.apply(this, arguments)
 
         span.addAttribute('sql', query.sql)
         if (plugin.options.detailedCommands === true && query.values) {
@@ -91,9 +91,10 @@ export class MysqlPlugin extends BasePlugin {
   }
 
   private getPatchGetConnection() {
+    const plugin = this
     return (original: Function) => {
-      return function (...args: any[]) {
-        return original.call(this, this.tracer.wrap(arguments))
+      return function (cb) {
+        return original.call(this, plugin.tracer.wrap(cb))
       }
     }
   }
