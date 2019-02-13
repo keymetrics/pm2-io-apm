@@ -31,7 +31,8 @@ export class MysqlPlugin extends BasePlugin {
   protected options: MysqlPluginConfig
   protected readonly internalFileList = {
     '1 - 3': {
-      'Connection': 'mysql/lib/Connection'
+      'Connection': 'mysql/lib/Connection',
+      'Pool': 'mysql/lib/Pool'
     }
   }
 
@@ -47,8 +48,13 @@ export class MysqlPlugin extends BasePlugin {
     this.logger.debug('Patched Mysql')
 
     if (this.internalFilesExports.Connection) {
-      this.logger.debug('patching mysql.createQuery')
+      this.logger.debug('patching mysql.Connection.createQuery')
       shimmer.wrap(this.internalFilesExports.Connection, 'createQuery', this.getPatchCreateQuery())
+    }
+
+    if (this.internalFilesExports.Pool) {
+      this.logger.debug('patching mysql.Pool.getConnection')
+      shimmer.wrap(this.internalFilesExports.Pool.prototype, 'getConnection', this.getPatchGetConnection())
     }
 
     return this.moduleExports
@@ -57,6 +63,7 @@ export class MysqlPlugin extends BasePlugin {
   /** Unpatches all Mysql patched functions. */
   applyUnpatch (): void {
     shimmer.unwrap(this.internalFilesExports.Connection, 'createQuery')
+    shimmer.unwrap(this.internalFilesExports.Pool.prototype, 'getConnection')
   }
 
   private getPatchCreateQuery() {
@@ -80,6 +87,14 @@ export class MysqlPlugin extends BasePlugin {
         }
         return query
       };
+    }
+  }
+
+  private getPatchGetConnection() {
+    return (original: Function) => {
+      return function (...args: any[]) {
+        return original.call(this, this.tracer.wrap(arguments))
+      }
     }
   }
 
