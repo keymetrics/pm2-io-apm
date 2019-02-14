@@ -117,6 +117,10 @@ export class TracingFeature implements Feature {
           module: resolve(__dirname, '../census/plugins/mysql'),
           config: { detailedCommands: config.tracing.detailedDatabasesCalls }
         },
+        'mysql2': {
+          module: resolve(__dirname, '../census/plugins/mysql2'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
         'redis': {
           module: resolve(__dirname, '../census/plugins/redis'),
           config: { detailedCommands: config.tracing.detailedDatabasesCalls }
