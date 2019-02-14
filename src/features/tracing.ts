@@ -124,6 +124,10 @@ export class TracingFeature implements Feature {
         'ioredis': {
           module: resolve(__dirname, '../census/plugins/ioredis'),
           config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'pg': {
+          module: resolve(__dirname, '../census/plugins/pg'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
         }
       },
       propagation: new B3Format(),
