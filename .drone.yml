@@ -13,7 +13,7 @@ pipeline:
       - yarn -v
       - uname -r
       - yarn install
-      - yarn add express koa mongodb-core mysql redis ioredis @pm2/node-runtime-stats v8-profiler-node8
+      - yarn add express koa mongodb-core mysql mysql2 redis ioredis @pm2/node-runtime-stats v8-profiler-node8
       - export PATH=$PATH:./node_modules/.bin/
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
@@ -41,6 +41,7 @@ pipeline:
       - runTest src/census/plugins/__tests__/https.spec.ts
       - runTest src/census/plugins/__tests__/mongodb.spec.ts
       - runTest src/census/plugins/__tests__/mysql.spec.ts
+      - runTest src/census/plugins/__tests__/mysql2.spec.ts
       - runTest src/census/plugins/__tests__/redis.spec.ts
       - runTest src/census/plugins/__tests__/ioredis.spec.ts
       - nyc report --reporter lcov || echo "No nyc coverage"
