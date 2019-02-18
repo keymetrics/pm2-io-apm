@@ -18,6 +18,7 @@ import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus
 import * as assert from 'assert'
 import * as mongodb from 'mongodb-core'
 import { parse } from 'url'
+import * as path from 'path'
 
 import { plugin } from '../mongodb'
 
@@ -95,7 +96,8 @@ describe('MongoDBPlugin', () => {
   before((done) => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    plugin.enable(mongodb, tracer, VERSION, {}, '')
+    const basedir = path.dirname(require.resolve('mongodb-core'))
+    plugin.enable(mongodb, tracer, VERSION, {}, basedir)
     connect(URL)
         .then(server => {
           client = server

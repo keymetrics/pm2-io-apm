@@ -31,8 +31,8 @@ export class MysqlPlugin extends BasePlugin {
   protected options: MysqlPluginConfig
   protected readonly internalFileList = {
     '1 - 3': {
-      'Connection': 'mysql/lib/Connection',
-      'Pool': 'mysql/lib/Pool'
+      'Connection': 'lib/Connection',
+      'Pool': 'lib/Pool'
     }
   }
 

@@ -1,6 +1,7 @@
 import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
 import * as assert from 'assert'
 import * as mysql from 'mysql'
+import * as path from 'path'
 
 import { plugin } from '../mysql'
 
@@ -82,7 +83,8 @@ describe('MysqlPlugin', () => {
   before((done) => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    plugin.enable(mysql, tracer, VERSION, {}, '')
+    const basedir = path.dirname(require.resolve('mysql'))
+    plugin.enable(mysql, tracer, VERSION, {}, basedir)
     connectConnection(URL)
       .then(server => {
         client = server
