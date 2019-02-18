@@ -1,5 +1,6 @@
 import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
 import * as assert from 'assert'
+import * as path from 'path'
 import * as pg from 'pg'
 
 import { plugin } from '../pg'
@@ -69,7 +70,8 @@ describe('PGPlugin', () => {
   before(async () => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    plugin.enable(pg, tracer, VERSION, {}, '')
+    const basedir = path.dirname(require.resolve('pg'))
+    plugin.enable(pg, tracer, VERSION, {}, basedir)
     client = new pg.Client(CONFIG)
     try {
       await client.connect()
