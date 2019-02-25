@@ -1,6 +1,6 @@
 import { CoreTracer, RootSpan, SpanEventListener, logger, SpanKind } from '@opencensus/core'
 import * as assert from 'assert'
-import * as mysql from SpanKind.CLIENT
+import * as mysql from 'mysql'
 import * as path from 'path'
 
 import { plugin } from '../mysql'
@@ -83,7 +83,7 @@ describe('MysqlPlugin', () => {
   before((done) => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    const basedir = path.dirname(require.resolve(SpanKind.CLIENT))
+    const basedir = path.dirname(require.resolve('mysql'))
     plugin.enable(mysql, tracer, VERSION, {}, basedir)
     connectConnection(URL)
       .then(server => {
@@ -110,9 +110,14 @@ describe('MysqlPlugin', () => {
     done()
   })
 
-  after(() => {
+  after((done) => {
     if (client) {
       client.destroy()
+    }
+    if (pool) {
+      pool.end(done)
+    } else {
+      done()
     }
   })
 

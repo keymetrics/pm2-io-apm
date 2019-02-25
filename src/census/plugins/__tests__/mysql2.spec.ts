@@ -110,9 +110,14 @@ describe('Mysql2Plugin', () => {
     done()
   })
 
-  after(() => {
+  after((done) => {
     if (client) {
       client.destroy()
+    }
+    if (pool) {
+      pool.end(done)
+    } else {
+      done()
     }
   })
 

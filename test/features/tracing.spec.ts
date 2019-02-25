@@ -22,8 +22,6 @@ describe('Tracing with IPC transport', function () {
       // for a unknow reason, the first root span is never finished
       // we should have 4 if it was fully working
       if (spans.length === 3) {
-        assert(spans.filter(span => span.kind === 'HTTP-CLIENT').length === 1)
-        assert(spans.filter(span => span.kind === 'HTTP-SERVER').length === 2)
         assert(spans.filter(span => span.name === 'http-get').length === 1) // client
         assert(spans.filter(span => span.name === '/toto').length === 1) // server
         child.kill('SIGKILL')
