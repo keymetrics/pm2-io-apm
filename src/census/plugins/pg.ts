@@ -32,7 +32,7 @@ export class PGPlugin extends BasePlugin {
   protected options: PGPluginConfig
   protected readonly internalFileList = {
     '7.x': {
-      'client': 'lib/client'
+      'client': 'client'
     }
   }
 

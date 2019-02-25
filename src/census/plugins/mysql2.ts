@@ -66,7 +66,7 @@ export class Mysql2Plugin extends BasePlugin {
     shimmer.unwrap(this.internalFilesExports.Pool.prototype, 'getConnection')
   }
 
-  private getPatchCreateQuery() {
+  private getPatchCreateQuery () {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
@@ -81,16 +81,16 @@ export class Mysql2Plugin extends BasePlugin {
         if (typeof query._callback === 'function') {
           query._callback = plugin.patchEnd(span, query._callback)
         } else {
-          query.on('end', function() {
+          query.on('end', function () {
             span.end()
           })
         }
         return query
-      };
+      }
     }
   }
 
-  private getPatchGetConnection() {
+  private getPatchGetConnection () {
     const plugin = this
     return (original: Function) => {
       return function (cb) {
@@ -114,9 +114,9 @@ export class Mysql2Plugin extends BasePlugin {
         span.end()
       }
       if (resultHandler) {
-        return resultHandler.apply(this, arguments);
+        return resultHandler.apply(this, arguments)
       }
-    };
+    }
     return this.tracer.wrap(patchedEnd)
   }
 }
