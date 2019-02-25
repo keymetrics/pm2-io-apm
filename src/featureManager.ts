@@ -78,7 +78,7 @@ const availablesFeatures: AvailableFeature[] = [
   },
   {
     name: 'tracing',
-    optionsPath: 'tracing',
+    optionsPath: '.',
     module: TracingFeature
   }
 ]

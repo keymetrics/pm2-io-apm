@@ -1,103 +1,164 @@
-import { ServiceManager } from '../serviceManager'
 import { Feature } from '../featureManager'
-import { Transport } from '../services/transport'
 import * as Debug from 'debug'
 import Configuration from '../configuration'
+import { IOConfig } from '../pmx'
+import { resolve } from 'path'
+import { B3Format } from '@opencensus/propagation-b3'
+import { CustomCensusExporter } from '../census/exporter'
+import { Tracing } from '../census/tracer'
+import * as httpModule from 'http'
+import { IgnoreMatcher } from '../census/plugins/http'
+import * as core from '@opencensus/core'
 
-export class PluginConfig {
-  connect?: boolean
-  express?: boolean
-  'generic-pool'?: boolean
-  hapi?: boolean
-  http?: boolean
-  knex?: boolean
-  koa?: boolean
-  'mongodb-core'?: boolean
-  mysql?: boolean
-  pg?: boolean
-  redis?: boolean
-  restify?: boolean
-}
-export class TracerIgnoreFilter {
-  url?: string[]
-  method?: string[]
-}
-
-export class TracingConfig {
+export interface TracingConfig {
+  /**
+   * Enabled the distributed tracing feature.
+   */
   enabled: boolean
-  ignoreFilter?: TracerIgnoreFilter
-  // Log levels: 0-disabled,1-error,2-warn,3-info,4-debug
-  logLevel?: number
   /**
-   * To disable a plugin in this list, you may override its path with a falsy
-   * value. Disabling any of the default plugins may cause unwanted behavior,
-   * so use caution.
+   * If you want to report a specific service name
+   * the default is the same as in apmOptions
    */
-  plugins?: PluginConfig
+  serviceName?: string
   /**
-   * An upper bound on the number of traces to gather each second. If set to 0,
-   * sampling is disabled and all traces are recorded. Sampling rates greater
-   * than 1000 are not supported and will result in at most 1000 samples per
-   * second.
+   * Generate trace for outgoing request that aren't connected to a incoming one
+   * default is false
    */
-  samplingRate?: number
+  outbound?: boolean
+  /**
+   * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
+   * default is 0.5
+   */
+  samplingRate?: number,
+  /**
+   * Add details about databases calls (redis, mongodb)
+   */
+  detailedDatabasesCalls?: boolean,
+  /**
+   * Ignore specific incoming request depending on their path
+   */
+  ignoreIncomingPaths?: Array<IgnoreMatcher<httpModule.IncomingMessage>>
+  /**
+   * Ignore specific outgoing request depending on their url
+   */
+  ignoreOutgoingUrls?: Array<IgnoreMatcher<httpModule.ClientRequest>>
 }
 
-const enabledConfig: TracingConfig = {
+const defaultTracingConfig: TracingConfig = {
+  enabled: false,
+  outbound: false,
+  samplingRate: 0,
+  ignoreIncomingPaths: [],
+  ignoreOutgoingUrls: [],
+  detailedDatabasesCalls: false
+}
+
+const enabledTracingConfig: TracingConfig = {
   enabled: true,
-  ignoreFilter: {
-    url: [],
-    method: [ 'OPTIONS' ]
-  },
-  logLevel: 1
+  outbound: false,
+  samplingRate: 0.5,
+  ignoreIncomingPaths: [],
+  ignoreOutgoingUrls: [],
+  detailedDatabasesCalls: false
 }
 
 export class TracingFeature implements Feature {
+  private exporter: any
+  private options: TracingConfig
+  private tracer: core.Tracing
+  private logger: Function = Debug('axm:tracing')
 
-  private transport: Transport | undefined
-  private tracer: any
-  private logger: any = Debug('axm:features:tracing')
-  private traceHandler: Function
+  init (config: IOConfig): void {
+    this.logger('init tracing')
 
-  init (config?: TracingConfig | boolean) {
-    if (config === undefined) return
-    if (config === false) return
-    if (config === true) {
-      config = enabledConfig
+    if (config.tracing === undefined) {
+      config.tracing = defaultTracingConfig
+    } else if (config.tracing === true) {
+      config.tracing = enabledTracingConfig
+    } else if (config.tracing === false) {
+      config.tracing = defaultTracingConfig
     }
-    if (config.enabled === false) return
-    this.logger('init')
-    this.transport = ServiceManager.get('transport')
-    if (this.transport === undefined) {
-      return this.logger(`Failed to load transporter service`)
-    }
-
-    const tracerModule = require('@pm2/legacy-tracing')
-    if (tracerModule.get().isActive()) {
-      return this.logger(`Tracing already enalbed`)
+    if (config.tracing.enabled === false) {
+      return this.logger('tracing disabled')
     }
 
-    this.tracer = tracerModule.start(config)
-    this.logger(`Tracing start and correctly enabled`)
-
-    Configuration.configureModule({
-      tracing_enabled: true
+    this.options = Object.assign(enabledTracingConfig, config.tracing)
+    // tslint:disable-next-line
+    if (typeof config.apmOptions === 'object' && typeof config.apmOptions.appName === 'string') {
+      this.options.serviceName = config.apmOptions.appName
+    } else if (typeof process.env.name === 'string') {
+      this.options.serviceName = process.env.name
+    }
+    if (config.tracing.ignoreOutgoingUrls === undefined) {
+      config.tracing.ignoreOutgoingUrls = []
+    }
+    if (config.tracing.ignoreIncomingPaths === undefined) {
+      config.tracing.ignoreIncomingPaths = []
+    }
+    this.exporter = new CustomCensusExporter(this.options)
+    if (this.tracer && this.tracer.active) {
+      throw new Error(`Tracing was already enabled`)
+    }
+    this.logger('start census tracer')
+    const tracer = Tracing.instance
+    this.tracer = tracer.start({
+      exporter: this.exporter,
+      plugins: {
+        'http': {
+          module: resolve(__dirname, '../census/plugins/http'),
+          config: config.tracing
+        },
+        'http2': resolve(__dirname, '../census/plugins/http2'),
+        'https': resolve(__dirname, '../census/plugins/https'),
+        'mongodb-core': {
+          module: resolve(__dirname, '../census/plugins/mongodb'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'mysql': {
+          module: resolve(__dirname, '../census/plugins/mysql'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'mysql2': {
+          module: resolve(__dirname, '../census/plugins/mysql2'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'redis': {
+          module: resolve(__dirname, '../census/plugins/redis'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'ioredis': {
+          module: resolve(__dirname, '../census/plugins/ioredis'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        },
+        'pg': {
+          module: resolve(__dirname, '../census/plugins/pg'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+        }
+      },
+      propagation: new B3Format(),
+      samplingRate: this.options.samplingRate || 0.5,
+      logLevel: this.isDebugEnabled() ? 4 : 1
     })
-    this.traceHandler = (data) => {
-      if (this.transport === undefined) return
-      this.logger('received trace data')
-      this.transport.send('axm:trace', data)
-    }
-    this.tracer.getBus().on('transaction', this.traceHandler)
+    Configuration.configureModule({
+      census_tracing: true
+    })
+  }
+
+  private isDebugEnabled () {
+    return typeof process.env.DEBUG === 'string' &&
+      (process.env.DEBUG.indexOf('axm:*') >= 0 || process.env.DEBUG.indexOf('axm:tracing') >= 0)
+  }
+
+  getTracer (): core.Tracer | undefined {
+    return this.tracer ? this.tracer.tracer : undefined
   }
 
   destroy () {
-    if (this.tracer === undefined) return
-    this.tracer.getBus().removeAllListeners()
-    if (typeof this.tracer.disable_ === 'function') {
-      this.tracer.disable_()
-      this.logger('stopped tracing agent')
-    }
-    this.logger('destroy')
+    if (!this.tracer) return
+    this.logger('stop census tracer')
+    Configuration.configureModule({
+      census_tracing: false
+    })
+    this.tracer.stop()
   }
 }

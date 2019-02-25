@@ -9,7 +9,9 @@ pmx.init({
     v8: true,
     http: true
   },
-  tracing: true,
+  tracing: {
+    enabled: true
+  },
   profiling: false
 })
 

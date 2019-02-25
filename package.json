@@ -37,21 +37,24 @@
     "watch": "Watch source files, rebuild library on changes, rerun relevant tests"
   },
   "engines": {
-    "node": ">=4.0"
+    "node": ">=6.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.4",
+    "@types/ioredis": "^4.0.6",
     "@types/mocha": "5.2.5",
-    "@types/node": "10.5.2",
+    "@types/mongodb": "^3.1.19",
+    "@types/node": "^10.12.21",
+    "@types/redis": "^2.8.10",
     "chai": "4.1.2",
     "mocha": "^5.2.0",
+    "nock": "^10.0.6",
     "nyc": "^13.1.0",
     "source-map-support": "^0.5.9",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.2.2",
-    "typings": "^2.1.1"
+    "typescript": "^3.2.2"
   },
   "keywords": [],
   "nyc": {
@@ -68,12 +71,14 @@
     "all": true
   },
   "dependencies": {
-    "@pm2/agent-node": "~1.1.1",
-    "@pm2/legacy-tracing": "~1.4.2",
+    "@opencensus/core": "^0.0.9",
+    "@opencensus/propagation-b3": "^0.0.8",
+    "@pm2/agent-node": "~1.1.3",
     "async": "~2.6.1",
     "debug": "3.1.0",
     "event-loop-inspector": "~1.2.0",
     "eventemitter2": "~5.0.1",
+    "require-in-the-middle": "3.0.0",
     "semver": "5.5.0",
     "shimmer": "~1.2.0",
     "signal-exit": "3.0.2",

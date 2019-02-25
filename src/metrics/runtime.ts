@@ -5,7 +5,7 @@ import { ServiceManager } from '../serviceManager'
 import * as Debug from 'debug'
 import { MetricInterface } from '../features/metrics'
 import Histogram from '../utils/metrics/histogram'
-import { RuntimeStatsService } from 'src/services/runtimeStats'
+import { RuntimeStatsService } from '../services/runtimeStats'
 
 export class RuntimeMetricsOptions {
   gcOldPause: boolean

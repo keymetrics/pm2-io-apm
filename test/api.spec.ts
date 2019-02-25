@@ -267,18 +267,19 @@ describe('API', function () {
 
       child.on('message', packet => {
 
-        if (packet.type === 'axm:trace') {
-          expect(packet.data.hasOwnProperty('projectId')).to.equal(true)
+        if (packet.type === 'trace-span') {
+          expect(packet.data.hasOwnProperty('id')).to.equal(true)
           expect(packet.data.hasOwnProperty('traceId')).to.equal(true)
           tracingDone = true
         }
 
         if (packet.type === 'axm:monitor') {
           assert(packet.data['Heap Usage'] !== undefined)
-          assert(packet.data['HTTP'] !== undefined)
-          assert(packet.data['HTTP Mean Latency'] !== undefined)
-          assert(packet.data['HTTP P95 Latency'] !== undefined)
-          metricsDone = true
+          if (packet.data['HTTP'] !== undefined) {
+            assert(packet.data['HTTP Mean Latency'] !== undefined)
+            assert(packet.data['HTTP P95 Latency'] !== undefined)
+            metricsDone = true
+          }
         }
 
         if (tracingDone && metricsDone && !finished) {
