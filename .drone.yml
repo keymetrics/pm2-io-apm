@@ -6,15 +6,17 @@ pipeline:
       - OPENCENSUS_MONGODB_TESTS=1
       - OPENCENSUS_REDIS_TESTS=1
       - OPENCENSUS_MYSQL_TESTS=1
+      - OPENCENSUS_PG_TESTS=1
       - OPENCENSUS_REDIS_HOST=redis
       - OPENCENSUS_MONGODB_HOST=mongodb
       - OPENCENSUS_MYSQL_HOST=mysql
+      - OPENCENSUS_PG_HOST=postgres
     commands:
       - node -v
       - yarn -v
       - uname -r
       - yarn install
-      - yarn add express koa mongodb-core mysql mysql2 redis ioredis @pm2/node-runtime-stats v8-profiler-node8
+      - yarn add express koa mongodb-core mysql mysql2 redis ioredis pg @pm2/node-runtime-stats v8-profiler-node8
       - export PATH=$PATH:./node_modules/.bin/
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
@@ -45,6 +47,7 @@ pipeline:
       - runTest src/census/plugins/__tests__/mysql2.spec.ts
       - runTest src/census/plugins/__tests__/redis.spec.ts
       - runTest src/census/plugins/__tests__/ioredis.spec.ts
+      - runTest src/census/plugins/__tests__/pg.spec.ts
       - nyc report --reporter lcov || echo "No nyc coverage"
       - ./cc-test-reporter after-build --exit-code 0 || echo “Skipping CC coverage upload” or upload-coverage || echo “Skipping CC coverage upload”
     secrets: [ cc_test_reporter_id ]
@@ -98,3 +101,8 @@ services:
     environment:
       MYSQL_DATABASE: 'test'
       MYSQL_ROOT_PASSWORD: 'password'
+  postgres:
+    image: postgres:11
+    environment: 
+      POSTGRES_DB: 'test'
+      POSTGRES_PASSWORD: 'password'

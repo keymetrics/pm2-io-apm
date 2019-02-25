@@ -18,3 +18,10 @@ services:
     environment:
       MYSQL_DATABASE: 'test'
       MYSQL_ROOT_PASSWORD: 'password'
+  postgres:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    environment: 
+      POSTGRES_DB: 'test'
+      POSTGRES_PASSWORD: 'password'

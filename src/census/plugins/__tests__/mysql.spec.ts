@@ -45,12 +45,12 @@ function createPool (url: string): any {
 function assertSpan (
   rootSpanVerifier: RootSpanVerifier, expectedName: string,
   expectedKind: string) {
-assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
-assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
-assert.strictEqual(
-    rootSpanVerifier.endedRootSpans[0].spans[0].name, expectedName)
-assert.strictEqual(
-    rootSpanVerifier.endedRootSpans[0].spans[0].kind, expectedKind)
+  assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
+  assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
+  assert.strictEqual(
+      rootSpanVerifier.endedRootSpans[0].spans[0].name, expectedName)
+  assert.strictEqual(
+      rootSpanVerifier.endedRootSpans[0].spans[0].kind, expectedKind)
 }
 
 describe('MysqlPlugin', () => {
