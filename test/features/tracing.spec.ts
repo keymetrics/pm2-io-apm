@@ -20,10 +20,11 @@ describe('Tracing with IPC transport', function () {
       expect(pck.data.hasOwnProperty('traceId')).to.equal(true)
       spans.push(pck.data)
       // for a unknow reason, the first root span is never finished
-      // we should have 4 if it was fully working
-      if (spans.length === 3) {
+      // we should have 5 if it was fully working
+      if (spans.length === 4) {
         assert(spans.filter(span => span.name === 'http-get').length === 1) // client
         assert(spans.filter(span => span.name === '/toto').length === 1) // server
+        assert(spans.filter(span => span.name === 'customspan').length === 1) // custom span using api
         child.kill('SIGKILL')
         return done()
       }

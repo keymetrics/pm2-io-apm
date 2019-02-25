@@ -8,6 +8,7 @@ pmx.init({
 
 // @ts-ignore added in ci only
 import * as express from 'express'
+import { SpanKind } from '@opencensus/core'
 const app = express()
 
 const http = require('http')
@@ -18,7 +19,14 @@ let timer
 
 app.get('/', function (req, res) {
   http.get('http://localhost:' + server.address().port + '/toto', (_) => {
-    res.send('home')
+    const tracer = pmx.getTracer()
+    if (tracer === undefined) throw new Error('tracer undefined')
+    const customSpan = tracer.startChildSpan('customspan', SpanKind.CLIENT)
+    customSpan.addAttribute('test', true)
+    setTimeout(_ => {
+      customSpan.end()
+      res.send('home')
+    }, 100)
   })
 })
 

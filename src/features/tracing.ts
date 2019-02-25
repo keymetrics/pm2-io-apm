@@ -8,6 +8,7 @@ import { CustomCensusExporter } from '../census/exporter'
 import { Tracing } from '../census/tracer'
 import * as httpModule from 'http'
 import { IgnoreMatcher } from '../census/plugins/http'
+import * as core from '@opencensus/core'
 
 export interface TracingConfig {
   /**
@@ -64,7 +65,7 @@ const enabledTracingConfig: TracingConfig = {
 export class TracingFeature implements Feature {
   private exporter: any
   private options: TracingConfig
-  private tracer: any
+  private tracer: core.Tracing
   private logger: Function = Debug('axm:tracing')
 
   init (config: IOConfig): void {
@@ -146,6 +147,10 @@ export class TracingFeature implements Feature {
   private isDebugEnabled () {
     return typeof process.env.DEBUG === 'string' &&
       (process.env.DEBUG.indexOf('axm:*') >= 0 || process.env.DEBUG.indexOf('axm:tracing') >= 0)
+  }
+
+  getTracer (): core.Tracer | undefined {
+    return this.tracer ? this.tracer.tracer : undefined
   }
 
   destroy () {
