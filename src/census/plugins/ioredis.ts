@@ -1,7 +1,7 @@
 
 'use strict'
 
-import { BasePlugin, Span } from '@pm2/opencensus-core'
+import { BasePlugin, Span, SpanKind } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 import * as semver from 'semver'
 
@@ -26,9 +26,7 @@ export type IORedisCommand = {
 /** Redis instrumentation plugin for Opencensus */
 export class IORedisPlugin extends BasePlugin {
 
-  private readonly SPAN_QUERY_TYPE = 'REDIS-CLIENT'
   protected options: IORedisPluginConfig
-  private kCurrentSpan = Symbol('kCurrentSpan')
 
   /** Constructs a new Redis instance. */
   constructor (moduleName: string) {
@@ -74,7 +72,7 @@ export class IORedisPlugin extends BasePlugin {
           return original.apply(this, arguments)
         }
 
-        const span = plugin.tracer.startChildSpan(`redis-${command.name}`, plugin.SPAN_QUERY_TYPE)
+        const span = plugin.tracer.startChildSpan(`redis-${command.name}`, SpanKind.CLIENT)
         if (span === null) return original.apply(this, arguments)
 
         span.addAttribute('command', command.name)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BasePlugin, Span } from '@pm2/opencensus-core'
+import { BasePlugin, Span, SpanKind } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 
 export type Mysql2PluginConfig = {
@@ -26,7 +26,6 @@ export type Mysql2PluginConfig = {
 
 /** MysqlDB instrumentation plugin for Opencensus */
 export class Mysql2Plugin extends BasePlugin {
-  private readonly SPAN_MYSQL_QUERY_TYPE = 'MYSQL'
 
   protected options: Mysql2PluginConfig
   protected readonly internalFileList = {
@@ -70,7 +69,7 @@ export class Mysql2Plugin extends BasePlugin {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
-        const span = plugin.tracer.startChildSpan('mysql-query', plugin.SPAN_MYSQL_QUERY_TYPE)
+        const span = plugin.tracer.startChildSpan('mysql-query', SpanKind.CLIENT)
         if (span === null) return original.apply(this, arguments)
         const query = original.apply(this, arguments)
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoreTracer, HeaderGetter, HeaderSetter, Propagation, RootSpan, Span, SpanContext, SpanEventListener, logger } from '@pm2/opencensus-core'
+import { CoreTracer, HeaderGetter, HeaderSetter, Propagation, RootSpan, Span, SpanContext, SpanEventListener, logger } from '@opencensus/core'
 import * as assert from 'assert'
 import * as http from 'http'
 import * as nock from 'nock'

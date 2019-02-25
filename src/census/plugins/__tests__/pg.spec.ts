@@ -1,4 +1,4 @@
-import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, logger, SpanKind } from '@opencensus/core'
 import * as assert from 'assert'
 import * as path from 'path'
 import * as pg from 'pg'
@@ -26,7 +26,7 @@ class RootSpanVerifier implements SpanEventListener {
  */
 function assertSpan (
   rootSpanVerifier: RootSpanVerifier, expectedName: string,
-  expectedKind: string) {
+  expectedKind: SpanKind) {
   assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
   assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
   assert.strictEqual(
@@ -112,7 +112,7 @@ describe('PGPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.query, q)
-          assertSpan(rootSpanVerifier, 'pg-query', 'PG')
+          assertSpan(rootSpanVerifier, 'pg-query', SpanKind.CLIENT)
           done()
         })
       })
@@ -128,7 +128,7 @@ describe('PGPlugin', () => {
         assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
         assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
         assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.query, q)
-        assertSpan(rootSpanVerifier, 'pg-query', 'PG')
+        assertSpan(rootSpanVerifier, 'pg-query', SpanKind.CLIENT)
         done()
       })
     })
@@ -144,7 +144,7 @@ describe('PGPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.query, q)
-          assertSpan(rootSpanVerifier, 'pg-query', 'PG')
+          assertSpan(rootSpanVerifier, 'pg-query', SpanKind.CLIENT)
           done()
         })
       })
@@ -162,7 +162,7 @@ describe('PGPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.query, q)
-          assertSpan(rootSpanVerifier, 'pg-query', 'PG')
+          assertSpan(rootSpanVerifier, 'pg-query', SpanKind.CLIENT)
           done()
         })
       })

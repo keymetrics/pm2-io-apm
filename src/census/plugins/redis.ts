@@ -1,7 +1,7 @@
 
 'use strict'
 
-import { BasePlugin, Span } from '@pm2/opencensus-core'
+import { BasePlugin, Span, SpanKind } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 import * as semver from 'semver'
 import * as redis from 'redis'
@@ -19,8 +19,6 @@ export type RedisPluginConfig = {
 
 /** Redis instrumentation plugin for Opencensus */
 export class RedisPlugin extends BasePlugin {
-
-  private readonly SPAN_QUERY_TYPE = 'REDIS-CLIENT'
   protected options: RedisPluginConfig
 
   /** Constructs a new Redis instance. */
@@ -105,7 +103,7 @@ export class RedisPlugin extends BasePlugin {
         // New versions of redis (2.4+) use a single options object instead
         // of separate named arguments.
         if (arguments.length === 1 && typeof cmd === 'object') {
-          const span = plugin.tracer.startChildSpan(`redis-${cmd.command}`, plugin.SPAN_QUERY_TYPE)
+          const span = plugin.tracer.startChildSpan(`redis-${cmd.command}`, SpanKind.CLIENT)
           if (span === null) return original.apply(this, arguments)
 
           span.addAttribute('command', cmd.command)
@@ -117,7 +115,7 @@ export class RedisPlugin extends BasePlugin {
         }
         // older commands where using multiple arguments, focus on supporting
         if (typeof cmd === 'string' && Array.isArray(args) && typeof cb === 'function') {
-          const span = plugin.tracer.startChildSpan(`redis-${cmd}`, plugin.SPAN_QUERY_TYPE)
+          const span = plugin.tracer.startChildSpan(`redis-${cmd}`, SpanKind.CLIENT)
           if (span === null) return original.apply(this, arguments)
 
           span.addAttribute('command', cmd)

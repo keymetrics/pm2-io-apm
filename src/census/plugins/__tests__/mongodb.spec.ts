@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, logger, SpanKind } from '@opencensus/core'
 import * as assert from 'assert'
 import * as mongodb from 'mongodb-core'
 import { parse } from 'url'
@@ -62,7 +62,7 @@ function connect (url: string):
  */
 function assertSpan (
     rootSpanVerifier: RootSpanVerifier, expectedName: string,
-    expectedKind: string) {
+    expectedKind: SpanKind) {
   assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
   assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
   assert.strictEqual(
@@ -144,7 +144,7 @@ describe('MongoDBPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
           assert.ifError(err)
-          assertSpan(rootSpanVerifier, 'mongodb-insert', 'MONGODB-CLIENT')
+          assertSpan(rootSpanVerifier, 'mongodb-insert', SpanKind.CLIENT)
           done()
         })
       })
@@ -156,7 +156,7 @@ describe('MongoDBPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
           assert.ifError(err)
-          assertSpan(rootSpanVerifier, 'mongodb-update', 'MONGODB-CLIENT')
+          assertSpan(rootSpanVerifier, 'mongodb-update', SpanKind.CLIENT)
           done()
         })
       })
@@ -168,7 +168,7 @@ describe('MongoDBPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
           assert.ifError(err)
-          assertSpan(rootSpanVerifier, 'mongodb-remove', 'MONGODB-CLIENT')
+          assertSpan(rootSpanVerifier, 'mongodb-remove', SpanKind.CLIENT)
           done()
         })
       })
@@ -186,7 +186,7 @@ describe('MongoDBPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
           assert.ifError(err)
-          assertSpan(rootSpanVerifier, 'mongodb-find', 'MONGODB-CLIENT')
+          assertSpan(rootSpanVerifier, 'mongodb-find', SpanKind.CLIENT)
           done()
         })
       })
@@ -201,7 +201,7 @@ describe('MongoDBPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
           assert.ifError(err)
-          assertSpan(rootSpanVerifier, `mongodb-command`, 'MONGODB-CLIENT')
+          assertSpan(rootSpanVerifier, `mongodb-command`, SpanKind.CLIENT)
           done()
         })
       })

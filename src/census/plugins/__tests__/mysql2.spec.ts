@@ -1,4 +1,4 @@
-import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, logger, SpanKind } from '@opencensus/core'
 import * as assert from 'assert'
 import * as mysql from 'mysql2'
 import * as path from 'path'
@@ -44,7 +44,7 @@ function createPool (url: string): any {
  */
 function assertSpan (
   rootSpanVerifier: RootSpanVerifier, expectedName: string,
-  expectedKind: string) {
+  expectedKind: SpanKind) {
   assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
   assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
   assert.strictEqual(
@@ -129,7 +129,7 @@ describe('Mysql2Plugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
-          assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+          assertSpan(rootSpanVerifier, 'mysql-query', SpanKind.CLIENT)
           done()
         })
       })
@@ -146,7 +146,7 @@ describe('Mysql2Plugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
-          assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+          assertSpan(rootSpanVerifier, 'mysql-query', SpanKind.CLIENT)
           done()
         })
       })
@@ -167,7 +167,7 @@ describe('Mysql2Plugin', () => {
             assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
             assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
             assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
-            assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+            assertSpan(rootSpanVerifier, 'mysql-query', SpanKind.CLIENT)
             done()
           })
         })

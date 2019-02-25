@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoreTracer, RootSpan, Span, SpanEventListener, logger } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, Span, SpanEventListener, logger } from '@opencensus/core'
 import * as assert from 'assert'
 import * as fs from 'fs'
 import * as https from 'https'

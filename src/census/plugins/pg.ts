@@ -15,7 +15,7 @@
  */
 import * as EventEmitter from 'events'
 
-import { BasePlugin, Span } from '@pm2/opencensus-core'
+import { BasePlugin, Span, SpanKind } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 
 export type PGPluginConfig = {
@@ -27,7 +27,6 @@ export type PGPluginConfig = {
 
 /** PGDB instrumentation plugin for Opencensus */
 export class PGPlugin extends BasePlugin {
-  private readonly SPAN_PG_QUERY_TYPE = 'PG'
 
   protected options: PGPluginConfig
   protected readonly internalFileList = {
@@ -64,7 +63,7 @@ export class PGPlugin extends BasePlugin {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
-        const span = plugin.tracer.startChildSpan('pg-query', plugin.SPAN_PG_QUERY_TYPE)
+        const span = plugin.tracer.startChildSpan('pg-query', SpanKind.CLIENT)
         if (span === null) return original.apply(this, arguments)
 
         let pgQuery

@@ -101,6 +101,17 @@
     shimmer "^1.2.0"
     uuid "^3.2.1"
 
+"@opencensus/core@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@opencensus/core/-/core-0.0.9.tgz#b16f775435ee309433e4126af194d37313fc93b3"
+  integrity sha512-31Q4VWtbzXpVUd2m9JS6HEaPjlKvNMOiF7lWKNmXF84yUcgfAFL5re7/hjDmdyQbOp32oGc+RFV78jXIldVz6Q==
+  dependencies:
+    continuation-local-storage "^3.2.1"
+    log-driver "^1.2.7"
+    semver "^5.5.0"
+    shimmer "^1.2.0"
+    uuid "^3.2.1"
+
 "@opencensus/propagation-b3@^0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@opencensus/propagation-b3/-/propagation-b3-0.0.8.tgz#0751e6fd75f09400d9d3c419001e9e15a0df68e9"
@@ -118,17 +129,6 @@
     eventemitter2 "^5.0.1"
     proxy-agent "^3.0.3"
     ws "^6.0.0"
-
-"@pm2/opencensus-core@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@pm2/opencensus-core/-/opencensus-core-0.0.9.tgz#ef046ccfa6fe68b3ee33096e92c5c6484cc70c7d"
-  integrity sha512-tSeIjxa6dvISlrXnuacMdBmOpscSFs26K3bqJhdBeDPzBRnewL/PHgR3gJ2FWcAQJW8NYrW1FQLbEzxb3WAStg==
-  dependencies:
-    continuation-local-storage "^3.2.1"
-    log-driver "^1.2.7"
-    semver "^5.5.0"
-    shimmer "^1.2.0"
-    uuid "^3.2.1"
 
 "@types/bson@*":
   version "1.0.11"

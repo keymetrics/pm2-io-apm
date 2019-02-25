@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoreTracer, RootSpan, SpanEventListener, Span, logger } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, Span, logger, SpanKind } from '@opencensus/core'
 import * as assert from 'assert'
 import * as redis from 'redis'
 
@@ -41,7 +41,7 @@ class RootSpanVerifier implements SpanEventListener {
  */
 function assertSpan (
     rootSpanVerifier: RootSpanVerifier, expectedName: string,
-    expectedKind: string, verifyAttribute?: (span: Span) => boolean) {
+    expectedKind: SpanKind, verifyAttribute?: (span: Span) => boolean) {
   assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
   assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
   assert.strictEqual(
@@ -70,7 +70,6 @@ describe('RedisPlugin', () => {
 
   const URL = `redis://${OPENCENSUS_REDIS_HOST || 'localhost'}:6379`
   const VERSION = '2.8.0'
-  const REDIS_QUERY_TYPE = 'REDIS-CLIENT'
 
   const tracer = new CoreTracer()
   const rootSpanVerifier = new RootSpanVerifier()
@@ -123,7 +122,7 @@ describe('RedisPlugin', () => {
           assert.ifError(err)
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
-          assertSpan(rootSpanVerifier, `redis-hset`, REDIS_QUERY_TYPE,
+          assertSpan(rootSpanVerifier, `redis-hset`, SpanKind.CLIENT,
             (span) => {
               return span.attributes.arguments === undefined
             })
@@ -139,7 +138,7 @@ describe('RedisPlugin', () => {
           assert.strictEqual(result, 'data')
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
-          assertSpan(rootSpanVerifier, `redis-get`, REDIS_QUERY_TYPE,
+          assertSpan(rootSpanVerifier, `redis-get`, SpanKind.CLIENT,
             (span) => {
               return span.attributes.arguments === undefined
             })
@@ -154,7 +153,7 @@ describe('RedisPlugin', () => {
           assert.ifError(err)
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
-          assertSpan(rootSpanVerifier, `redis-del`, REDIS_QUERY_TYPE,
+          assertSpan(rootSpanVerifier, `redis-del`, SpanKind.CLIENT,
             (span) => {
               return span.attributes.arguments === undefined
             })
@@ -172,7 +171,7 @@ describe('RedisPlugin', () => {
           assert.ifError(err)
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 0)
           rootSpan.end()
-          assertSpan(rootSpanVerifier, `redis-set`, REDIS_QUERY_TYPE,
+          assertSpan(rootSpanVerifier, `redis-set`, SpanKind.CLIENT,
             (span: Span) => {
               return typeof span.attributes.arguments === 'string' && span.attributes.arguments.length > 0
             })

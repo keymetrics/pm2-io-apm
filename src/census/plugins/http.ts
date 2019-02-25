@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BasePlugin, Func, HeaderGetter, HeaderSetter, Span, TraceOptions } from '@pm2/opencensus-core'
+import { BasePlugin, Func, HeaderGetter, HeaderSetter, Span, TraceOptions, MessageEventType, SpanKind, CanonicalCode } from '@opencensus/core'
 import * as httpModule from 'http'
 import * as semver from 'semver'
 import * as shimmer from 'shimmer'
@@ -204,7 +204,7 @@ export class HttpPlugin extends BasePlugin {
         const context = propagation ? propagation.extract(getter) : null
         const traceOptions: TraceOptions = {
           name: path,
-          kind: `${kind}-SERVER`,
+          kind: SpanKind.SERVER,
           spanContext: context !== null ? context : undefined
         }
 
@@ -244,12 +244,11 @@ export class HttpPlugin extends BasePlugin {
                 HttpPlugin.ATTRIBUTE_HTTP_STATUS_CODE,
                 response.statusCode.toString())
 
-            rootSpan.status =
-                HttpPlugin.convertTraceStatus(response.statusCode)
+            rootSpan.setStatus(HttpPlugin.convertTraceStatus(response.statusCode))
 
             // Message Event ID is not defined
             rootSpan.addMessageEvent(
-                'MessageEventTypeRecv', uuid.v4().split('-').join(''))
+                MessageEventType.RECEIVED, uuid.v4().split('-').join(''))
 
             rootSpan.end()
             return returned
@@ -325,7 +324,7 @@ export class HttpPlugin extends BasePlugin {
         plugin.logger.debug('%s plugin outgoingRequest', plugin.moduleName)
         const traceOptions = {
           name: `${kind.toLowerCase()}-${(method || 'GET').toLowerCase()}`,
-          kind: `${kind}-CLIENT`
+          kind: SpanKind.CLIENT
         }
         // Checks if this outgoing request is part of an operation by checking
         // if there is a current root span, if so, we create a child span. In
@@ -394,11 +393,10 @@ export class HttpPlugin extends BasePlugin {
                 HttpPlugin.ATTRIBUTE_HTTP_USER_AGENT, userAgent.toString())
           }
           span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_STATUS_CODE, `${response.statusCode}`)
-          span.status = HttpPlugin.convertTraceStatus(response.statusCode || 0)
+          span.setStatus(HttpPlugin.convertTraceStatus(response.statusCode || 0))
 
           // Message Event ID is not defined
-          span.addMessageEvent(
-              'MessageEventTypeSent', uuid.v4().split('-').join(''))
+          span.addMessageEvent(MessageEventType.SENT, uuid.v4().split('-').join(''))
 
           span.end()
         })
@@ -407,7 +405,7 @@ export class HttpPlugin extends BasePlugin {
           span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ERROR_NAME, error.name)
           span.addAttribute(
               HttpPlugin.ATTRIBUTE_HTTP_ERROR_MESSAGE, error.message)
-          span.status = TraceStatusCodes.UNKNOWN
+          span.setStatus(CanonicalCode.UNKNOWN)
           span.end()
         })
       })
@@ -416,7 +414,7 @@ export class HttpPlugin extends BasePlugin {
         span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ERROR_NAME, error.name)
         span.addAttribute(
             HttpPlugin.ATTRIBUTE_HTTP_ERROR_MESSAGE, error.message)
-        span.status = TraceStatusCodes.UNKNOWN
+        span.setStatus(CanonicalCode.UNKNOWN)
         span.end()
       })
 

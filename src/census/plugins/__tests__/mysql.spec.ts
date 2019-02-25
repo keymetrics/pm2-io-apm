@@ -1,6 +1,6 @@
-import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
+import { CoreTracer, RootSpan, SpanEventListener, logger, SpanKind } from '@opencensus/core'
 import * as assert from 'assert'
-import * as mysql from 'mysql'
+import * as mysql from SpanKind.CLIENT
 import * as path from 'path'
 
 import { plugin } from '../mysql'
@@ -44,7 +44,7 @@ function createPool (url: string): any {
  */
 function assertSpan (
   rootSpanVerifier: RootSpanVerifier, expectedName: string,
-  expectedKind: string) {
+  expectedKind: SpanKind) {
   assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
   assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
   assert.strictEqual(
@@ -83,7 +83,7 @@ describe('MysqlPlugin', () => {
   before((done) => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    const basedir = path.dirname(require.resolve('mysql'))
+    const basedir = path.dirname(require.resolve(SpanKind.CLIENT))
     plugin.enable(mysql, tracer, VERSION, {}, basedir)
     connectConnection(URL)
       .then(server => {
@@ -129,7 +129,7 @@ describe('MysqlPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
-          assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+          assertSpan(rootSpanVerifier, 'mysql-query', SpanKind.CLIENT)
           done()
         })
       })
@@ -146,7 +146,7 @@ describe('MysqlPlugin', () => {
           assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
           assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
-          assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+          assertSpan(rootSpanVerifier, 'mysql-query', SpanKind.CLIENT)
           done()
         })
       })
@@ -167,7 +167,7 @@ describe('MysqlPlugin', () => {
             assert.strictEqual(rootSpanVerifier.endedRootSpans.length, 1)
             assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans.length, 1)
             assert.strictEqual(rootSpanVerifier.endedRootSpans[0].spans[0].attributes.sql, q)
-            assertSpan(rootSpanVerifier, 'mysql-query', 'MYSQL')
+            assertSpan(rootSpanVerifier, 'mysql-query', SpanKind.CLIENT)
             done()
           })
         })

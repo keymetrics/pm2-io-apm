@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Func, HeaderGetter, HeaderSetter, Span, TraceOptions, Tracer } from '@pm2/opencensus-core'
+import { Func, HeaderGetter, HeaderSetter, Span, TraceOptions, Tracer, SpanKind, MessageEventType } from '@opencensus/core'
 import { HttpPlugin } from './http'
 import * as http2 from 'http2'
 import * as shimmer from 'shimmer'
@@ -95,7 +95,7 @@ export class Http2Plugin extends HttpPlugin {
 
         const traceOptions = {
           name: `http2-${(headers[':method'] as string || 'GET').toLowerCase()}`,
-          kind: 'CLIENT'
+          kind: SpanKind.CLIENT
         }
 
         // Checks if this outgoing request is part of an operation by checking
@@ -138,7 +138,7 @@ export class Http2Plugin extends HttpPlugin {
         const status = `${responseHeaders[':status']}`
         span.addAttribute(
             Http2Plugin.ATTRIBUTE_HTTP_STATUS_CODE, status)
-        span.status = Http2Plugin.convertTraceStatus(parseInt(status, 10))
+        span.setStatus(Http2Plugin.convertTraceStatus(parseInt(status, 10)))
       })
 
       request.on('end', () => {
@@ -158,8 +158,7 @@ export class Http2Plugin extends HttpPlugin {
               Http2Plugin.ATTRIBUTE_HTTP_USER_AGENT, `${userAgent}`)
         }
 
-        span.addMessageEvent(
-            'MessageEventTypeSent', uuid.v4().split('-').join(''))
+        span.addMessageEvent(MessageEventType.SENT, uuid.v4().split('-').join(''))
 
         span.end()
       })
@@ -213,7 +212,7 @@ export class Http2Plugin extends HttpPlugin {
 
         const traceOptions = {
           name: headers[':path'],
-          kind: 'HTTP2-SERVER',
+          kind: SpanKind.SERVER,
           spanContext: propagation ? propagation.extract(getter) : null
         } as TraceOptions
 
@@ -254,10 +253,10 @@ export class Http2Plugin extends HttpPlugin {
                 Http2Plugin.ATTRIBUTE_HTTP_USER_AGENT, userAgent)
             rootSpan.addAttribute(
                 Http2Plugin.ATTRIBUTE_HTTP_STATUS_CODE, `${statusCode}`)
-            rootSpan.status = Http2Plugin.convertTraceStatus(statusCode)
+            rootSpan.setStatus(Http2Plugin.convertTraceStatus(statusCode))
 
             rootSpan.addMessageEvent(
-                'MessageEventTypeRecv', uuid.v4().split('-').join(''))
+                MessageEventType.RECEIVED, uuid.v4().split('-').join(''))
 
             rootSpan.end()
             return returned

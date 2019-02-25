@@ -1,7 +1,7 @@
 import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span } from '@pm2/opencensus-core'
+import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span } from '@opencensus/core'
 
 export interface ZipkinExporterOptions extends ExporterConfig {
   serviceName: string
@@ -49,7 +49,7 @@ export class CustomCensusExporter implements Exporter {
   private sendTraces (zipkinTraces: TranslatedSpan[]) {
     return new Promise((resolve, reject) => {
       zipkinTraces.forEach(span => {
-        const isRootClient = span.kind === 'CLIENT' && span.parentId === undefined
+        const isRootClient = span.kind === '2' && span.parentId === undefined
         if (isRootClient && this.config.outbound === false) return
 
         this.transport.send('trace-span', span)
@@ -89,7 +89,7 @@ export class CustomCensusExporter implements Exporter {
       name: span.name,
       id: span.id,
       parentId: span.parentSpanId,
-      kind: span.kind,
+      kind: span.kind.toString(),
       timestamp: span.startTime.getTime() * 1000,
       duration: Math.round(span.duration * 1000),
       debug: false,
