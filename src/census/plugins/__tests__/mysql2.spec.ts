@@ -1,9 +1,9 @@
 import { CoreTracer, RootSpan, SpanEventListener, logger } from '@pm2/opencensus-core'
 import * as assert from 'assert'
-import * as mysql from 'mysql'
+import * as mysql from 'mysql2'
 import * as path from 'path'
 
-import { plugin } from '../mysql'
+import { plugin } from '../mysql2'
 
 /** Collects ended root spans to allow for later analysis. */
 class RootSpanVerifier implements SpanEventListener {
@@ -53,7 +53,7 @@ assert.strictEqual(
     rootSpanVerifier.endedRootSpans[0].spans[0].kind, expectedKind)
 }
 
-describe('MysqlPlugin', () => {
+describe('Mysql2Plugin', () => {
   // For these tests, mysql must be runing. Add OPENCENSUS_MYSQL_TESTS to run
   // these tests.
   const OPENCENSUS_MYSQL_TESTS =
@@ -68,7 +68,7 @@ describe('MysqlPlugin', () => {
       process.env.OPENCENSUS_MYSQL_PASSWORD as string
   let shouldTest = true
   if (!OPENCENSUS_MYSQL_TESTS) {
-    console.log('Skipping test-mysql. Run Mysql to test')
+    console.log('Skipping test-mysql2. Run Mysql to test')
     shouldTest = false
   }
 
@@ -83,7 +83,7 @@ describe('MysqlPlugin', () => {
   before((done) => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    const basedir = path.dirname(require.resolve('mysql'))
+    const basedir = path.dirname(require.resolve('mysql2'))
     plugin.enable(mysql, tracer, VERSION, {}, basedir)
     connectConnection(URL)
       .then(server => {
@@ -93,7 +93,7 @@ describe('MysqlPlugin', () => {
       })
       .catch((err: Error) => {
         console.log(
-            'Skipping test-mysql. Could not connect. Run Mysql to test', err)
+            'Skipping test-mysql2. Could not connect. Run Mysql to test', err)
         shouldTest = false
         done()
       })

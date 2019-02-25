@@ -17,7 +17,7 @@
 import { BasePlugin, Span } from '@pm2/opencensus-core'
 import * as shimmer from 'shimmer'
 
-export type MysqlPluginConfig = {
+export type Mysql2PluginConfig = {
   /**
    * Add arguments to the span metadata for a every command
    */
@@ -25,14 +25,14 @@ export type MysqlPluginConfig = {
 }
 
 /** MysqlDB instrumentation plugin for Opencensus */
-export class MysqlPlugin extends BasePlugin {
+export class Mysql2Plugin extends BasePlugin {
   private readonly SPAN_MYSQL_QUERY_TYPE = 'MYSQL'
 
-  protected options: MysqlPluginConfig
+  protected options: Mysql2PluginConfig
   protected readonly internalFileList = {
     '1 - 3': {
-      'Connection': 'lib/Connection',
-      'Pool': 'lib/Pool'
+      'Connection': 'lib/connection',
+      'Pool': 'lib/pool'
     }
   }
 
@@ -45,15 +45,15 @@ export class MysqlPlugin extends BasePlugin {
    * Patches Mysql operations.
    */
   protected applyPatch () {
-    this.logger.debug('Patched Mysql')
+    this.logger.debug('Patched Mysql2')
 
     if (this.internalFilesExports.Connection) {
-      this.logger.debug('patching mysql.Connection.createQuery')
+      this.logger.debug('patching mysql2.Connection.createQuery')
       shimmer.wrap(this.internalFilesExports.Connection, 'createQuery', this.getPatchCreateQuery())
     }
 
     if (this.internalFilesExports.Pool) {
-      this.logger.debug('patching mysql.Pool.prototype.getConnection')
+      this.logger.debug('patching mysql2.Pool.prototype.getConnection')
       shimmer.wrap(this.internalFilesExports.Pool.prototype, 'getConnection', this.getPatchGetConnection())
     }
 
@@ -121,5 +121,5 @@ export class MysqlPlugin extends BasePlugin {
   }
 }
 
-const plugin = new MysqlPlugin('mysql')
+const plugin = new Mysql2Plugin('mysql2')
 export { plugin }
