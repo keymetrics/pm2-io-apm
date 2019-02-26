@@ -231,6 +231,99 @@ app.use(async ctx => {
 })
 ```
 
+## Distributed Tracing
+
+The Distributed Tracing allows to captures and propagates distributed traces through your system, allowing you to visualize how customer requests flow across services, rapidly perform deep root cause analysis, and better analyze latency across a highly distributed set of services.
+If you want to enable it, here the simple options to enable:
+
+
+```javascript
+const io = require('@pm2/io').init({
+  tracing: {
+    enabled: true,
+    // will add the actual queries made to database, false by default
+    detailedDatabasesCalls: true,
+    // if you want you can ignore some endpoint based on their path
+    ignoreIncomingPaths: [
+      // can be a regex
+      /misc/,
+      // or a exact string
+      '/api/bucket'
+      // or a function with the request
+      (url, request) => {
+        return true
+      }
+    ],
+    // same as above but used to match entire URLs
+    ignoreOutgoingUrls: [],
+    /**
+     * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
+     * default is 0.5
+     */
+    samplingRate: 1
+  }
+})
+```
+
+### What's get traced
+
+When your application will receive a request from either `http`, `https` or `http2` it will start a trace. After that, we will trace the following modules:
+
+ - `http` outgoing requests
+ - `https` outgoing requests
+ - `http2` outgoing requests
+ - `mongodb-core` version 1 - 3
+ - `redis` versions > 2.6
+ - `ioredis` versions > 2.6
+ - `mysql` version 1 - 3
+ - `mysql2` version 1 - 3
+ - `pg` version > 6
+
+ ### Custom Tracing API
+
+The custom tracing API can be used to create custom trace spans. A span is a particular unit of work within a trace, such as an RPC request. Spans may be nested; the outermost span is called a root span, even if there are no nested child spans. Root spans typically correspond to incoming requests, while child spans typically correspond to outgoing requests, or other work that is triggered in response to incoming requests. This means that root spans shouldn't be created in a context where a root span already exists; a child span is more suitable here. Instead, root spans should be created to track work that happens outside of the request lifecycle entirely, such as periodically scheduled work. To illustrate:
+
+```js
+const io = require('@pm2/io').init({ tracing: true })
+const tracer = io.getTracer()
+// ...
+
+app.get('/:token', function (req, res) {
+  const token = req.params.token
+  // the '2' correspond to the type of operation you want to trace
+  // can be 0 (UNKNOWN), 1 (SERVER) or 2 (CLIENT)
+  // 'verifyToken' here will be the name of the operation
+  const customSpan = tracer.startChildSpan('verifyToken', 2)
+  // note that customSpan can be null if you are not inside a request
+  req.Token.verifyToken(token, (err, result) => {
+    if (err) {
+      // you can add tags to the span to attach more details to the span
+      customSpan.addAttribute('error', err.message)
+      customSpan.end()
+      return res.status(500).send('error')
+    }
+    customSpan.addAttribute('result', result)
+    // be sure to always .end() the spans
+    customSpan.end()
+    // redirect the user if the token is valid
+    res.send('/user/me')
+  })
+})
+
+// For any significant work done _outside_ of the request lifecycle, use
+// runInRootSpan.
+const startRootSpan = {
+    name: 'my custom trace',
+    // the '1' correspond to the type of operation you want to trace
+    // can be 0 (UNKNOWN), 1 (SERVER) or 2 (CLIENT)
+    kind: '1'
+  }
+plugin.tracer.startRootSpan(traceOptions, rootSpan => {
+  // ...
+  // Be sure to call rootSpan.end().
+});
+```
+
 ## Configuration
 
 ### Global configuration object
@@ -289,46 +382,36 @@ export class IOConfig {
    */
   tracing?: {
     /**
-     * Choose to enable the HTTP tracing system
-     * 
+     * Enabled the distributed tracing feature.
+     */
+    enabled: boolean
+    /**
+     * If you want to report a specific service name
+     * the default is the same as in apmOptions
+     */
+    serviceName?: string
+    /**
+     * Generate trace for outgoing request that aren't connected to a incoming one
      * default is false
      */
-    enabled: boolean = false
+    outbound?: boolean
     /**
-     * Specify specific urls to ignore
+     * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
+     * default is 0.5
      */
-    ignoreFilter?: {
-      url?: string[]
-      method?: string[]
-    }
-    // Log levels: 0-disabled,1-error,2-warn,3-info,4-debug
-    logLevel?: number
+    samplingRate?: number,
     /**
-     * To disable a plugin in this list, you may override its path with a falsy
-     * value. Disabling any of the default plugins may cause unwanted behavior,
-     * so use caution.
+     * Add details about databases calls (redis, mongodb etc)
      */
-    plugins?: {
-      connect?: boolean
-      express?: boolean
-      'generic-pool'?: boolean
-      hapi?: boolean
-      http?: boolean
-      knex?: boolean
-      koa?: boolean
-      'mongodb-core'?: boolean
-      mysql?: boolean
-      pg?: boolean
-      redis?: boolean
-      restify?: boolean
-    }
+    detailedDatabasesCalls?: boolean,
     /**
-     * An upper bound on the number of traces to gather each second. If set to 0,
-     * sampling is disabled and all traces are recorded. Sampling rates greater
-     * than 1000 are not supported and will result in at most 1000 samples per
-     * second.
+     * Ignore specific incoming request depending on their path
      */
-    samplingRate?: number
+    ignoreIncomingPaths?: Array<IgnoreMatcher<httpModule.IncomingMessage>>
+    /**
+     * Ignore specific outgoing request depending on their url
+     */
+    ignoreOutgoingUrls?: Array<IgnoreMatcher<httpModule.ClientRequest>>
   }
   /**
    * If you want to connect to PM2 Enterprise without using PM2, you should enable
@@ -363,6 +446,12 @@ export class IOConfig {
      * Broadcast all the logs from your application to our backend
      */
     sendLogs?: Boolean
+    /**
+     * Avoid to broadcast any logs from your application to our backend
+     * Even if the sendLogs option set to false, you can still see some logs
+     * when going to the log interface (it automatically trigger broacasting log)
+     */
+    disableLogs?: Boolean
     /**
      * Since logs can be forwared to our backend you may want to ignore specific
      * logs (containing sensitive data for example)
@@ -399,6 +488,13 @@ Here the list of breaking changes :
 High chance that if you used a custom configuration for `io.init`, you need to change it to reflect the new configuration.
 Apart from that and the `io.notify` removal, it shouldn't break the way you instanciated metrics.
 If you find something else that breaks please report it to us (tech@keymetrics.io).
+
+### 3.x to 4.x
+
+The only difference with the 4.x version is the new tracing system put in place, so the only changs are related to it:
+
+- **Dropped the support for node 4** (you can still use the 3.x if you use node 4 but you will not have access to the distributed tracing)
+- **Changed the tracing configuration** (see )
 
 ## Development
 
