@@ -34,6 +34,12 @@ export class TransportConfig {
    */
   logFilter?: string | RegExp
   /**
+   * Avoid to broadcast any logs from your application to our backend
+   * Even if the sendLogs option set to false, you can still see some logs
+   * when going to the log interface (it automatically trigger broacasting log)
+   */
+  disableLogs?: Boolean
+  /**
    * Proxy URI to use when reaching internet
    * Supporting socks5,http,https,pac,socks4
    * see https://github.com/TooTallNate/node-proxy-agent
