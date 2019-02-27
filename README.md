@@ -19,10 +19,11 @@ You can also use it as a standalone agent, if you want to connect your nodejs pr
 
 - [**Installation**](https://github.com/keymetrics/pm2-io-apm/tree/master#installation)
 - [**Expose Custom Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#expose-custom-metrics)
-- [**Expose Remote Actions**](https://github.com/keymetrics/pm2-io-apm/tree/master#expose-remote-actions)
-- [**Report Caught Exceptions**](https://github.com/keymetrics/pm2-io-apm/tree/master#report-caught-exceptions)
-- [**Predefined Metrics**](https://github.com/keymetrics/pm2-io-apm/tree/master#predefined-metrics)
+- [**Expose Remote Actions**](https://github.com/keymetrics/pm2-io-apm#expose-remote-actions-trigger-functions-remotely)
+- [**Report Custom Errors**](https://github.com/keymetrics/pm2-io-apm#report-user-error)
+- [**Distributed Tracing**](https://github.com/keymetrics/pm2-io-apm#distributed-tracing)
 - [**Configuration**](https://github.com/keymetrics/pm2-io-apm/tree/master#configuration)
+- [**Migration Guide**](https://github.com/keymetrics/pm2-io-apm#migration-guides)
 - [**Development**](https://github.com/keymetrics/pm2-io-apm/tree/master#development)
 - [**Notes**](https://github.com/keymetrics/pm2-io-apm/tree/master#notes)
 
@@ -260,7 +261,7 @@ const io = require('@pm2/io').init({
      * Determines the probability of a request to be traced. Ranges from 0.0 to 1.0
      * default is 0.5
      */
-    samplingRate: 1
+    samplingRate: 0.5
   }
 })
 ```
@@ -268,7 +269,6 @@ const io = require('@pm2/io').init({
 ### What's get traced
 
 When your application will receive a request from either `http`, `https` or `http2` it will start a trace. After that, we will trace the following modules:
-
  - `http` outgoing requests
  - `https` outgoing requests
  - `http2` outgoing requests
@@ -311,8 +311,8 @@ app.get('/:token', function (req, res) {
 })
 
 // For any significant work done _outside_ of the request lifecycle, use
-// runInRootSpan.
-const startRootSpan = {
+// startRootSpan.
+const traceOptions = {
     name: 'my custom trace',
     // the '1' correspond to the type of operation you want to trace
     // can be 0 (UNKNOWN), 1 (SERVER) or 2 (CLIENT)
@@ -321,6 +321,7 @@ const startRootSpan = {
 plugin.tracer.startRootSpan(traceOptions, rootSpan => {
   // ...
   // Be sure to call rootSpan.end().
+  rootSpan.end()
 });
 ```
 
@@ -494,7 +495,7 @@ If you find something else that breaks please report it to us (tech@keymetrics.i
 The only difference with the 4.x version is the new tracing system put in place, so the only changs are related to it:
 
 - **Dropped the support for node 4** (you can still use the 3.x if you use node 4 but you will not have access to the distributed tracing)
-- **Changed the tracing configuration** (see )
+- **Changed the tracing configuration** (see options above)
 
 ## Development
 
