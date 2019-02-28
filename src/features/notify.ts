@@ -56,26 +56,21 @@ export class NotifyFeature implements Feature {
     this.logger('destroy')
   }
 
-  notifyError (err: Error, context?: ErrorContext) {
+  notifyError (err, context?: ErrorContext) {
     // set default context
     if (typeof context !== 'object') {
       context = { }
-    }
-
-    if (!(err instanceof Error)) {
-      console.error('You must use notifyError with an Error object, ignoring')
-      console.trace()
-      return -1
     }
 
     if (this.transport === undefined) {
       return this.logger(`Tried to send error without having transporter available`)
     }
 
+    const safeError = err instanceof Error ? err : new Error(JSON.stringify(error))
     const payload = {
-      message: err.message,
-      stack: err.stack,
-      name: err.name,
+      message: safeError.message,
+      stack: safeError.stack,
+      name: safeError.name,
       metadata: context
     }
 
