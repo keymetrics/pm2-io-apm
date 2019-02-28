@@ -259,6 +259,22 @@ describe('API', function () {
       })
     })
 
+    it('should not make errors swallowed when koaErrorHandler is used', (done) => {
+      if (semver.satisfies(process.version, '<= 6.0.0')) return done()
+      const child = launch('fixtures/apiKoaErrorHandler')
+
+      child.on('message', msg => {
+        if (msg === 'ready') {
+          const httpModule = require('http')
+          httpModule.get('http://localhost:3003/error', ({ statusCode }) => {
+            expect(statusCode).to.equal(500)
+            child.kill('SIGINT')
+            done()
+          })
+        }
+      })
+    })
+
     it('should enable tracing + metrics', (done) => {
       const child = launch('fixtures/apiBackwardConfChild')
       let tracingDone = false
