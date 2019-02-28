@@ -189,6 +189,7 @@ export class NotifyFeature implements Feature {
         if (ServiceManager.get('transport')) {
           ServiceManager.get('transport').send('process:exception', payload)
         }
+        throw err
       }
     }
   }
