@@ -89,10 +89,12 @@ export class NotifyFeature implements Feature {
       console.error(error)
     }
 
+    const safeError = error instanceof Error ? error : new Error(JSON.stringify(error))
+
     const payload = {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
+      message: safeError.message,
+      stack: safeError.stack,
+      name: safeError.name
     }
 
     if (ServiceManager.get('transport')) {
@@ -107,10 +109,12 @@ export class NotifyFeature implements Feature {
 
     console.error(error)
 
+    const safeError = error instanceof Error ? error : new Error(JSON.stringify(error))
+
     const payload = {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
+      message: safeError.message,
+      stack: safeError.stack,
+      name: safeError.name
     }
 
     if (ServiceManager.get('transport')) {
@@ -132,10 +136,11 @@ export class NotifyFeature implements Feature {
       error : true
     })
     return function errorHandler (err, req, res, next) {
+      const safeError = err instanceof Error ? err : new Error(JSON.stringify(err))
       const payload = {
-        message: err.message,
-        stack: err.stack,
-        name: err.name,
+        message: safeError.message,
+        stack: safeError.stack,
+        name: safeError.name,
         metadata: {
           http: {
             url: req.url,
@@ -167,10 +172,11 @@ export class NotifyFeature implements Feature {
       try {
         await next()
       } catch (err) {
+        const safeError = err instanceof Error ? err : new Error(JSON.stringify(err))
         const payload = {
-          message: err.message,
-          stack: err.stack,
-          name: err.name,
+          message: safeError.message,
+          stack: safeError.stack,
+          name: safeError.name,
           metadata: {
             http: {
               url: ctx.request.url,
