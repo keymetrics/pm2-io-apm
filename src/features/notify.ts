@@ -56,6 +56,35 @@ export class NotifyFeature implements Feature {
     this.logger('destroy')
   }
 
+  getSafeError (err): Error {
+    if (err instanceof Error) return err
+
+    let message
+    try {
+      message = `Non-error value: ${JSON.stringify(err)}`
+    } catch (e) {
+      // We might land here if the error value was not serializable (it might contain
+      // circular references for example), of if user code was ran as part of the
+      // serialization and that code threw an error.
+      // As alternative, we can try converting the error to a string instead:
+      try {
+        message = `Unserializable non-error value: ${String(e)}`
+        // Intentionally not logging the second error anywhere, because we would need
+        // to protect against errors while doing *that* as well. (For example, the second
+        // error's "toString" property may crash or not exist.)
+      } catch (e2) {
+        // That didn't work. So, report a totally unknown error that resists being converted
+        // into any usable form.
+        // Again, we don't even attempt to look at that third error for the same reason as
+        // described above.
+        message = `Unserializable non-error value that cannot be converted to a string`
+      }
+    }
+    if (message.length > 1000) message = message.substr(0, 1000) + '...'
+
+    return new Error(message)
+  }
+
   notifyError (err, context?: ErrorContext) {
     // set default context
     if (typeof context !== 'object') {
@@ -66,7 +95,7 @@ export class NotifyFeature implements Feature {
       return this.logger(`Tried to send error without having transporter available`)
     }
 
-    const safeError = err instanceof Error ? err : new Error(JSON.stringify(error))
+    const safeError = this.getSafeError(err)
     const payload = {
       message: safeError.message,
       stack: safeError.stack,
@@ -84,7 +113,7 @@ export class NotifyFeature implements Feature {
       console.error(error)
     }
 
-    const safeError = error instanceof Error ? error : new Error(JSON.stringify(error))
+    const safeError = this.getSafeError(error)
 
     const payload = {
       message: safeError.message,
@@ -104,7 +133,7 @@ export class NotifyFeature implements Feature {
 
     console.error(error)
 
-    const safeError = error instanceof Error ? error : new Error(JSON.stringify(error))
+    const safeError = this.getSafeError(error)
 
     const payload = {
       message: safeError.message,
@@ -131,7 +160,7 @@ export class NotifyFeature implements Feature {
       error : true
     })
     return function errorHandler (err, req, res, next) {
-      const safeError = err instanceof Error ? err : new Error(JSON.stringify(err))
+      const safeError = this.getSafeError(err)
       const payload = {
         message: safeError.message,
         stack: safeError.stack,
@@ -167,7 +196,7 @@ export class NotifyFeature implements Feature {
       try {
         await next()
       } catch (err) {
-        const safeError = err instanceof Error ? err : new Error(JSON.stringify(err))
+        const safeError = this.getSafeError(err)
         const payload = {
           message: safeError.message,
           stack: safeError.stack,
