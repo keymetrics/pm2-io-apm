@@ -176,7 +176,7 @@ export default class PMX {
    * Notify an error to PM2 Plus/Enterprise, note that you can attach a context to it
    * to provide more insight about the error
    */
-  notifyError (error, context?: ErrorContext) {
+  notifyError (error: Error | string | {}, context?: ErrorContext) {
     const notify = this.featureManager.get('notify') as NotifyFeature
     return notify.notifyError(error, context)
   }

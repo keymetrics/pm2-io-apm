@@ -85,7 +85,7 @@ export class NotifyFeature implements Feature {
     return new Error(message)
   }
 
-  notifyError (err, context?: ErrorContext) {
+  notifyError (err: Error | string | {}, context?: ErrorContext) {
     // set default context
     if (typeof context !== 'object') {
       context = { }
