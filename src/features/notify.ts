@@ -59,12 +59,12 @@ export class NotifyFeature implements Feature {
   getSafeError (err): Error {
     if (err instanceof Error) return err
 
-    let message
+    let message: string
     try {
       message = `Non-error value: ${JSON.stringify(err)}`
     } catch (e) {
       // We might land here if the error value was not serializable (it might contain
-      // circular references for example), of if user code was ran as part of the
+      // circular references for example), or if user code was ran as part of the
       // serialization and that code threw an error.
       // As alternative, we can try converting the error to a string instead:
       try {
