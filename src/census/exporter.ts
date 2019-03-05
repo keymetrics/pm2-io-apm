@@ -1,7 +1,7 @@
 import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span } from '@opencensus/core'
+import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, SpanKind, Attributes } from '@opencensus/core'
 
 export interface ZipkinExporterOptions extends ExporterConfig {
   serviceName: string
@@ -17,7 +17,8 @@ interface TranslatedSpan {
   duration: number
   debug: boolean
   shared: boolean
-  localEndpoint: {serviceName: string}
+  localEndpoint: {serviceName: string},
+  tags: Attributes
 }
 
 /** Zipkin Exporter manager class */
@@ -49,7 +50,7 @@ export class CustomCensusExporter implements Exporter {
   private sendTraces (zipkinTraces: TranslatedSpan[]) {
     return new Promise((resolve, reject) => {
       zipkinTraces.forEach(span => {
-        const isRootClient = span.kind === '2' && span.parentId === undefined
+        const isRootClient = span.kind === 'CLIENT' && span.parentId === undefined
         if (isRootClient && this.config.outbound === false) return
 
         this.transport.send('trace-span', span)
@@ -89,7 +90,7 @@ export class CustomCensusExporter implements Exporter {
       name: span.name,
       id: span.id,
       parentId: span.parentSpanId,
-      kind: span.kind.toString(),
+      kind: this.getSpanKind(span.kind),
       timestamp: span.startTime.getTime() * 1000,
       duration: Math.round(span.duration * 1000),
       debug: false,
@@ -101,8 +102,6 @@ export class CustomCensusExporter implements Exporter {
     return spanTranslated
   }
 
-  // TODO: review return of method publish from exporter interface - today is
-  // returning void
   /**
    * Send the rootSpans to zipkin service
    * @param rootSpans RootSpan array
@@ -113,5 +112,19 @@ export class CustomCensusExporter implements Exporter {
     return this.sendTraces(spanList).catch((err) => {
       return err
     })
+  }
+
+  private getSpanKind (kind: SpanKind) {
+    switch (kind) {
+      case SpanKind.CLIENT: {
+        return 'CLIENT'
+      }
+      case SpanKind.SERVER: {
+        return 'SERVER'
+      }
+      default: {
+        return 'UNKNOWN'
+      }
+    }
   }
 }
