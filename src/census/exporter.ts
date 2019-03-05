@@ -1,10 +1,30 @@
 import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, SpanKind, Attributes } from '@opencensus/core'
+import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, SpanKind, Attributes, CanonicalCode } from '@opencensus/core'
 
 export interface ZipkinExporterOptions extends ExporterConfig {
   serviceName: string
+}
+
+enum CanonicalCodeString {
+  OK = 'OK',
+  CANCELLED = 'CANCELLED',
+  UNKNOWN = 'UNKNOWN',
+  INVALID_ARGUMENT = 'INVALID_ARGUMENT',
+  DEADLINE_EXCEEDED = 'DEADLINE_EXCEEDED',
+  NOT_FOUND = 'NOT_FOUND',
+  ALREADY_EXISTS = 'ALREADY_EXISTS',
+  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  RESOURCE_EXHAUSTED = 'RESOURCE_EXHAUSTED',
+  FAILED_PRECONDITION = 'FAILED_PRECONDITION',
+  ABORTED = 'ABORTED',
+  OUT_OF_RANGE = 'OUT_OF_RANGE',
+  UNIMPLEMENTED = 'UNIMPLEMENTED',
+  INTERNAL = 'INTERNAL',
+  UNAVAILABLE = 'UNAVAILABLE',
+  DATA_LOSS = 'DATA_LOSS',
+  UNAUTHENTICATED = 'UNAUTHENTICATED'
 }
 
 interface TranslatedSpan {
@@ -98,6 +118,13 @@ export class CustomCensusExporter implements Exporter {
       localEndpoint: { serviceName: this.config.serviceName },
       tags: span.attributes
     } as TranslatedSpan
+
+    if (typeof spanTranslated.tags['result.code'] !== 'string') {
+      spanTranslated.tags['result.code'] = CanonicalCodeString[span.status.code]
+    }
+    if (typeof span.status.message === 'string') {
+      spanTranslated.tags['result.message'] = span.status.message
+    }
 
     return spanTranslated
   }
