@@ -151,16 +151,17 @@ export class NotifyFeature implements Feature {
       return false
     }
 
-    process.on('uncaughtException', this.onUncaughtException)
-    process.on('unhandledRejection', this.onUnhandledRejection)
+    process.on('uncaughtException', this.onUncaughtException.bind(this))
+    process.on('unhandledRejection', this.onUnhandledRejection.bind(this))
   }
 
   expressErrorHandler () {
+    const self = this
     Configuration.configureModule({
       error : true
     })
     return function errorHandler (err, req, res, next) {
-      const safeError = this.getSafeError(err)
+      const safeError = self.getSafeError(err)
       const payload = {
         message: safeError.message,
         stack: safeError.stack,
@@ -189,6 +190,7 @@ export class NotifyFeature implements Feature {
   }
 
   koaErrorHandler () {
+    const self = this
     Configuration.configureModule({
       error : true
     })
@@ -196,7 +198,7 @@ export class NotifyFeature implements Feature {
       try {
         await next()
       } catch (err) {
-        const safeError = this.getSafeError(err)
+        const safeError = self.getSafeError(err)
         const payload = {
           message: safeError.message,
           stack: safeError.stack,
