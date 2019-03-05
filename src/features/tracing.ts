@@ -44,6 +44,10 @@ export interface TracingConfig {
   ignoreOutgoingUrls?: Array<IgnoreMatcher<httpModule.ClientRequest>>
 }
 
+const httpMethodToIgnore = [
+  'options',
+  'head'
+]
 const defaultTracingConfig: TracingConfig = {
   enabled: false,
   outbound: false,
@@ -57,7 +61,18 @@ const enabledTracingConfig: TracingConfig = {
   enabled: true,
   outbound: false,
   samplingRate: 0.5,
-  ignoreIncomingPaths: [],
+  ignoreIncomingPaths: [
+    (url, request) => {
+      const method = (request.method || 'GET').toLowerCase()
+      return httpMethodToIgnore.indexOf(method) > -1
+    },
+    /(.*).js/,
+    /(.*).css/,
+    /(.*).png/,
+    /(.*).ico/,
+    /(.*).svg/,
+    /webpack/
+  ],
   ignoreOutgoingUrls: [],
   detailedDatabasesCalls: false
 }
@@ -90,10 +105,10 @@ export class TracingFeature implements Feature {
       this.options.serviceName = process.env.name
     }
     if (config.tracing.ignoreOutgoingUrls === undefined) {
-      config.tracing.ignoreOutgoingUrls = []
+      config.tracing.ignoreOutgoingUrls = enabledTracingConfig.ignoreOutgoingUrls
     }
     if (config.tracing.ignoreIncomingPaths === undefined) {
-      config.tracing.ignoreIncomingPaths = []
+      config.tracing.ignoreIncomingPaths = enabledTracingConfig.ignoreIncomingPaths
     }
     this.exporter = new CustomCensusExporter(this.options)
     if (this.tracer && this.tracer.active) {
