@@ -166,7 +166,6 @@ export class HttpPlugin extends BasePlugin {
   protected getPatchIncomingRequestFunction () {
     return (original: (event: string) => boolean) => {
       const plugin = this
-      const kind = plugin.moduleName === 'https' ? 'HTTPS' : 'HTTP'
       if (plugin.options === undefined) {
         plugin.options = {
           ignoreIncomingPaths: [],
@@ -222,8 +221,7 @@ export class HttpPlugin extends BasePlugin {
             response.end = originalEnd
             const returned = response.end.apply(this, arguments)
 
-            // @ts-ignore
-            const requestUrl = url.parse(request.url)
+            const requestUrl = url.parse(request.url || 'localhost')
             const host = headers.host || 'localhost'
             const userAgent =
                 (headers['user-agent'] || headers['User-Agent']) as string
@@ -232,11 +230,11 @@ export class HttpPlugin extends BasePlugin {
                 HttpPlugin.ATTRIBUTE_HTTP_HOST,
                 host.replace(/^(.*)(\:[0-9]{1,5})/, '$1'))
             rootSpan.addAttribute(
-                HttpPlugin.ATTRIBUTE_HTTP_METHOD, request.method || 'NONE')
+                HttpPlugin.ATTRIBUTE_HTTP_METHOD, request.method || 'GET')
             rootSpan.addAttribute(
-                HttpPlugin.ATTRIBUTE_HTTP_PATH, requestUrl.pathname)
+                HttpPlugin.ATTRIBUTE_HTTP_PATH, `${requestUrl.pathname}`)
             rootSpan.addAttribute(
-                HttpPlugin.ATTRIBUTE_HTTP_ROUTE, requestUrl.path)
+                HttpPlugin.ATTRIBUTE_HTTP_ROUTE, `${requestUrl.path}`)
             rootSpan.addAttribute(
                 HttpPlugin.ATTRIBUTE_HTTP_USER_AGENT, userAgent)
 
@@ -254,7 +252,6 @@ export class HttpPlugin extends BasePlugin {
             return returned
           }
 
-          // @ts-ignore
           return original.apply(this, arguments)
         })
       }
@@ -302,10 +299,11 @@ export class HttpPlugin extends BasePlugin {
           }
 
           try {
-            // @ts-ignore
-            pathname = (options as url.URL).pathname || url.parse(options.path).pathname
-            // @ts-ignore
-            method = options.method
+            pathname = (options as url.URL).pathname || ''
+            if (pathname.length === 0 && typeof options.path === 'string') {
+              pathname = url.parse(options.path).pathname || ''
+            }
+            method = options.method || 'GET'
             origin = `${options.protocol || 'http:'}//${options.host}`
           } catch (e) {
             return original.apply(this, arguments)
@@ -384,7 +382,10 @@ export class HttpPlugin extends BasePlugin {
           const headers = options.headers
           const userAgent =
               headers ? (headers['user-agent'] || headers['User-Agent']) : null
-          span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_HOST, `${options.hostname}`)
+          if (options.host || options.hostname) {
+            const value = options.host || options.hostname
+            span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_HOST, `${value}`)
+          }
           span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_METHOD, method)
           span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_PATH, `${options.path}`)
           span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ROUTE, `${options.path}`)

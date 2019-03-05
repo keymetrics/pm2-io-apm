@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Func, HeaderGetter, HeaderSetter, Span, TraceOptions, Tracer, SpanKind, MessageEventType } from '@opencensus/core'
+import { Func, HeaderGetter, HeaderSetter, Span, TraceOptions, Tracer, SpanKind, MessageEventType, CanonicalCode } from '@opencensus/core'
 import { HttpPlugin } from './http'
 import * as http2 from 'http2'
 import * as shimmer from 'shimmer'
@@ -145,8 +145,7 @@ export class Http2Plugin extends HttpPlugin {
         const userAgent =
             headers['user-agent'] || headers['User-Agent'] || null
 
-        // @ts-ignore
-        span.addAttribute(Http2Plugin.ATTRIBUTE_HTTP_HOST, url.parse(authority).host)
+        span.addAttribute(Http2Plugin.ATTRIBUTE_HTTP_HOST, `${url.parse(authority).host}`)
         span.addAttribute(
             Http2Plugin.ATTRIBUTE_HTTP_METHOD, `${headers[':method']}`)
         span.addAttribute(
@@ -166,6 +165,7 @@ export class Http2Plugin extends HttpPlugin {
       request.on('error', (err: Error) => {
         span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ERROR_NAME, err.name)
         span.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ERROR_MESSAGE, err.message)
+        span.setStatus(CanonicalCode.UNKNOWN, err.message)
 
         span.end()
       })
