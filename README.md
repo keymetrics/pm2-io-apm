@@ -266,6 +266,10 @@ const io = require('@pm2/io').init({
 })
 ```
 
+By default we ignore specific incoming requests (you can override this by setting `ignoreIncomingPaths: []`):
+- Request with the OPTIONS or HEAD method
+- Request fetching a static ressources (`*.js`, `*.css`, `*.ico`, `*.svg`, `.png` or `*webpack*`)
+
 ### What's get traced
 
 When your application will receive a request from either `http`, `https` or `http2` it will start a trace. After that, we will trace the following modules:
@@ -278,6 +282,7 @@ When your application will receive a request from either `http`, `https` or `htt
  - `mysql` version 1 - 3
  - `mysql2` version 1 - 3
  - `pg` version > 6
+ - `vue-server-renderer` version 2
 
  ### Custom Tracing API
 
