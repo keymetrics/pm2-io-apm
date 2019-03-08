@@ -46,6 +46,15 @@ yarn add @pm2/io
 
 @pm2/io allows you to gather metrics from your code to be reported in the PM2 Plus/Enterprise dashboard.
 
+### Optional addon to add more metrics
+
+If you want to add more metrics about the NodeJS runtime, you can install `@pm2/node-runtime-stats` in your application dependency, this module will add the following metrics:
+- More accurate Event Loop Metrics (directly pluged to libuv)
+- GC Pause (Old object pool), both median and percentile 95
+- GC Pause (Young object pool), both median and percentile 95
+- CPU Context Switch, both volontary and involontary (see [this stackexchanges post](https://unix.stackexchange.com/questions/442969/what-exactly-are-voluntary-context-switches))
+- Page Fault, both minor and major (see [this wikipedia article](https://en.wikipedia.org/wiki/Page_fault#Types) )
+
 ### Create a custom metrics
 
 You can create a new custom metrics with the method `metric()` of `@pm2/io`.
