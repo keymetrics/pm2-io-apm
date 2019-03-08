@@ -33,8 +33,10 @@ export default class HttpMetrics implements MetricInterface {
   private modules: any = {}
 
   init (config?: HttpMetricsConfig | boolean) {
-    if (config === undefined) return
     if (config === false) return
+    if (config === undefined) {
+      config = this.defaultConf
+    }
     if (typeof config !== 'object') {
       config = this.defaultConf
     }
@@ -131,10 +133,12 @@ export default class HttpMetrics implements MetricInterface {
     if (this.modules.http !== undefined) {
       this.logger('unwraping http module')
       shimmer.unwrap(this.modules.http, 'emit')
+      this.modules.http = undefined
     }
     if (this.modules.https !== undefined) {
       this.logger('unwraping https module')
       shimmer.unwrap(this.modules.https, 'emit')
+      this.modules.https = undefined
     }
     if (Module['_load'] && Module['_load'].__io_apm === true) {
       shimmer.unwrap(Module, '_load')
