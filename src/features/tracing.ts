@@ -3,9 +3,6 @@ import * as Debug from 'debug'
 import Configuration from '../configuration'
 import { IOConfig } from '../pmx'
 import { resolve } from 'path'
-import { B3Format } from '@opencensus/propagation-b3'
-import { CustomCensusExporter } from '../census/exporter'
-import { Tracing } from '../census/tracer'
 import * as httpModule from 'http'
 import { IgnoreMatcher } from '../census/plugins/http'
 import * as core from '@opencensus/core'
@@ -110,6 +107,11 @@ export class TracingFeature implements Feature {
     if (config.tracing.ignoreIncomingPaths === undefined) {
       config.tracing.ignoreIncomingPaths = enabledTracingConfig.ignoreIncomingPaths
     }
+
+    const B3Format = require('@opencensus/propagation-b3').B3Format
+    const CustomCensusExporter = require('../census/exporter').CustomCensusExporter
+    const Tracing = require('../census/tracer').Tracing
+
     this.exporter = new CustomCensusExporter(this.options)
     if (this.tracer && this.tracer.active) {
       throw new Error(`Tracing was already enabled`)
