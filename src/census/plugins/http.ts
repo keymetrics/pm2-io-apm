@@ -363,7 +363,25 @@ export class HttpPlugin extends BasePlugin {
 
       const setter: HeaderSetter = {
         setHeader (name: string, value: string) {
-          request.setHeader(name, value)
+          // If outgoing request headers contain the "Expect" header, the returned
+          // ClientRequest will throw an error if any new headers are added. For this
+          // reason, only in this scenario, we opt to clone the options object to
+          // inject the trace context header instead of using ClientRequest#setHeader.
+          // (We don't do this generally because cloning the options object is an
+          // expensive operation.)
+          if (plugin.hasExpectHeader(options) && options.headers) {
+            // @ts-ignore
+            if (options.__cloned !== true) {
+              options = Object.assign({}, options) as httpModule.ClientRequestArgs
+              options.headers = Object.assign({}, options.headers)
+              // @ts-ignore
+              options.__cloned = true
+            }
+            // Inject the trace context header.
+            options.headers[name] = value
+          } else {
+            request.setHeader(name, value)
+          }
         }
       }
 
@@ -455,6 +473,16 @@ export class HttpPlugin extends BasePlugin {
           return TraceStatusCodes.UNKNOWN
       }
     }
+  }
+
+  /**
+   * Returns whether the Expect header is on the given options object.
+   * @param options Options for http.request.
+   */
+  hasExpectHeader (options: httpModule.ClientRequestArgs | url.URL): boolean {
+    return !!(
+        (options as httpModule.ClientRequestArgs).headers &&
+        (options as httpModule.ClientRequestArgs).headers!.Expect)
   }
 }
 
