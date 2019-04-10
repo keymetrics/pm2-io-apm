@@ -43,6 +43,7 @@ local pipeline(version) = {
                 "runTest src/census/plugins/__tests__/ioredis.spec.ts",
                 "runTest src/census/plugins/__tests__/vue.spec.ts",
                 "runTest src/census/plugins/__tests__/pg.spec.ts",
+                "runTest src/census/plugins/__tests__/express.spec.ts",
                 "nyc report --reporter lcov || echo \"No nyc coverage\"",
                 "./cc-test-reporter after-build --exit-code 0 || echo \"Skipping CC coverage upload\" or upload-coverage || echo \"Skipping CC coverage upload\"",
             ],
