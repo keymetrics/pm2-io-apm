@@ -20,6 +20,7 @@ import * as semver from 'semver'
 import * as shimmer from 'shimmer'
 import * as url from 'url'
 import * as uuid from 'uuid'
+import { kMiddlewareStack } from './express'
 
 export type IgnoreMatcher<T> = string | RegExp | ((url: string, request: T) => boolean)
 
@@ -233,8 +234,16 @@ export class HttpPlugin extends BasePlugin {
                 HttpPlugin.ATTRIBUTE_HTTP_METHOD, request.method || 'GET')
             rootSpan.addAttribute(
                 HttpPlugin.ATTRIBUTE_HTTP_PATH, `${requestUrl.pathname}`)
-            rootSpan.addAttribute(
-                HttpPlugin.ATTRIBUTE_HTTP_ROUTE, `${requestUrl.path}`)
+            let route = `${requestUrl.path}`
+            const middlewareStack: string[] = request[kMiddlewareStack]
+            if (middlewareStack) {
+              route = middlewareStack
+                .filter(path => path !== '/')
+                .map(path => {
+                  return path[0] === '/' ? path : '/' + path
+                }).join('')
+            }
+            rootSpan.addAttribute(HttpPlugin.ATTRIBUTE_HTTP_ROUTE, route)
             rootSpan.addAttribute(
                 HttpPlugin.ATTRIBUTE_HTTP_USER_AGENT, userAgent)
 
