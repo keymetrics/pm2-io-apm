@@ -154,6 +154,10 @@ export class TracingFeature implements Feature {
         'vue-server-renderer': {
           module: resolve(__dirname, '../census/plugins/vue'),
           config: {}
+        },
+        'express': {
+          module: resolve(__dirname, '../census/plugins/express'),
+          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
         }
       },
       propagation: new B3Format(),
