@@ -91,8 +91,13 @@ export class ExpressPlugin extends BasePlugin {
           // push the mounted path in the stack to be able to re-construct
           // the full route later
           plugin.safePush(req, kMiddlewareStack, layerPath)
-          const middlewareName = `Middleware - ${layer.name || '<anonymous>'}`
-          const span = plugin.tracer.startChildSpan(middlewareName, SpanKind.CLIENT)
+          let spanName = `Middleware - ${layer.name}`
+          if (layer.route) {
+            spanName = `Route - ${layer.route.path}`
+          } else if (layer.name === 'router') {
+            spanName = `Router - ${layerPath}`
+          }
+          const span = plugin.tracer.startChildSpan(spanName, SpanKind.CLIENT)
           if (span === null) return original.apply(this, arguments)
           arguments[2] = function () {
             if (!(req.route && arguments[0] instanceof Error)) {

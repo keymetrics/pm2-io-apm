@@ -85,7 +85,7 @@ describe('VuePlugin', () => {
       })
       const router = express.Router()
       app.use('/toto', router)
-      router.use('/:id', (req, res, next) => {
+      router.get('/:id', (req, res, next) => {
         return res.status(200).end()
       })
       const server = http.createServer(app)
@@ -99,7 +99,6 @@ describe('VuePlugin', () => {
         assert(serverSpan.attributes['http.route'] === '/toto/:id')
         assert(serverSpan.name === '/toto/tata')
         assert(serverSpan.spans.length === 6)
-        assert(serverSpan.spans.every(span => span.name.indexOf('Middleware') > -1))
         server.close()
         return done()
       })
