@@ -5,8 +5,9 @@ import { EventLoopInspectorFeature } from './features/eventLoopInspector'
 import { EventsFeature } from './features/events'
 import { IOConfig } from './pmx'
 import { MetricsFeature } from './features/metrics'
-import * as Debug from 'debug'
 import { TracingFeature } from './features/tracing'
+import { DependenciesFeature } from './features/dependencies'
+import * as Debug from 'debug'
 
 export function getObjectAtPath (context: Object, path: string): any {
   if (path.indexOf('.') === -1 && path.indexOf('[') === -1) {
@@ -80,6 +81,10 @@ const availablesFeatures: AvailableFeature[] = [
     name: 'tracing',
     optionsPath: '.',
     module: TracingFeature
+  },
+  {
+    name: 'dependencies',
+    module: DependenciesFeature
   }
 ]
 
