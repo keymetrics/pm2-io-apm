@@ -38,7 +38,8 @@ describe('Standalone Tracing', function () {
   it('should receive status', (done) => {
     wsServer.once('message', (data) => {
       const packet = JSON.parse(data)
-      assert(packet.channel === 'status')
+      assert(packet.channel === 'status'
+        || packet.channel === 'application:dependencies')
       return done()
     })
   })
