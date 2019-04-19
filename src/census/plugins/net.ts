@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BasePlugin, TraceOptions, SpanKind, CanonicalCode } from '@opencensus/core'
+import { BasePlugin, TraceOptions, SpanKind } from '@opencensus/core'
 import * as netModule from 'net'
 import * as shimmer from 'shimmer'
 
