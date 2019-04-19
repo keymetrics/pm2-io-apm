@@ -44,7 +44,8 @@ describe('Standalone Tracing', function () {
         wsServer.removeAllListeners()
         return done()
       }
-      assert(packet.channel === 'status' || packet.channel === 'trace-span')
+      assert(packet.channel === 'status' || packet.channel === 'trace-span'
+        || packet.channel === 'application:dependencies')
     })
   })
 
