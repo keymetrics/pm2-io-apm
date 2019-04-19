@@ -39,6 +39,11 @@ export interface TracingConfig {
    * Ignore specific outgoing request depending on their url
    */
   ignoreOutgoingUrls?: Array<IgnoreMatcher<httpModule.ClientRequest>>
+  /**
+   * Set to true when wanting to create span for raw TCP connection
+   * instead of new http request
+   */
+  createSpanWithNet: boolean
 }
 
 const httpMethodToIgnore = [
@@ -51,7 +56,8 @@ const defaultTracingConfig: TracingConfig = {
   samplingRate: 0,
   ignoreIncomingPaths: [],
   ignoreOutgoingUrls: [],
-  detailedDatabasesCalls: false
+  detailedDatabasesCalls: false,
+  createSpanWithNet: false
 }
 
 const enabledTracingConfig: TracingConfig = {
@@ -71,7 +77,8 @@ const enabledTracingConfig: TracingConfig = {
     /webpack/
   ],
   ignoreOutgoingUrls: [],
-  detailedDatabasesCalls: false
+  detailedDatabasesCalls: false,
+  createSpanWithNet: false
 }
 
 export class TracingFeature implements Feature {
@@ -118,48 +125,54 @@ export class TracingFeature implements Feature {
     }
     this.logger('start census tracer')
     const tracer = Tracing.instance
+    const plugins = {
+      'http': {
+        module: resolve(__dirname, '../census/plugins/http'),
+        config: config.tracing
+      },
+      'http2': resolve(__dirname, '../census/plugins/http2'),
+      'https': resolve(__dirname, '../census/plugins/https'),
+      'mongodb-core': {
+        module: resolve(__dirname, '../census/plugins/mongodb'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'mysql': {
+        module: resolve(__dirname, '../census/plugins/mysql'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'mysql2': {
+        module: resolve(__dirname, '../census/plugins/mysql2'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'redis': {
+        module: resolve(__dirname, '../census/plugins/redis'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'ioredis': {
+        module: resolve(__dirname, '../census/plugins/ioredis'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'pg': {
+        module: resolve(__dirname, '../census/plugins/pg'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'vue-server-renderer': {
+        module: resolve(__dirname, '../census/plugins/vue'),
+        config: {}
+      },
+      'express': {
+        module: resolve(__dirname, '../census/plugins/express'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      }
+    }
+    if (this.options.createSpanWithNet === true) {
+      plugins['net'] = {
+        module: resolve(__dirname, '../census/plugins/net')
+      }
+    }
     this.tracer = tracer.start({
       exporter: this.exporter,
-      plugins: {
-        'http': {
-          module: resolve(__dirname, '../census/plugins/http'),
-          config: config.tracing
-        },
-        'http2': resolve(__dirname, '../census/plugins/http2'),
-        'https': resolve(__dirname, '../census/plugins/https'),
-        'mongodb-core': {
-          module: resolve(__dirname, '../census/plugins/mongodb'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        },
-        'mysql': {
-          module: resolve(__dirname, '../census/plugins/mysql'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        },
-        'mysql2': {
-          module: resolve(__dirname, '../census/plugins/mysql2'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        },
-        'redis': {
-          module: resolve(__dirname, '../census/plugins/redis'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        },
-        'ioredis': {
-          module: resolve(__dirname, '../census/plugins/ioredis'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        },
-        'pg': {
-          module: resolve(__dirname, '../census/plugins/pg'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        },
-        'vue-server-renderer': {
-          module: resolve(__dirname, '../census/plugins/vue'),
-          config: {}
-        },
-        'express': {
-          module: resolve(__dirname, '../census/plugins/express'),
-          config: { detailedCommands: config.tracing.detailedDatabasesCalls }
-        }
-      },
+      plugins,
       propagation: new B3Format(),
       samplingRate: this.options.samplingRate || 0.5,
       logLevel: this.isDebugEnabled() ? 4 : 1
