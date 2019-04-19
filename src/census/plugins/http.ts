@@ -33,6 +33,11 @@ export type HttpPluginConfig = {
    * Ignore specific outgoing request depending on their url
    */
   ignoreOutgoingUrls: Array<IgnoreMatcher<httpModule.ClientRequest>>
+  /**
+   * Disable the creation of root span with http server
+   * mainly used if net plugin is implemented
+   */
+  createSpanWithNet: boolean
 }
 
 export type HttpModule = typeof httpModule
@@ -167,12 +172,6 @@ export class HttpPlugin extends BasePlugin {
   protected getPatchIncomingRequestFunction () {
     return (original: (event: string) => boolean) => {
       const plugin = this
-      if (plugin.options === undefined) {
-        plugin.options = {
-          ignoreIncomingPaths: [],
-          ignoreOutgoingUrls: []
-        }
-      }
       // This function's signature is that of an event listener, which can have
       // any number of variable-type arguments.
       // tslint:disable-next-line:no-any
@@ -208,7 +207,7 @@ export class HttpPlugin extends BasePlugin {
           spanContext: context !== null ? context : undefined
         }
 
-        return plugin.tracer.startRootSpan(traceOptions, rootSpan => {
+        return plugin.createSpan(traceOptions, rootSpan => {
           if (!rootSpan) return original.apply(this, arguments)
 
           plugin.tracer.wrapEmitter(request)
@@ -276,12 +275,6 @@ export class HttpPlugin extends BasePlugin {
                httpModule.ClientRequest> => {
       const plugin = this
       const kind = plugin.moduleName === 'https' ? 'HTTPS' : 'HTTP'
-      if (plugin.options === undefined) {
-        plugin.options = {
-          ignoreIncomingPaths: [],
-          ignoreOutgoingUrls: []
-        }
-      }
       return function outgoingRequest (
                  options: httpModule.RequestOptions | string,
                  callback): httpModule.ClientRequest {
@@ -448,6 +441,16 @@ export class HttpPlugin extends BasePlugin {
 
       plugin.logger.debug('makeRequestTrace return request')
       return request
+    }
+  }
+
+  private createSpan<T> (options: TraceOptions, fn: (span: Span) => T): T {
+    const forceChildspan = this.options.createSpanWithNet === true
+    if (forceChildspan) {
+      const span = this.tracer.startChildSpan(options.name, options.kind)
+      return fn(span)
+    } else {
+      return this.tracer.startRootSpan(options, fn)
     }
   }
 
