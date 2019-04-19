@@ -427,6 +427,11 @@ export class IOConfig {
      * Ignore specific outgoing request depending on their url
      */
     ignoreOutgoingUrls?: Array<IgnoreMatcher<httpModule.ClientRequest>>
+    /**
+     * Set to true when wanting to create span for raw TCP connection
+     * instead of new http request
+     */
+    createSpanWithNet: boolean
   }
   /**
    * If you want to connect to PM2 Enterprise without using PM2, you should enable
