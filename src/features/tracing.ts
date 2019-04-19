@@ -43,7 +43,7 @@ export interface TracingConfig {
    * Set to true when wanting to create span for raw TCP connection
    * instead of new http request
    */
-  createSpanWithNet: boolean
+  createSpanWithNet?: boolean
 }
 
 const httpMethodToIgnore = [
