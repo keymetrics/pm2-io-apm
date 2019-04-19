@@ -94,8 +94,6 @@ describe('NetPlugin', () => {
         assert(serverSpan.attributes['net.host'] !== undefined)
         assert(serverSpan.attributes['net.port'] !== undefined)
         assert(serverSpan.attributes['net.family'] !== undefined)
-        assert(serverSpan.spans.length === 1)
-        assert(serverSpan.spans[0].name === '/toto/tata')
         server.close()
         return done()
       })
