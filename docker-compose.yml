@@ -25,3 +25,7 @@ services:
     environment: 
       POSTGRES_DB: 'test'
       POSTGRES_PASSWORD: 'password'
+  mqtt:
+    image: toke/mosquitto
+    ports:
+      - "1883:1883"

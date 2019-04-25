@@ -10,7 +10,7 @@ local pipeline(version) = {
                 "yarn -v",
                 "uname -r",
                 "yarn install",
-                "yarn add express koa mongodb-core mysql mysql2 redis ioredis pg vue vue-server-renderer @pm2/node-runtime-stats v8-profiler-node8",
+                "yarn add express koa mongodb-core mysql mysql2 redis ioredis mqtt pg vue vue-server-renderer @pm2/node-runtime-stats v8-profiler-node8",
                 "export PATH=$PATH:./node_modules/.bin/",
                 "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter",
                 "chmod +x ./cc-test-reporter",
@@ -45,6 +45,7 @@ local pipeline(version) = {
                 "runTest src/census/plugins/__tests__/pg.spec.ts",
                 "runTest src/census/plugins/__tests__/express.spec.ts",
                 "runTest src/census/plugins/__tests__/net.spec.ts",
+                "runTest src/census/plugins/__tests__/mqtt.spec.ts",
                 "nyc report --reporter lcov || echo \"No nyc coverage\"",
                 "./cc-test-reporter after-build --exit-code 0 || echo \"Skipping CC coverage upload\" or upload-coverage || echo \"Skipping CC coverage upload\"",
             ],
@@ -54,9 +55,11 @@ local pipeline(version) = {
               OPENCENSUS_REDIS_TESTS: "1",
               OPENCENSUS_MYSQL_TESTS: "1",
               OPENCENSUS_PG_TESTS: "1",
+              OPENCENSUS_MQTT_TESTS: "1",
               OPENCENSUS_REDIS_HOST: "redis",
               OPENCENSUS_MONGODB_HOST: "mongodb",
               OPENCENSUS_MYSQL_HOST: "mysql",
+              OPENCENSUS_MQTT_HOST: "mqtt",
               OPENCENSUS_PG_HOST: "postgres",
               CC_TEST_REPORTER_ID: {
                 from_secret: "code_climate_token"
@@ -75,6 +78,10 @@ local pipeline(version) = {
       {
         name: "redis",
         image: "redis:5",
+      },
+      {
+        name: "mqtt",
+        image: "toke/mosquitto",
       },
       {
         name: "mysql",
