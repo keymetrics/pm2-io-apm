@@ -82,6 +82,9 @@ local pipeline(version) = {
       {
         name: "mqtt",
         image: "toke/mosquitto",
+        environment: {
+          EXT_IP: "0.0.0.0"
+        }
       },
       {
         name: "mysql",
