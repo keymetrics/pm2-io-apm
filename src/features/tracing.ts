@@ -163,6 +163,10 @@ export class TracingFeature implements Feature {
       'express': {
         module: resolve(__dirname, '../census/plugins/express'),
         config: { detailedCommands: config.tracing.detailedDatabasesCalls }
+      },
+      'mqtt': {
+        module: resolve(__dirname, '../census/plugins/mqtt'),
+        config: { detailedCommands: config.tracing.detailedDatabasesCalls }
       }
     }
     if (this.options.createSpanWithNet === true) {
