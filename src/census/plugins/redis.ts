@@ -145,7 +145,12 @@ export class RedisPlugin extends BasePlugin {
       if (span.ended === false) {
         span.end()
       }
-      return resultHandler.apply(this, arguments)
+      // it's possible that the redis cmd doesnt have any callback
+      // since we are adding it ourselves, the original callback might
+      // not exist
+      if (typeof resultHandler === 'function') {
+        return resultHandler.apply(this, arguments)
+      }
     }
     return this.tracer.wrap(patchedEnd)
   }
