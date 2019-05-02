@@ -6,6 +6,9 @@ import { ServiceManager } from '../serviceManager'
 import Debug from 'debug'
 import { Transport } from '../services/transport'
 import * as semver from 'semver'
+import { Cache, StackTraceParser, StackContext } from '../utils/stackParser'
+import * as fs from 'fs'
+import * as path from 'path'
 
 export class NotifyOptions {
   catchExceptions: boolean
@@ -31,6 +34,8 @@ export class NotifyFeature implements Feature {
 
   private logger: Function = Debug('axm:features:notify')
   private transport: Transport | undefined
+  private cache: Cache
+  private stackParser: StackTraceParser
 
   init (options?: NotifyOptions) {
     if (options === undefined) {
@@ -47,6 +52,22 @@ export class NotifyFeature implements Feature {
     })
     if (options.catchExceptions === false) return
     this.logger('Registering hook to catch unhandled exception/rejection')
+    this.cache = new Cache({
+      miss: (key) => {
+        try {
+          const content = fs.readFileSync(path.resolve(key))
+          return content.toString().split(/\r?\n/)
+        } catch (err) {
+          this.logger('Error while trying to get file from FS : %s', err.message || err)
+          return null
+        }
+      },
+      ttl: 30 * 60
+    })
+    this.stackParser = new StackTraceParser({
+      cache: this.cache,
+      contextSize: 5
+    })
     this.catchAll()
   }
 
@@ -96,12 +117,17 @@ export class NotifyFeature implements Feature {
     }
 
     const safeError = this.getSafeError(err)
-    const payload = {
+    let stackContext: StackContext | null = null
+    if (err instanceof Error) {
+      stackContext = this.stackParser.retrieveContext(err)
+    }
+
+    const payload = Object.assign({
       message: safeError.message,
       stack: safeError.stack,
       name: safeError.name,
       metadata: context
-    }
+    }, stackContext === null ? {} : stackContext)
 
     return this.transport.send('process:exception', payload)
   }
@@ -114,12 +140,16 @@ export class NotifyFeature implements Feature {
     }
 
     const safeError = this.getSafeError(error)
+    let stackContext: StackContext | null = null
+    if (error instanceof Error) {
+      stackContext = this.stackParser.retrieveContext(error)
+    }
 
-    const payload = {
+    const payload = Object.assign({
       message: safeError.message,
       stack: safeError.stack,
       name: safeError.name
-    }
+    }, stackContext === null ? {} : stackContext)
 
     if (ServiceManager.get('transport')) {
       ServiceManager.get('transport').send('process:exception', payload)
@@ -134,12 +164,16 @@ export class NotifyFeature implements Feature {
     console.error(error)
 
     const safeError = this.getSafeError(error)
+    let stackContext: StackContext | null = null
+    if (error instanceof Error) {
+      stackContext = this.stackParser.retrieveContext(error)
+    }
 
-    const payload = {
+    const payload = Object.assign({
       message: safeError.message,
       stack: safeError.stack,
       name: safeError.name
-    }
+    }, stackContext === null ? {} : stackContext)
 
     if (ServiceManager.get('transport')) {
       ServiceManager.get('transport').send('process:exception', payload)
