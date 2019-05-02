@@ -30,8 +30,8 @@ export class PGPlugin extends BasePlugin {
 
   protected options: PGPluginConfig
   protected readonly internalFileList = {
-    '7.x': {
-      'client': 'client'
+    '6 - 7': {  // Support version 6 as well as 7
+      'client': 'lib/client'  //Modified PG client path
     }
   }
 
