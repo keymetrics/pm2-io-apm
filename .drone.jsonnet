@@ -94,7 +94,7 @@ local pipeline(version) = {
       },
     ],
     trigger: {
-      event: "push"
+      event: ["push", "pull_request"]
     },
 };
 
