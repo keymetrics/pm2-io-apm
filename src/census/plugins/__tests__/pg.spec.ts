@@ -70,7 +70,7 @@ describe('PGPlugin', () => {
   before(async () => {
     tracer.start({ samplingRate: 1, logger: logger.logger(4) })
     tracer.registerSpanEventListener(rootSpanVerifier)
-    const basedir = path.dirname(require.resolve('pg'))
+    const basedir = path.dirname(require.resolve("pg/package.json")); //require.resolve was returning direct path to lib, as in current pg version they have defined "main" path section which was breaking this test case. We need only path of PG nodule not lib folder. This fixes this issue.
     plugin.enable(pg, tracer, VERSION, {}, basedir)
     client = new pg.Client(CONFIG)
     try {
