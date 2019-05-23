@@ -7,10 +7,8 @@ import { MetricInterface } from '../features/metrics'
 import { ServiceManager } from '../serviceManager'
 import Meter from '../utils/metrics/meter'
 import Histogram from '../utils/metrics/histogram'
+import * as requireMiddle from 'require-in-the-middle'
 
-// @ts-ignore
-// thanks mr typescript this is a node only module
-import * as Module from 'module'
 import {
   MetricService,
   InternalMetric,
@@ -31,6 +29,7 @@ export default class HttpMetrics implements MetricInterface {
   private logger: any = Debug('axm:features:metrics:http')
   private metricService: MetricService | undefined
   private modules: any = {}
+  private hooks
 
   init (config?: HttpMetricsConfig | boolean) {
     if (config === false) return
@@ -140,9 +139,8 @@ export default class HttpMetrics implements MetricInterface {
       shimmer.unwrap(this.modules.https, 'emit')
       this.modules.https = undefined
     }
-    if (Module['_load'] && Module['_load'].__io_apm === true) {
-      shimmer.unwrap(Module, '_load')
-      Module['_load'].__io_apm = undefined
+    if (this.hooks) {
+      this.hooks.unhook()
     }
     this.logger('destroy')
   }
@@ -161,6 +159,14 @@ export default class HttpMetrics implements MetricInterface {
       return function (event: string, req: any, res: any) {
         // only handle http request
         if (event !== 'request') return original.apply(this, arguments)
+
+        // register the metrics
+        if (name === 'http') {
+          self.registerHttpMetric()
+        } else if (name === 'https') {
+          self.registerHttpsMetric()
+        }
+
         const meter: Meter | undefined = self.metrics.get(`${name}.meter`)
         if (meter !== undefined) {
           meter.mark()
@@ -179,28 +185,9 @@ export default class HttpMetrics implements MetricInterface {
   }
 
   private hookRequire () {
-    const self = this
-    // since the tracing system can be enabled we need to use another property than the default shimmer one
-    const isAlreadyWrapped = typeof Module['_load'] === 'function' && Module['_load'].__io_apm === true
-    if (isAlreadyWrapped) return this.logger(`Module already wrapped, aborting`)
-
-    shimmer.wrap(Module, '_load', function (original: Function) {
-      return function (file) {
-        // we first require the target module
-        const returned = original.apply(original, arguments)
-        // if it's a modue that we want to patch, install the patch on top of it
-        if (file === 'http' && self.modules['http'] === undefined) {
-          self.registerHttpMetric()
-          self.hookHttp(returned, file)
-        } else if (file === 'https' && self.modules['https'] === undefined) {
-          self.registerHttpsMetric()
-          self.hookHttp(returned, file)
-        }
-        // and of course send the module so user can use it
-        return returned
-      }
+    this.hooks = requireMiddle(['http', 'https'], (exports, name) => {
+      this.hookHttp(exports, name)
+      return exports
     })
-    // tag so we know we already patched it
-    Module['_load'].__io_apm = true
   }
 }
