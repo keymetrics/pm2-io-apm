@@ -153,19 +153,18 @@ export default class HttpMetrics implements MetricInterface {
     if (this.modules[name] !== undefined) return this.logger(`Module ${name} already hooked`)
     this.logger(`Hooking to ${name} module`)
     this.modules[name] = nodule.Server.prototype
+    // register the metrics
+    if (name === 'http') {
+      this.registerHttpMetric()
+    } else if (name === 'https') {
+      this.registerHttpsMetric()
+    }
     const self = this
     // wrap the emitter
     shimmer.wrap(nodule.Server.prototype, 'emit', (original: Function) => {
       return function (event: string, req: any, res: any) {
         // only handle http request
         if (event !== 'request') return original.apply(this, arguments)
-
-        // register the metrics
-        if (name === 'http') {
-          self.registerHttpMetric()
-        } else if (name === 'https') {
-          self.registerHttpsMetric()
-        }
 
         const meter: Meter | undefined = self.metrics.get(`${name}.meter`)
         if (meter !== undefined) {
