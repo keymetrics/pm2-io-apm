@@ -154,7 +154,9 @@ export class NotifyFeature implements Feature {
     if (ServiceManager.get('transport')) {
       ServiceManager.get('transport').send('process:exception', payload)
     }
-    process.exit(1)
+    if (process.listeners('uncaughtException').length === 1) { // if it's only us, exit
+      process.exit(1)
+    }
   }
 
   private onUnhandledRejection (error) {
