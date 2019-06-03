@@ -1,3 +1,7 @@
+process.env.PM2_SECRET_KEY = 'bb'
+process.env.PM2_PUBLIC_KEY = 'aa'
+process.env.PM2_APP_NAME = 'service'
+process.env.KEYMETRICS_NODE = 'http://localhost:5934'
 
 import * as assert from 'assert'
 import 'mocha'
@@ -24,15 +28,7 @@ describe('Standalone Tracing', function () {
   })
 
   it('should init agent', () => {
-    process.env.KEYMETRICS_NODE = 'http://localhost:5934'
-    io.init({
-      standalone: true,
-      apmOptions: {
-        publicKey: 'aa',
-        secretKey: 'bb',
-        appName: 'service'
-      }
-    })
+    io.init() // the standalone mode should be enabled automaticaly
   })
 
   it('should receive status', (done) => {

@@ -56,6 +56,7 @@ export class IOConfig {
   apmOptions?: TransportConfig
 }
 
+const autoStandalone = process.env.PM2_SECRET_KEY && process.env.PM2_PUBLIC_KEY && process.env.PM2_APP_NAME
 export const defaultConfig: IOConfig = {
   catchExceptions: true,
   profiling: true,
@@ -66,7 +67,12 @@ export const defaultConfig: IOConfig = {
     runtime: true,
     http: true
   },
-  standalone: false,
+  standalone: !!autoStandalone,
+  apmOptions: autoStandalone ? {
+    secretKey: process.env.PM2_SECRET_KEY,
+    publicKey: process.env.PM2_PUBLIC_KEY,
+    appName: process.env.PM2_APP_NAME
+  } as TransportConfig : undefined,
   tracing: {
     enabled: false,
     outbound: false
