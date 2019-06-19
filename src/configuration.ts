@@ -14,8 +14,11 @@ export default class Configuration {
   }
 
   static findPackageJson () {
-
-    require.main = Configuration.getMain()
+    try {
+      require.main = Configuration.getMain()
+    } catch (_e) {
+      // Ignore error when getter is set on require.main, but no setter
+    }
 
     if (!require.main) {
       return
