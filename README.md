@@ -503,6 +503,7 @@ Here the list of breaking changes :
 - Removed Heap profiling support when using the profiler addon (which wasn't possible at all)
 - Removed deep-metrics support (the module that allowed to get metrics about websocket/mongo out of the box), we are working on a better solution.
 - Removed `io.transpose`
+- Removed `io.probe()` to init metrics
 - **Changed the configuration structure**
 
 High chance that if you used a custom configuration for `io.init`, you need to change it to reflect the new configuration.
