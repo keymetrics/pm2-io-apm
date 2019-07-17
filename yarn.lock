@@ -120,10 +120,10 @@
     "@opencensus/core" "^0.0.8"
     uuid "^3.2.1"
 
-"@pm2/agent-node@~1.1.8":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.1.8.tgz#e75bc2b5392a36f033aee20e9cb313e1744a8b5c"
-  integrity sha512-R5X6P+eZM9wVxix5HzJnoAo0F0JCnu9kJcPfscCKx+gVFw69VjmvXxTHGejYNMokrkIGQ+BIJQ2+/uGnLFvi3w==
+"@pm2/agent-node@^1.1.10":
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/@pm2/agent-node/-/agent-node-1.1.10.tgz#29fafc9d1b75288dec87b6af1216ddfab8ea9b06"
+  integrity sha512-xRcrk7OEwhS3d/227/kKGvxgmbIi6Yyp27FzGlFNermEKhgddmFaRnmd7GRLIsBM/KB28NrwflBZulzk/mma6g==
   dependencies:
     debug "^3.1.0"
     eventemitter2 "^5.0.1"
