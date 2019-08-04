@@ -28,10 +28,10 @@ export default class ModuleUtils {
    * Try to detect the path of a specific module
    */
   static detectModule (moduleName: string): string | null {
-    const fakeNodule = { paths: ['./node_modules', '/node_modules'] }
-    const nodule = typeof require.main === 'object' ? require.main : fakeNodule
+    const fakePath = ['./node_modules', '/node_modules'];
+    const paths = typeof require.main.paths === 'undefined' ? fakePath : require.main.paths;
 
-    const requirePaths = nodule.paths.slice()
+    const requirePaths = paths.slice();
 
     return ModuleUtils._lookForModule(requirePaths, moduleName)
   }
