@@ -20,7 +20,11 @@ export default class Configuration {
       // Ignore error when getter is set on require.main, but no setter
     }
 
-    if (!require.main.filename) {
+    if (!require.main) {
+      return
+    }
+
+    if (!require.main.paths) {
       return
     }
 
