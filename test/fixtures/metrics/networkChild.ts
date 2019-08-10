@@ -19,9 +19,5 @@ const server = httpModule.createServer((req, res) => {
     httpModule.get('http://localhost:' + server.address().port)
     httpModule.get('http://localhost:' + server.address().port + '/toto')
   }, 10)
-})
-
-process.on('SIGINT', function () {
-  clearInterval(timer)
-  server.close()
+  timer.unref()
 })

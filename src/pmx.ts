@@ -56,7 +56,6 @@ export class IOConfig {
   apmOptions?: TransportConfig
 }
 
-const autoStandalone = process.env.PM2_SECRET_KEY && process.env.PM2_PUBLIC_KEY && process.env.PM2_APP_NAME
 export const defaultConfig: IOConfig = {
   catchExceptions: true,
   profiling: true,
@@ -67,12 +66,8 @@ export const defaultConfig: IOConfig = {
     runtime: true,
     http: true
   },
-  standalone: !!autoStandalone,
-  apmOptions: autoStandalone ? {
-    secretKey: process.env.PM2_SECRET_KEY,
-    publicKey: process.env.PM2_PUBLIC_KEY,
-    appName: process.env.PM2_APP_NAME
-  } as TransportConfig : undefined,
+  standalone: false,
+  apmOptions: undefined,
   tracing: {
     enabled: false,
     outbound: false
@@ -106,6 +101,15 @@ export default class PMX {
     }
     if (config === undefined) {
       config = defaultConfig
+    }
+    if (!config.standalone) {
+      const autoStandalone = process.env.PM2_SECRET_KEY && process.env.PM2_PUBLIC_KEY && process.env.PM2_APP_NAME
+      config.standalone = !!autoStandalone
+      config.apmOptions = autoStandalone ? {
+        secretKey: process.env.PM2_SECRET_KEY,
+        publicKey: process.env.PM2_PUBLIC_KEY,
+        appName: process.env.PM2_APP_NAME
+      } as TransportConfig : undefined
     }
 
     // Register the transport before any other service

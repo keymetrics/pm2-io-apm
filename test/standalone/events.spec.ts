@@ -1,8 +1,3 @@
-process.env.PM2_SECRET_KEY = 'bb'
-process.env.PM2_PUBLIC_KEY = 'aa'
-process.env.PM2_APP_NAME = 'service'
-process.env.KEYMETRICS_NODE = 'http://localhost:5934'
-
 import * as assert from 'assert'
 import 'mocha'
 import * as io from '../../src'
@@ -19,12 +14,17 @@ describe('Standalone Tracing', function () {
   before(() => {
     httpServer = new HandshakeServer()
     wsServer = new WSServer()
+    process.env.PM2_SECRET_KEY = 'bb'
+    process.env.PM2_PUBLIC_KEY = 'aa'
+    process.env.PM2_APP_NAME = 'service'
+    process.env.KEYMETRICS_NODE = 'http://localhost:5934'
   })
 
   after(() => {
     io.destroy()
     httpServer.destroy()
     wsServer.destroy()
+    process.env.PM2_SECRET_KEY = process.env.PM2_PUBLIC_KEY = process.env.PM2_APP_NAME = process.env.KEYMETRICS_NODE = undefined
   })
 
   it('should init agent', () => {
