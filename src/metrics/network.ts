@@ -66,15 +66,16 @@ export default class NetworkMetric implements MetricInterface {
   private catchDownload () {
     if (this.metricService === undefined) return this.logger(`Failed to load metric service`)
     const downloadMeter = new Meter({})
+
     this.metricService.registerMetric({
       name: 'Network In',
       id: 'internal/network/in',
       historic: true,
       type: MetricType.meter,
       implementation: downloadMeter,
-      unit: 'MBytes/sec',
+      unit: 'kb/s',
       handler: function () {
-        return this.implementation.val() / 1024 / 1024
+        return Math.floor(this.implementation.val() / 1024 * 1000) / 1000
       }
     })
 
@@ -107,9 +108,9 @@ export default class NetworkMetric implements MetricInterface {
       type: MetricType.meter,
       historic: true,
       implementation: uploadMeter,
-      unit: 'MBytes/sec',
+      unit: 'kb/s',
       handler: function () {
-        return this.implementation.val() / 1024 / 1024
+        return Math.floor(this.implementation.val() / 1024 * 1000) / 1000
       }
     })
 

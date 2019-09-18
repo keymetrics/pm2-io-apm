@@ -42,18 +42,24 @@ With yarn:
 yarn add @pm2/io
 ```
 
-## Expose Custom Metrics
+## V8 Runtime Metrics
+
+To retrieve by default V8 Runtime metrics like:
+- V8 Garbage Collector metrics
+- [CPU Context Switch](https://unix.stackexchange.com/questions/442969/what-exactly-are-voluntary-context-switches)
+- [Page Fault](https://en.wikipedia.org/wiki/Page_fault#Types)
+
+Install:
+
+```bash
+npm install @pm2/node-runtime-stats
+```
+
+And restart the application.
+
+## Custom Metrics
 
 @pm2/io allows you to gather metrics from your code to be reported in the PM2 Plus/Enterprise dashboard.
-
-### Optional addon to add more metrics
-
-If you want to add more metrics about the NodeJS runtime, you can install `@pm2/node-runtime-stats` in your application dependency, this module will add the following metrics:
-- More accurate Event Loop Metrics (directly pluged to libuv)
-- GC Pause (Old object pool), both median and percentile 95
-- GC Pause (Young object pool), both median and percentile 95
-- CPU Context Switch, both volontary and involontary (see [this stackexchanges post](https://unix.stackexchange.com/questions/442969/what-exactly-are-voluntary-context-switches))
-- Page Fault, both minor and major (see [this wikipedia article](https://en.wikipedia.org/wiki/Page_fault#Types) )
 
 ### Create a custom metrics
 
@@ -293,7 +299,7 @@ When your application will receive a request from either `http`, `https` or `htt
  - `pg` version > 6
  - `vue-server-renderer` version 2
 
- ### Custom Tracing API
+### Custom Tracing API
 
 The custom tracing API can be used to create custom trace spans. A span is a particular unit of work within a trace, such as an RPC request. Spans may be nested; the outermost span is called a root span, even if there are no nested child spans. Root spans typically correspond to incoming requests, while child spans typically correspond to outgoing requests, or other work that is triggered in response to incoming requests. This means that root spans shouldn't be created in a context where a root span already exists; a child span is more suitable here. Instead, root spans should be created to track work that happens outside of the request lifecycle entirely, such as periodically scheduled work. To illustrate:
 
@@ -383,8 +389,8 @@ export class IOConfig {
     heapSampling: boolean = true
     /**
      * Force a specific implementation of profiler
-     * 
-     * available: 
+     *
+     * available:
      *  - 'addon' (using the v8-profiler-node8 addon)
      *  - 'inspector' (using the "inspector" api from node core)
      *  - 'none' (disable the profilers)
@@ -436,7 +442,7 @@ export class IOConfig {
   /**
    * If you want to connect to PM2 Enterprise without using PM2, you should enable
    * the standalone mode
-   * 
+   *
    * default is false
    */
   standalone?: boolean = false
