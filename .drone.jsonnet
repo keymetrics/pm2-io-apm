@@ -99,7 +99,6 @@ local pipeline(version) = {
 };
 
 [
-    pipeline("6"),
     pipeline("8"),
     pipeline("10"),
     pipeline("12"),
