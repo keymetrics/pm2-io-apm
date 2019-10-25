@@ -102,6 +102,7 @@ local pipeline(version) = {
     pipeline("8"),
     pipeline("10"),
     pipeline("12"),
+    pipeline("13"),
     {
         kind: "pipeline",
         name: "build & publish",
