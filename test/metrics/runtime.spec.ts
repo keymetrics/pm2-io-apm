@@ -10,7 +10,7 @@ const launch = (fixture) => {
   })
 }
 
-describe('RuntimeStatsMetrics', function () {
+describe.skip('RuntimeStatsMetrics', function () {
   this.timeout(5000)
 
   it('should get GC stats', (done) => {
