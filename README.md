@@ -3,10 +3,7 @@
     <img width=411px src="https://raw.githubusercontent.com/keymetrics/pm2-io-apm/master/pres/io-white.png">
   </a>
   <br/>
-  <br/>
-  <a href="https://github.com/keymetrics/pm2-io-apm">
-    <img src="https://ci.keymetrics.io/api/badges/keymetrics/pm2-io-apm/status.svg?branch=master"/>
-  </a>
+  
 <br/>
 <br/>
 </div>
