@@ -158,7 +158,7 @@ const latency = io.histogram({
   measurement: 'mean'
 });
 
-const latencyValue = 0;
+var latencyValue = 0;
 
 setInterval(() => {
   latencyValue = Math.round(Math.random() * 100);
