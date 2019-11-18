@@ -38,11 +38,10 @@ export class IPCTransport extends EventEmitter2 implements Transport {
     // clean listener if event loop is empty
     // important to ensure apm will not prevent application to stop
     this.autoExitHandle = setInterval(() => {
-
-      var currentProcess: any = (cluster.isWorker) ? cluster.worker.process : process
+      let currentProcess: any = (cluster.isWorker) ? cluster.worker.process : process
 
       if (currentProcess._getActiveHandles().length === 3) {
-        var handlers: any = currentProcess._getActiveHandles().map(h => h.constructor.name)
+        let handlers: any = currentProcess._getActiveHandles().map(h => h.constructor.name)
 
         if (handlers.includes('Pipe') === true &&
             handlers.includes('Socket') === true) {
