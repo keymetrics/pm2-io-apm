@@ -72,7 +72,7 @@
     "all": true
   },
   "dependencies": {
-    "@opencensus/core": "^0.0.9",
+    "@opencensus/core": "0.0.10",
     "@opencensus/propagation-b3": "^0.0.8",
     "@pm2/agent-node": "^1.1.10",
     "async": "~2.6.1",
