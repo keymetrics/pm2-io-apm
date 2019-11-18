@@ -23,7 +23,6 @@ local pipeline(version) = {
                 "runTest test/entrypoint.spec.ts",
                 "runTest test/standalone/tracing.spec.ts",
                 "runTest test/standalone/events.spec.ts",
-                "runTest test/features/eventLoopInspector.spec.ts",
                 "runTest test/features/events.spec.ts",
                 "runTest test/features/profiling.spec.ts",
                 "runTest test/features/tracing.spec.ts",

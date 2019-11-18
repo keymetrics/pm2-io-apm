@@ -1,7 +1,6 @@
 
 import { NotifyFeature } from './features/notify'
 import { ProfilingFeature } from './features/profiling'
-import { EventLoopInspectorFeature } from './features/eventLoopInspector'
 import { EventsFeature } from './features/events'
 import { IOConfig } from './pmx'
 import { MetricsFeature } from './features/metrics'
@@ -62,11 +61,6 @@ const availablesFeatures: AvailableFeature[] = [
     name: 'profiler',
     optionsPath: 'profiling',
     module: ProfilingFeature
-  },
-  {
-    name: 'eventLoopInspector',
-    optionsPath: 'actions.eventLoopDump',
-    module: EventLoopInspectorFeature
   },
   {
     name: 'events',
