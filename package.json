@@ -77,7 +77,6 @@
     "@pm2/agent-node": "^1.1.10",
     "async": "~2.6.1",
     "debug": "3.1.0",
-    "event-loop-inspector": "~1.2.0",
     "eventemitter2": "~5.0.1",
     "require-in-the-middle": "^4.0.0",
     "semver": "5.5.0",
