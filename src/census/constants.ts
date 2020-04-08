@@ -19,7 +19,7 @@ import { resolve } from 'path'
 /** General purpose constants. */
 const constants = {
   /* CUSTOM - MINIMUM_DURATION trace in uS to send to backend (avoid *vaportrace*)*/
-  MINIMUM_TRACE_DURATION: process.env.NODE_ENV == 'test' ? 0 : 1000 * 1000,
+  MINIMUM_TRACE_DURATION: process.env.NODE_ENV === 'test' ? 0 : 1000 * 1000,
   /** Default maximum size of a buffer. */
   DEFAULT_BUFFER_SIZE: 0,
   /** Default max timeout for a buffer before being flushed */

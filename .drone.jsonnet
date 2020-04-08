@@ -15,7 +15,6 @@ local pipeline(version) = {
                 "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter",
                 "chmod +x ./cc-test-reporter",
                 "./cc-test-reporter before-build",
-                "yarn lint",
                 "runTest () { if [ \"$NODE_VERSION\" = \"11\" ]; then nyc --clean false --require ts-node/register --require source-map-support/register mocha --exit $*; else mocha --exit --require ts-node/register $*; fi ;}",
                 "runTest test/metrics/runtime.spec.ts",
                 "runTest test/api.spec.ts",
