@@ -42,9 +42,7 @@ local pipeline(version) = {
                 "runTest src/census/plugins/__tests__/vue.spec.ts",
                 "runTest src/census/plugins/__tests__/pg.spec.ts",
                 "runTest src/census/plugins/__tests__/express.spec.ts",
-                "runTest src/census/plugins/__tests__/net.spec.ts",
-                "nyc report --reporter lcov || echo \"No nyc coverage\"",
-                "./cc-test-reporter after-build --exit-code 0 || echo \"Skipping CC coverage upload\" or upload-coverage || echo \"Skipping CC coverage upload\"",
+                "runTest src/census/plugins/__tests__/net.spec.ts"
             ],
             environment: {
               NODE_ENV: "test",
@@ -55,10 +53,7 @@ local pipeline(version) = {
               OPENCENSUS_REDIS_HOST: "redis",
               OPENCENSUS_MONGODB_HOST: "mongodb",
               OPENCENSUS_MYSQL_HOST: "mysql",
-              OPENCENSUS_PG_HOST: "postgres",
-              CC_TEST_REPORTER_ID: {
-                from_secret: "code_climate_token"
-              },
+              OPENCENSUS_PG_HOST: "postgres"
             },
         },
     ],
@@ -158,13 +153,5 @@ local pipeline(version) = {
           path: "secret/drone/npm",
           name: "password",
         },
-    },
-    {
-        kind: "secret",
-        name: "code_climate_token",
-        get: {
-          path: "secret/drone/codeclimate",
-          name: "token_apm_node",
-        },
-    },
+    }
 ]
