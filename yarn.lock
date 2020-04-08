@@ -90,14 +90,14 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@opencensus/core@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@opencensus/core/-/core-0.0.9.tgz#b16f775435ee309433e4126af194d37313fc93b3"
-  integrity sha512-31Q4VWtbzXpVUd2m9JS6HEaPjlKvNMOiF7lWKNmXF84yUcgfAFL5re7/hjDmdyQbOp32oGc+RFV78jXIldVz6Q==
+"@opencensus/core@0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@opencensus/core/-/core-0.0.11.tgz#484f1486a4babb91428531e4e852ff50b5a68673"
+  integrity sha512-UuRmn7TbaIEkT4jhIjjlnvI7U1B3xjUbLqPr7fRrOYiTfCdaGFRmVYC4Jj7Fj5K/JQ66lR35KiRCOThWaBQ2pA==
   dependencies:
     continuation-local-storage "^3.2.1"
     log-driver "^1.2.7"
-    semver "^5.5.0"
+    semver "^6.0.0"
     shimmer "^1.2.0"
     uuid "^3.2.1"
 
@@ -1647,7 +1647,7 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
   integrity sha512-RS9R6R35NYgQn++fkDWaOmqGoj4Ek9gGs+DPxNUZKuwE183xjJroKvyo1IzVFeXvUrvmALy6FWD5xrdJT25gMg==
 
-semver@6.3.0:
+semver@6.3.0, semver@^6.0.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
