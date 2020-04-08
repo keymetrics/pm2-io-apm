@@ -2,6 +2,8 @@ import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
 import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, SpanKind, Attributes, CanonicalCode } from '@opencensus/core'
+import { defaultConfig } from './config/default-config'
+import { Constants } from './constants'
 
 export interface ZipkinExporterOptions extends ExporterConfig {
   serviceName: string
@@ -49,7 +51,7 @@ export class CustomCensusExporter implements Exporter {
 
   constructor (config: TracingConfig) {
     this.config = config
-    this.buffer = new ExporterBuffer(this, {})
+    this.buffer = new ExporterBuffer(this, defaultConfig)
   }
 
   /**
@@ -73,7 +75,10 @@ export class CustomCensusExporter implements Exporter {
         const isRootClient = span.kind === 'CLIENT' && !span.parentId
         if (isRootClient && this.config.outbound === false) return
 
-        this.transport.send('trace-span', span)
+        /** CUSTOM - DROP USELESS TRACE **/
+        if (span.duration > Constants.MINIMUM_TRACE_DURATION) {
+          this.transport.send('trace-span', span)
+        }
       })
       resolve()
     })

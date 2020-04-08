@@ -18,10 +18,12 @@ import { resolve } from 'path'
 
 /** General purpose constants. */
 const constants = {
+  /* CUSTOM - MINIMUM_DURATION trace in uS to send to backend (avoid *vaportrace*)*/
+  MINIMUM_TRACE_DURATION: process.env.NODE_ENV == 'test' ? 0 : 1000 * 1000,
   /** Default maximum size of a buffer. */
-  DEFAULT_BUFFER_SIZE: 100,
+  DEFAULT_BUFFER_SIZE: 0,
   /** Default max timeout for a buffer before being flushed */
-  DEFAULT_BUFFER_TIMEOUT: 20000,
+  DEFAULT_BUFFER_TIMEOUT: 1000,
   /** Default list of target modules to be instrumented */
   DEFAULT_INSTRUMENTATION_MODULES: [],
   /** OpenCensus Scope */
