@@ -134,10 +134,11 @@ export class MetricService implements Service {
 
           const isNumber = typeof metric.value === 'number'
           const isString = typeof metric.value === 'string'
+          const isBoolean = typeof metric.value === 'boolean'
           const isValidNumber = !isNaN(metric.value)
           /* tslint:enable */
           // we send it only if it's a string or a valid number
-          return isString || (isNumber && isValidNumber)
+          return isString || isBoolean || (isNumber && isValidNumber)
         })
       this.transport.setMetrics(metricsToSend)
     }, constants.METRIC_INTERVAL)

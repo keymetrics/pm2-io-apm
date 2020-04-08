@@ -3,7 +3,7 @@
     <img width=411px src="https://raw.githubusercontent.com/keymetrics/pm2-io-apm/master/pres/io-white.png">
   </a>
   <br/>
-  
+
 <br/>
 <br/>
 </div>
@@ -100,6 +100,19 @@ const myMetric = io.metric({
 });
 
 myMetric.set(23);
+```
+
+#### Passive Mode
+
+In passive mode you hust need to return the variable to be monitored:
+
+```javascript
+const myMetric = io.metric({
+  name: 'Realtime Value',
+  value: () => {
+    return variable_to_monitor
+  }
+});
 ```
 
 ### Counter: Discrete Counter
