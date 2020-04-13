@@ -1,4 +1,32 @@
 
+## API idea
+
+require('pm2-bundle-monitoring')
+
+// or
+
+require('pm2-io').connect({
+  secret: '',
+  public: ''
+})
+
+require('pm2-exception-catching')
+require('pm2-transaction-tracing').config({
+  ignore_route: '/ws'
+})
+
+require('pm2-frontend-monitoring')
+var pm2_metrics = require('pm2-metrics')
+
+pm2_metrics.variable('BLE pairing mode', permit_join)
+pm2_metrics.variable('In memory users', () => Object.keys(users).length)
+
+NOTES:
+- watch parameters is not reset on pm2 restart. only after pm2 delete
+
+
+----
+
 
 pm2-io-apm features are in src/features/:
 
