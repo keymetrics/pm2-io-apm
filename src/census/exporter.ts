@@ -75,8 +75,8 @@ export class CustomCensusExporter implements Exporter {
         const isRootClient = span.kind === 'CLIENT' && !span.parentId
         if (isRootClient && this.config.outbound === false) return
 
-        /** CUSTOM - DROP USELESS TRACE **/
-        if (span.duration > Constants.MINIMUM_TRACE_DURATION) {
+        /* CUSTOM - DROP USELESS TRACE */
+        if (process.env.NODE_ENV === 'test' || (span.duration > Constants.MINIMUM_TRACE_DURATION)) {
           this.transport.send('trace-span', span)
         }
       })

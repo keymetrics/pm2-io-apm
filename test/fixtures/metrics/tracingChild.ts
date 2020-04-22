@@ -1,3 +1,5 @@
+process.env.NODE_ENV='test'
+
 import * as pmx from '../../../src'
 pmx.init({
   tracing: {
@@ -36,7 +38,9 @@ app.get('/toto', function (req, res) {
 })
 
 const server = app.listen(3001, function () {
-  timer = setTimeout(function () {
+  console.log('App listening')
+  timer = setInterval(function () {
+    console.log('Running query')
     http.get('http://localhost:' + (server.address() as AddressInfo).port, (_) => {
       return
     })
@@ -45,6 +49,6 @@ const server = app.listen(3001, function () {
 })
 
 process.on('SIGINT', function () {
-  clearTimeout(timer)
+  clearInterval(timer)
   server.close()
 })

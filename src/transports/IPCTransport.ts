@@ -89,6 +89,11 @@ export class IPCTransport extends EventEmitter2 implements Transport {
 
   send (channel, payload) {
     if (typeof process.send !== 'function') return -1
+    if (process.connected === false) {
+      console.error('Process disconnected from parent! (not connected)')
+      return process.exit(1)
+    }
+
     try {
       process.send({ type: channel, data: payload })
     } catch (err) {

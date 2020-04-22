@@ -29,7 +29,6 @@ export default class Configuration {
     }
 
     let pkgPath = path.resolve(path.dirname(require.main.filename), 'package.json')
-
     try {
       fs.statSync(pkgPath)
     } catch (e) {
@@ -38,7 +37,13 @@ export default class Configuration {
         fs.statSync(pkgPath)
       } catch (e) {
         debug('Cannot find package.json')
-        return null
+        try {
+          pkgPath = path.resolve(path.dirname(require.main.filename), '..', '..', 'package.json')
+          fs.statSync(pkgPath)
+        } catch (e) {
+          debug('Cannot find package.json')
+          return null
+        }
       }
       return pkgPath
     }

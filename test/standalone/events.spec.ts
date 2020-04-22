@@ -1,3 +1,4 @@
+
 import * as assert from 'assert'
 import 'mocha'
 import * as io from '../../src'
@@ -5,7 +6,7 @@ import * as io from '../../src'
 io.init()
 import { WSServer, HandshakeServer } from './helper'
 
-describe('Standalone Tracing', function () {
+describe('Event Spec', function () {
   this.timeout(10000)
   let httpServer
   let wsServer

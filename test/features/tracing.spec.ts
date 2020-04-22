@@ -1,13 +1,14 @@
-
 import { expect, assert } from 'chai'
 import { fork } from 'child_process'
 import { resolve } from 'path'
 
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
-    execArgv: process.env.NYC_ROOT_ID ? process.execArgv : [ '-r', 'ts-node/register' ]
+    execArgv: process.env.NYC_ROOT_ID ? process.execArgv : [ '-r', 'ts-node/register' ],
+    env: { NODE_ENV: 'test' }
   })
 }
+
 describe('Tracing with IPC transport', function () {
   this.timeout(10000)
 

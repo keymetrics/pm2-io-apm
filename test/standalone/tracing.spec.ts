@@ -1,4 +1,6 @@
 
+process.env.NODE_ENV='test'
+
 import * as io from '../../src/'
 // install patch before requiring the helpers
 process.env.KEYMETRICS_NODE = 'http://localhost:5934'

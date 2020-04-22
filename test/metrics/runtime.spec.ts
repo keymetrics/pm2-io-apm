@@ -2,7 +2,7 @@ import { expect, assert } from 'chai'
 import { fork } from 'child_process'
 import { resolve } from 'path'
 
-process.env.DEBUG = 'axm:services:runtimeStats,axm:features:metrics:runtime'
+//process.env.DEBUG = 'axm:services:runtimeStats,axm:features:metrics:runtime'
 
 const launch = (fixture) => {
   return fork(resolve(__dirname, fixture), [], {
