@@ -1,4 +1,9 @@
 
+## 4.3.5
+
+- refactor test suite
+- add test against Node 14
+
 ## 4.3.4
 
 - Do not send trace faster than 1000ms
