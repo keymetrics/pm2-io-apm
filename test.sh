@@ -7,6 +7,8 @@ trap "exit" INT
 set -e
 npm run build
 
+#### Unit tests
+
 $MOCHA ./test/autoExit.spec.ts
 $MOCHA ./test/api.spec.ts
 $MOCHA ./test/metrics/http.spec.ts
@@ -51,10 +53,15 @@ $MOCHA src/census/plugins/__tests__/mysql.spec.ts
 $MOCHA src/census/plugins/__tests__/mysql2.spec.ts
 $MOCHA src/census/plugins/__tests__/ioredis.spec.ts
 $MOCHA src/census/plugins/__tests__/vue.spec.ts
-$MOCHA src/census/plugins/__tests__/pg.spec.ts
 $MOCHA src/census/plugins/__tests__/express.spec.ts
 $MOCHA src/census/plugins/__tests__/net.spec.ts
 $MOCHA src/census/plugins/__tests__/redis.spec.ts
 
+SUPV14=`node -e "require('semver').gte(process.versions.node, '14.0.0') ? console.log('>=14') : console.log('>6')"`
 
-#  $MOCHA ./test/features/profiling.spec.ts
+if [ $SUPV14 == '>=14' ]; then
+    exit
+fi
+
+$MOCHA src/census/plugins/__tests__/pg.spec.ts
+#$MOCHA ./test/features/profiling.spec.ts
