@@ -7,8 +7,8 @@ local pipeline(version) = {
             image: "node:" + version,
             commands: [
                 "node -v",
-                "yarn -v",
                 "uname -r",
+                "npm install",
                 "npm test"
             ]
         },
