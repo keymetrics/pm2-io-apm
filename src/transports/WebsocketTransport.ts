@@ -60,11 +60,12 @@ export class WebsocketTransport extends EventEmitter2 implements Transport {
     return this.process.axm_monitor = metrics.reduce((object, metric: InternalMetric) => {
       if (typeof metric.name !== 'string') return object
       object[metric.name] = {
-        historic: metric.historic,
         unit: metric.unit,
         type: metric.id,
         value: metric.value
       }
+      if (metric.historic == false)
+        object[metric.name] = false
       return object
     }, {})
   }
