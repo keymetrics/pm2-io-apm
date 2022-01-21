@@ -1,7 +1,7 @@
 import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, SpanKind, Attributes, CanonicalCode } from '@opencensus/core'
+import { Exporter, ExporterBuffer, ExporterConfig, Span, SpanKind, Attributes } from '@opencensus/core'
 import { defaultConfig } from './config/default-config'
 import { Constants } from './constants'
 
@@ -58,19 +58,19 @@ export class CustomCensusExporter implements Exporter {
    * Is called whenever a span is ended.
    * @param root the ended span
    */
-  onEndSpan (root: RootSpan) {
+  onEndSpan (root: Span) {
     this.buffer.addToBuffer(root)
   }
 
   // tslint:disable-next-line:no-empty
-  onStartSpan (root: RootSpan) {}
+  onStartSpan (root: Span) {}
 
   /**
    * Send a trace to zipkin service
    * @param zipkinTraces Trace translated to Zipkin Service
    */
   private sendTraces (zipkinTraces: TranslatedSpan[]) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       zipkinTraces.forEach(span => {
         const isRootClient = span.kind === 'CLIENT' && !span.parentId
         if (isRootClient && this.config.outbound === false) return
@@ -80,7 +80,7 @@ export class CustomCensusExporter implements Exporter {
           this.transport.send('trace-span', span)
         }
       })
-      resolve()
+      resolve(null)
     })
   }
 
@@ -88,7 +88,7 @@ export class CustomCensusExporter implements Exporter {
    * Mount a list (array) of spans translated to Zipkin format
    * @param rootSpans Rootspan array to be translated
    */
-  private mountSpanList (rootSpans: RootSpan[]): TranslatedSpan[] {
+  private mountSpanList (rootSpans: Span[]): TranslatedSpan[] {
     const spanList: TranslatedSpan[] = []
 
     for (const root of rootSpans) {
@@ -109,7 +109,7 @@ export class CustomCensusExporter implements Exporter {
    * @param span Span to be translated
    * @param rootSpan Only necessary if the span has rootSpan
    */
-  private translateSpan (span: Span | RootSpan): TranslatedSpan {
+  private translateSpan (span: Span): TranslatedSpan {
     const spanTranslated = {
       traceId: span.traceId,
       name: span.name,
@@ -138,7 +138,7 @@ export class CustomCensusExporter implements Exporter {
    * Send the rootSpans to zipkin service
    * @param rootSpans RootSpan array
    */
-  publish (rootSpans: RootSpan[]) {
+  publish (rootSpans: Span[]) {
     const spanList = this.mountSpanList(rootSpans)
 
     return this.sendTraces(spanList).catch((err) => {
