@@ -83,8 +83,8 @@
     "all": true
   },
   "dependencies": {
-    "@opencensus/core": "0.0.9",
-    "@opencensus/propagation-b3": "0.0.8",
+    "@opencensus/core": "0.1.0",
+    "@opencensus/propagation-b3": "0.1.0",
     "async": "~2.6.1",
     "debug": "~4.3.1",
     "eventemitter2": "^6.3.1",
