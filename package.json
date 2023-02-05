@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@pm2/node-runtime-stats": "^0.3.2",
-    "@types/chai": "4.1.4",
+    "@types/chai": "4.3.4",
     "@types/express": "~4.16.1",
     "@types/ioredis": "~5.0.0",
     "@types/mocha": "10.0.1",
