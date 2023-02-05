@@ -46,7 +46,7 @@
     "@types/ioredis": "~5.0.0",
     "@types/mocha": "10.0.1",
     "@types/mongodb": "~3.1.19",
-    "@types/node": "~10.12.21",
+    "@types/node": "~18.11.19",
     "@types/redis": "~2.8.10",
     "chai": "4.3.7",
     "express": "^4.17.1",
