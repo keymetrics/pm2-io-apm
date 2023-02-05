@@ -88,7 +88,7 @@
     "async": "~2.6.1",
     "debug": "~4.3.1",
     "eventemitter2": "^6.3.1",
-    "require-in-the-middle": "^5.0.0",
+    "require-in-the-middle": "^6.0.0",
     "semver": "7.3.8",
     "shimmer": "^1.2.0",
     "signal-exit": "^3.0.3",
