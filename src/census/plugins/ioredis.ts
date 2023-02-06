@@ -71,7 +71,7 @@ export class IORedisPlugin extends BasePlugin {
         if (!plugin.tracer.currentRootSpan) {
           return original.apply(this, arguments)
         }
-        let spanOpts: SpanOptions = {name: `redis-${command.name}`, type: SpanKind.CLIENT};
+        let spanOpts: SpanOptions = {name: `redis-${command.name}`, kind: SpanKind.CLIENT};
         const span = plugin.tracer.startChildSpan(spanOpts)
         if (span === null) return original.apply(this, arguments)
 

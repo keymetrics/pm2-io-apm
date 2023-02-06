@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { BasePlugin, Func, Span, SpanKind } from '@opencensus/core'
+import { BasePlugin, Func, Span, SpanKind, SpanOptions } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 
 export type MongoPluginConfig = {
@@ -99,8 +99,8 @@ export class MongoDBPlugin extends BasePlugin {
           } else {
             type = 'command'
           }
-
-          const span = plugin.tracer.startChildSpan({name:label, type:SpanKind.CLIENT})
+          let spanOpts: SpanOptions = {name: label, kind: SpanKind.CLIENT};
+          const span = plugin.tracer.startChildSpan(spanOpts)
           if (span === null) return original.apply(this, arguments)
           span.addAttribute('database', ns)
           span.addAttribute('type', type)
@@ -129,7 +129,8 @@ export class MongoDBPlugin extends BasePlugin {
       return function (...args: any[]) {
         let resultHandler = args[0]
         if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
-          const span = plugin.tracer.startChildSpan({name:'mongodb-find', type:SpanKind.CLIENT})
+          let spanOpts: SpanOptions = {name: 'mongodb-find', kind: SpanKind.CLIENT};
+          const span = plugin.tracer.startChildSpan(spanOpts)
           if (span === null) return original.apply(this, arguments)
 
           resultHandler = plugin.patchEnd(span, resultHandler)
