@@ -1,7 +1,7 @@
 import { Transport } from '../services/transport'
 import { ServiceManager } from '../serviceManager'
 import { TracingConfig } from 'src/features/tracing'
-import { Exporter, ExporterBuffer, ExporterConfig, RootSpan, Span, SpanKind, Attributes, CanonicalCode } from '@opencensus/core'
+import { Exporter, ExporterBuffer, ExporterConfig, Span, SpanKind, Attributes, CanonicalCode } from '@opencensus/core'
 import { defaultConfig } from './config/default-config'
 import { Constants } from './constants'
 
@@ -80,7 +80,7 @@ export class CustomCensusExporter implements Exporter {
           this.transport.send('trace-span', span)
         }
       })
-      resolve()
+      resolve("")
     })
   }
 
@@ -134,10 +134,12 @@ export class CustomCensusExporter implements Exporter {
     return spanTranslated
   }
 
+ 
   /**
    * Send the rootSpans to zipkin service
    * @param rootSpans RootSpan array
    */
+   /*
   publish (rootSpans: RootSpan[]) {
     const spanList = this.mountSpanList(rootSpans)
 
@@ -145,6 +147,7 @@ export class CustomCensusExporter implements Exporter {
       return err
     })
   }
+  */
 
   private getSpanKind (kind: SpanKind) {
     switch (kind) {
