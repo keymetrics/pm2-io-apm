@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import * as core from '@opencensus/core'
+import { Span } from 'src/utils/transactionAggregator'
 
 import { defaultConfig } from './config/default-config'
 import { Constants } from './constants'
@@ -35,6 +36,11 @@ export class Tracing implements core.Tracing {
   private static singletonInstance: core.Tracing
   /** Indicates if the tracing is active */
   private activeLocal: boolean
+
+  // private currentRootSpan: Span
+  // private clearCurrentTrace(): void
+  // private wrap:
+  // private wrapEmitter
 
   /** Constructs a new TracingImpl instance. */
   constructor () {

@@ -184,7 +184,7 @@ export class TracingFeature implements Feature {
   }
 
   getTracer (): core.Tracer | undefined {
-    return this.tracer ? this.tracer : undefined
+    return this.tracer ? this.tracer.tracer : undefined
   }
 
   destroy () {

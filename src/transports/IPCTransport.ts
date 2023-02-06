@@ -3,7 +3,8 @@ import * as Debug from 'debug'
 import { Action } from '../services/actions'
 import { InternalMetric } from '../services/metrics'
 import { EventEmitter2 } from 'eventemitter2'
-import * as cluster from 'cluster'
+import * as _cluster from 'cluster'
+const cluster = _cluster as unknown as _cluster.Cluster;
 
 export class IPCTransport extends EventEmitter2 implements Transport {
 
