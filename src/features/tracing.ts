@@ -171,7 +171,11 @@ export class TracingFeature implements Feature {
       plugins,
       propagation: new B3Format(),
       samplingRate: this.options.samplingRate || 0.5,
-      logLevel: this.isDebugEnabled() ? 4 : 1
+      logLevel: this.isDebugEnabled() ? 4 : 1,
+      currentRootSpan:'',
+      clearCurrentTrace:'',
+      wrap:'',
+      wrapEmitter:''
     })
     Configuration.configureModule({
       census_tracing: true
