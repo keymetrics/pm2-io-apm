@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
-    "lint": "tslint --project . src/**/*.ts",
+    "lint": "eslint --project . src/**/*.ts",
     "unit": "npm run build && bash test.sh",
     "mono": "mocha  --exit --require ts-node/register",
     "test": "npm run unit",
@@ -46,6 +46,8 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.19",
     "chai": "^4.3.7",
+    "eslint": "^8.33.0",
+    "eslint-config-standard": "^17.0.0",
     "express": "^4.18.2",
     "ioredis": "^5.3.0",
     "koa": "^2.14.1",
@@ -59,8 +61,6 @@
     "redis": "^4.6.4",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.1",
-    "eslint": "^8.33.0",
-    "eslint-config-standard": "^17.0.0",
     "typescript": "^4.9.5",
     "vue": "^3.2.47",
     "vue-server-renderer": "^2.7.14"
