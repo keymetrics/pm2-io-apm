@@ -20,7 +20,7 @@ import { MetricConfig } from './features/metrics'
 import { ProfilingConfig } from './features/profiling'
 import { RuntimeStatsService } from './services/runtimeStats'
 import { Entrypoint } from './features/entrypoint'
-import { Tracer } from '@opencensus/core'
+import { TracerBase } from '@opencensus/core'
 
 export class IOConfig {
   /**
@@ -387,7 +387,7 @@ export default class PMX {
   /**
    * Get the tracing agent to add more information about traces
    */
-  getTracer (): Tracer | undefined {
+  getTracer (): TracerBase | undefined {
     const tracing = this.featureManager.get('tracing') as TracingFeature
     return tracing.getTracer()
   }
