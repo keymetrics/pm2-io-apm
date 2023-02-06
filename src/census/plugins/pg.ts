@@ -15,7 +15,7 @@
  */
 import * as EventEmitter from 'events'
 
-import { BasePlugin, Span, SpanKind } from '@opencensus/core'
+import { BasePlugin, Span, SpanKind, SpanOptions } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 
 export type PGPluginConfig = {
@@ -63,7 +63,8 @@ export class PGPlugin extends BasePlugin {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
-        const span = plugin.tracer.startChildSpan({name:'pg-query', type:SpanKind.CLIENT})
+        let spanOpts: SpanOptions = {name: 'pg-query', kind: SpanKind.CLIENT};
+        const span = plugin.tracer.startChildSpan(spanOpts)
         if (span === null) return original.apply(this, arguments)
 
         let pgQuery

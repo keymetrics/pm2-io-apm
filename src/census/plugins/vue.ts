@@ -1,7 +1,7 @@
 
 'use strict'
 
-import { BasePlugin, Span, SpanKind } from '@opencensus/core'
+import { BasePlugin, Span, SpanKind, SpanOptions } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 
 type CreateRendererResult = {
@@ -75,7 +75,8 @@ export class VuePlugin extends BasePlugin {
         if (!plugin.tracer.currentRootSpan) {
           return original.apply(this, arguments)
         }
-        const span = plugin.tracer.startChildSpan({name:`vue-renderer`, type:SpanKind.CLIENT})
+        let spanOpts: SpanOptions = {name: 'vue-renderer', kind: SpanKind.CLIENT};
+        const span = plugin.tracer.startChildSpan(spanOpts)
         if (span === null) return original.apply(this, arguments)
 
         const promise = original.apply(this, arguments)
