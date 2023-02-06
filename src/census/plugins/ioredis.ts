@@ -1,7 +1,7 @@
 
 'use strict'
 
-import { BasePlugin, Span, SpanKind } from '@opencensus/core'
+import { BasePlugin, Span, SpanKind, SpanOptions } from '@opencensus/core'
 import * as shimmer from 'shimmer'
 import * as semver from 'semver'
 
@@ -72,7 +72,7 @@ export class IORedisPlugin extends BasePlugin {
           return original.apply(this, arguments)
         }
 
-        const span = plugin.tracer.startChildSpan({name:`redis-${command.name}`, type:SpanKind.CLIENT})
+        const span = plugin.tracer.startChildSpan(new SpanOptions(`redis-${command.name}`, SpanKind.CLIENT))
         if (span === null) return original.apply(this, arguments)
 
         span.addAttribute('command', command.name)
