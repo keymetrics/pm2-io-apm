@@ -97,7 +97,7 @@ export class ExpressPlugin extends BasePlugin {
           } else if (layer.name === 'router') {
             spanName = `Router - ${layerPath}`
           }
-          const span = plugin.tracer.startChildSpan(spanName, SpanKind.CLIENT)
+          const span = null; //plugin.tracer.startChildSpan(spanName, SpanKind.CLIENT)
           if (span === null) return original.apply(this, arguments)
           arguments[2] = function () {
             if (!(req.route && arguments[0] instanceof Error)) {
