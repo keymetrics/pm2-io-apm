@@ -183,7 +183,7 @@ export class TracingFeature implements Feature {
       (process.env.DEBUG.indexOf('axm:*') >= 0 || process.env.DEBUG.indexOf('axm:tracing') >= 0)
   }
 
-  getTracer (): core.Tracer | undefined {
+  getTracer (): core.TracerBase | undefined {
     return this.tracer ? this.tracer.tracer : undefined
   }
 
