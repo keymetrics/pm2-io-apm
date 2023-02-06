@@ -69,7 +69,7 @@ export class MysqlPlugin extends BasePlugin {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
-        const span = plugin.tracer.startChildSpan('mysql-query', SpanKind.CLIENT)
+        const span = plugin.tracer.startChildSpan({name:'mysql-query', type:SpanKind.CLIENT})
         if (span === null) return original.apply(this, arguments)
         const query = original.apply(this, arguments)
 

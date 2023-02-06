@@ -188,7 +188,7 @@ export class HttpPlugin extends BasePlugin {
 
         plugin.logger.debug('%s plugin incomingRequest', plugin.moduleName)
 
-        if (plugin.isIgnored(path, request, plugin.options.ignoreIncomingPaths)) {
+        if (plugin.isIgnored(path ?? "", request, plugin.options.ignoreIncomingPaths)) {
           return original.apply(this, arguments)
         }
 
@@ -202,7 +202,7 @@ export class HttpPlugin extends BasePlugin {
 
         const context = propagation ? propagation.extract(getter) : null
         const traceOptions: TraceOptions = {
-          name: path,
+          name: path ?? "",
           kind: SpanKind.SERVER,
           spanContext: context !== null ? context : undefined
         }
@@ -337,8 +337,7 @@ export class HttpPlugin extends BasePlugin {
               plugin.getMakeRequestTraceFunction(request, options, plugin))
         } else {
           plugin.logger.debug('outgoingRequest starting a child span')
-          const span = plugin.tracer.startChildSpan(
-              traceOptions.name, traceOptions.kind)
+          const span = plugin.tracer.startChildSpan(traceOptions)
           return (plugin.getMakeRequestTraceFunction(request, options, plugin))(
               span)
         }
@@ -447,7 +446,7 @@ export class HttpPlugin extends BasePlugin {
   private createSpan<T> (options: TraceOptions, fn: (span: Span) => T): T {
     const forceChildspan = this.options.createSpanWithNet === true
     if (forceChildspan) {
-      const span = this.tracer.startChildSpan(options.name, options.kind)
+      const span = this.tracer.startChildSpan(options)
       return fn(span)
     } else {
       return this.tracer.startRootSpan(options, fn)

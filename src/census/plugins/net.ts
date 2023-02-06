@@ -89,13 +89,13 @@ export class NetPlugin extends BasePlugin {
           plugin.tracer.wrapEmitter(socket)
 
           const address = socket.address()
-          if (typeof address === 'string') {
+          // if (typeof address === 'string') {
             rootSpan.addAttribute('net.address', address)
-          } else {
-            rootSpan.addAttribute('net.host', address.address)
-            rootSpan.addAttribute('net.port', address.port)
-            rootSpan.addAttribute('net.family', address.family)
-          }
+          // } else {
+          //   rootSpan.addAttribute('net.host', address.address)
+          //   rootSpan.addAttribute('net.port', address.port)
+          //   rootSpan.addAttribute('net.family', address.family)
+          // }
 
           socket.on('error', (err) => {
             rootSpan.addAttribute('net.error', err.message)

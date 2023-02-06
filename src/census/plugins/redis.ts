@@ -103,7 +103,7 @@ export class RedisPlugin extends BasePlugin {
         // New versions of redis (2.4+) use a single options object instead
         // of separate named arguments.
         if (arguments.length === 1 && typeof cmd === 'object') {
-          const span = plugin.tracer.startChildSpan(`redis-${cmd.command}`, SpanKind.CLIENT)
+          const span = plugin.tracer.startChildSpan({name:`redis-${cmd.command}`, type:SpanKind.CLIENT})
           if (span === null) return original.apply(this, arguments)
 
           span.addAttribute('command', cmd.command)
@@ -115,7 +115,7 @@ export class RedisPlugin extends BasePlugin {
         }
         // older commands where using multiple arguments, focus on supporting
         if (typeof cmd === 'string' && Array.isArray(args) && typeof cb === 'function') {
-          const span = plugin.tracer.startChildSpan(`redis-${cmd}`, SpanKind.CLIENT)
+          const span = plugin.tracer.startChildSpan({name:`redis-${cmd}`, type:SpanKind.CLIENT})
           if (span === null) return original.apply(this, arguments)
 
           span.addAttribute('command', cmd)

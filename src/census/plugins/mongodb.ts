@@ -100,7 +100,7 @@ export class MongoDBPlugin extends BasePlugin {
             type = 'command'
           }
 
-          const span = plugin.tracer.startChildSpan(label, SpanKind.CLIENT)
+          const span = plugin.tracer.startChildSpan({name:label, type:SpanKind.CLIENT})
           if (span === null) return original.apply(this, arguments)
           span.addAttribute('database', ns)
           span.addAttribute('type', type)
@@ -129,7 +129,7 @@ export class MongoDBPlugin extends BasePlugin {
       return function (...args: any[]) {
         let resultHandler = args[0]
         if (plugin.tracer.currentRootSpan && typeof resultHandler === 'function') {
-          const span = plugin.tracer.startChildSpan('mongodb-find', SpanKind.CLIENT)
+          const span = plugin.tracer.startChildSpan({name:'mongodb-find', type:SpanKind.CLIENT})
           if (span === null) return original.apply(this, arguments)
 
           resultHandler = plugin.patchEnd(span, resultHandler)

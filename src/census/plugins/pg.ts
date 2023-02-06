@@ -63,7 +63,7 @@ export class PGPlugin extends BasePlugin {
     const plugin = this
     return (original: Function) => {
       return function (...args: any[]) {
-        const span = plugin.tracer.startChildSpan('pg-query', SpanKind.CLIENT)
+        const span = plugin.tracer.startChildSpan({name:'pg-query', type:SpanKind.CLIENT})
         if (span === null) return original.apply(this, arguments)
 
         let pgQuery

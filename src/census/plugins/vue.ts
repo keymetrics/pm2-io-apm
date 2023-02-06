@@ -75,7 +75,7 @@ export class VuePlugin extends BasePlugin {
         if (!plugin.tracer.currentRootSpan) {
           return original.apply(this, arguments)
         }
-        const span = plugin.tracer.startChildSpan(`vue-renderer`, SpanKind.CLIENT)
+        const span = plugin.tracer.startChildSpan({name:`vue-renderer`, type:SpanKind.CLIENT})
         if (span === null) return original.apply(this, arguments)
 
         const promise = original.apply(this, arguments)
