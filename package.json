@@ -1,6 +1,6 @@
 {
   "name": "@pm2/io",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "PM2.io NodeJS APM",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -89,7 +89,7 @@
     "debug": "~4.3.1",
     "eventemitter2": "^6.3.1",
     "require-in-the-middle": "^5.0.0",
-    "semver": "6.3.0",
+    "semver": "~7.5.4",
     "shimmer": "^1.2.0",
     "signal-exit": "^3.0.3",
     "tslib": "1.9.3"
