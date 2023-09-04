@@ -81,7 +81,7 @@ export class CustomCensusExporter implements Exporter {
         }
       })
       resolve()
-    })
+    }) as Promise<void>
   }
 
   /**
@@ -143,7 +143,7 @@ export class CustomCensusExporter implements Exporter {
 
     return this.sendTraces(spanList).catch((err) => {
       return err
-    })
+    }) as Promise<string|number|void>
   }
 
   private getSpanKind (kind: SpanKind) {
