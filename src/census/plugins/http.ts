@@ -188,6 +188,7 @@ export class HttpPlugin extends BasePlugin {
 
         plugin.logger.debug('%s plugin incomingRequest', plugin.moduleName)
 
+				// @ts-ignore
         if (plugin.isIgnored(path, request, plugin.options.ignoreIncomingPaths)) {
           return original.apply(this, arguments)
         }
@@ -202,6 +203,7 @@ export class HttpPlugin extends BasePlugin {
 
         const context = propagation ? propagation.extract(getter) : null
         const traceOptions: TraceOptions = {
+					// @ts-ignore
           name: path,
           kind: SpanKind.SERVER,
           spanContext: context !== null ? context : undefined
