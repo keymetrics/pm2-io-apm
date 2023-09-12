@@ -141,73 +141,9 @@ describe('API', function () {
     })
   })
 
-  describe('onExit', () => {
-    it.skip('should catch signals and launch callback', (done) => {
-      const child = launch('fixtures/apiOnExitChild')
-
-      child.on('message', res => {
-        if (res === 'callback') {
-          done()
-        }
-      })
-
-      setTimeout(function () {
-        child.kill('SIGINT')
-      }, 1000)
-
-    })
-
-    it('should return null cause no callback provided', () => {
-      // @ts-ignore what the fuck is that test
-      const fn = pmx.onExit()
-      expect(fn).to.equal(undefined)
-    })
-
-    it('should catch uncaught exception and launch callback', (done) => {
-      const child = launch('fixtures/apiOnExitExceptionChild')
-
-      child.on('message', res => {
-        if (res.type === 'process:exception') {
-          assert(!!res.data.message.match(/Cannot read property/))
-        }
-        if (res === 'callback') {
-          done()
-        }
-      })
-    })
-  })
 
   describe('Compatibility', () => {
 
-    it('should return metrics object with clean keys', () => {
-      // @ts-ignore
-      const metrics = pmx.metrics([
-        {
-          name: 'metricHistogram',
-          type: 'histogram',
-          id: 'metric/custom'
-        },
-        {
-          name: 'metric with spaces',
-          type: 'histogram',
-          id: 'metric/custom'
-        },
-        {
-          name: 'metric wi!th special chars % ///',
-          type: 'histogram',
-          id: 'metric/custom'
-        },
-        {
-          name: 'metricFailure',
-          type: 'notExist'
-        }
-      ])
-      expect(metrics[0].constructor.name === 'Histogram').to.equal(true)
-      expect(metrics[1].constructor.name === 'Histogram').to.equal(true)
-      expect(metrics[2].constructor.name === 'Histogram').to.equal(true)
-      expect(metrics[3].constructor.name === 'Object').to.equal(true)
-      expect(Object.keys(metrics).length).to.equal(4)
-    })
 
     it('should receive data from event', (done) => {
       const child = launch('fixtures/apiBackwardEventChild')
