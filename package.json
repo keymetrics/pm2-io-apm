@@ -84,7 +84,7 @@
   "dependencies": {
     "@opencensus/core": "0.0.9",
     "@opencensus/propagation-b3": "0.0.8",
-    "async": "~2.6.1",
+    "async": "~3.2.2",
     "debug": "~4.3.1",
     "eventemitter2": "^6.3.1",
     "require-in-the-middle": "^5.0.0",
