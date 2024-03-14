@@ -252,7 +252,14 @@ export class MetricService implements Service {
 
     return metric.implementation
   }
-
+  getMetric (name: string){
+    let metric = this.metrics.get(name)
+    if(!metric){ 
+        console.error(`Metric ${name} not found`)
+        return {}
+    }
+    return  metric?.implementation
+  }
   deleteMetric (name: string) {
     return this.metrics.delete(name)
   }
