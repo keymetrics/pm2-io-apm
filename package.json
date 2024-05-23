@@ -1,6 +1,6 @@
 {
   "name": "@pm2/io",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "description": "PM2.io NodeJS APM",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -82,8 +82,6 @@
     "all": true
   },
   "dependencies": {
-    "@opencensus/core": "0.0.9",
-    "@opencensus/propagation-b3": "0.0.8",
     "async": "~2.6.1",
     "debug": "~4.3.1",
     "eventemitter2": "^6.3.1",
