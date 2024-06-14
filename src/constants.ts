@@ -5,7 +5,7 @@ export default {
 };
 
 export function canUseInspector() {
-  if (process.env.DISABLE_PM2_IO === 'true') {
+  if (process.env.PM2_IO_ENABLE !== 'true') {
     return false;
   }
 
