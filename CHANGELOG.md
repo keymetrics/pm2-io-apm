@@ -1,3 +1,6 @@
+# 6.0.1
+
+- feat: default disable @pm2/io
 
 ## 4.3.5
 
