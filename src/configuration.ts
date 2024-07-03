@@ -5,7 +5,6 @@ import { ServiceManager } from './serviceManager'
 import Autocast from './utils/autocast'
 import * as path from 'path'
 import * as fs from 'fs'
-import * as util from 'util'
 
 export default class Configuration {
 
@@ -83,7 +82,7 @@ export default class Configuration {
         conf.description = packageJson.description
 
         if (packageJson.config) {
-          conf = util['_extend'](conf, packageJson.config)
+          conf = Object.assign(conf, packageJson.config)
           conf.module_conf = packageJson.config
         }
       } catch (e) {
@@ -97,7 +96,7 @@ export default class Configuration {
         conf.module_version = packageJson.version
 
         if (packageJson.config) {
-          conf = util['_extend'](conf, packageJson.config)
+          conf = Object.assign(conf, packageJson.config)
           conf.module_conf = packageJson.config
         }
       } catch (e) {
@@ -111,11 +110,11 @@ export default class Configuration {
     try {
       if (process.env[conf.module_name]) {
         const castedConf = new Autocast().autocast(JSON.parse(process.env[conf.module_name] || ''))
-        conf = util['_extend'](conf, castedConf)
+        conf = Object.assign(conf, castedConf)
         // Do not display probe configuration in Keymetrics
         delete castedConf.probes
         // This is the configuration variable modifiable from keymetrics
-        conf.module_conf = JSON.parse(JSON.stringify(util['_extend'](conf.module_conf, castedConf)))
+        conf.module_conf = JSON.parse(JSON.stringify(Object.assign(conf.module_conf, castedConf)))
 
         // Obfuscate passwords
         Object.keys(conf.module_conf).forEach(function (key) {
