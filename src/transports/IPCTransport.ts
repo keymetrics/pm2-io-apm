@@ -40,7 +40,7 @@ export class IPCTransport extends EventEmitter2 implements Transport {
     this.autoExitHandle = setInterval(() => {
       let currentProcess: any = (cluster.isWorker) ? cluster.worker.process : process
 
-      if (currentProcess._getActiveHandles().length === 3) {
+      if (typeof currentProcess._getActiveHandles === 'function' && currentProcess._getActiveHandles().length === 3) {
         let handlers: any = currentProcess._getActiveHandles().map(h => h.constructor.name)
 
         if (handlers.includes('Pipe') === true &&
