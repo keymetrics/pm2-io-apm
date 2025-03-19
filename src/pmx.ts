@@ -13,13 +13,14 @@ import Histogram from './utils/metrics/histogram'
 import Gauge from './utils/metrics/gauge'
 import Counter from './utils/metrics/counter'
 import { EventsFeature } from './features/events'
+import { TracingConfig, TracingFeature } from './features/tracing'
 import { InspectorService } from './services/inspector'
 import { canUseInspector } from './constants'
 import { MetricConfig } from './features/metrics'
 import { ProfilingConfig } from './features/profiling'
 import { RuntimeStatsService } from './services/runtimeStats'
 import { Entrypoint } from './features/entrypoint'
-
+import { Tracer } from '@opentelemetry/api'
 export class IOConfig {
   /**
    * Automatically catch unhandled errors
@@ -39,6 +40,10 @@ export class IOConfig {
    * Configure availables profilers that will be exposed
    */
   profiling?: ProfilingConfig | boolean = true
+  /**
+   * Configure the transaction tracing options
+   */
+  tracing?: TracingConfig | boolean = false
   /**
    * If you want to connect to PM2 Enterprise without using PM2, you should enable
    * the standalone mode
@@ -62,6 +67,10 @@ export const defaultConfig: IOConfig = {
   },
   standalone: false,
   apmOptions: undefined,
+  tracing: {
+    enabled: false,
+    outbound: false
+  }
 }
 
 export default class PMX {
@@ -372,6 +381,14 @@ export default class PMX {
   emit (name: string, data: Object) {
     const events = this.featureManager.get('events') as EventsFeature
     return events.emit(name, data)
+  }
+
+  /**
+   * Get the tracing agent to add more information about traces
+   */
+  getTracer (): Tracer | undefined {
+    const tracing = this.featureManager.get('tracing') as TracingFeature
+    return tracing.getTracer()
   }
 
   initModule (opts: any, cb?: Function) {

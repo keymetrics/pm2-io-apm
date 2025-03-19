@@ -6,3 +6,5 @@ package-lock.json
 coverage
 .nyc_output
 *.log
+.yalc
+yalc.lock

@@ -4,6 +4,7 @@ import { ProfilingFeature } from './features/profiling'
 import { EventsFeature } from './features/events'
 import { IOConfig } from './pmx'
 import { MetricsFeature } from './features/metrics'
+import { TracingFeature } from './features/tracing'
 import { DependenciesFeature } from './features/dependencies'
 import * as Debug from 'debug'
 
@@ -69,6 +70,11 @@ const availablesFeatures: AvailableFeature[] = [
     name: 'metrics',
     optionsPath: 'metrics',
     module: MetricsFeature
+  },
+  {
+    name: 'tracing',
+    optionsPath: '.',
+    module: TracingFeature
   },
   {
     name: 'dependencies',

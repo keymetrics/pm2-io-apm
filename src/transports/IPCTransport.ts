@@ -1,13 +1,13 @@
-import { Transport, TransportConfig } from '../services/transport'
-import * as Debug from 'debug'
-import { Action } from '../services/actions'
-import { InternalMetric } from '../services/metrics'
-import { EventEmitter2 } from 'eventemitter2'
 import * as cluster from 'cluster'
+import * as Debug from 'debug'
+import { EventEmitter2 } from 'eventemitter2'
+import type { Action } from '../services/actions'
+import type { InternalMetric } from '../services/metrics'
+import type { Transport, TransportConfig } from '../services/transport'
 
 export class IPCTransport extends EventEmitter2 implements Transport {
 
-  private initiated: Boolean = false // tslint:disable-line
+  private initiated = false // tslint:disable-line
   private logger: Function = Debug('axm:transport:ipc')
   private onMessage: any | undefined
   private autoExitHandle: NodeJS.Timer | undefined
@@ -38,15 +38,15 @@ export class IPCTransport extends EventEmitter2 implements Transport {
     // clean listener if event loop is empty
     // important to ensure apm will not prevent application to stop
     this.autoExitHandle = setInterval(() => {
-      let currentProcess: any = (cluster.isWorker) ? cluster.worker.process : process
+      const currentProcess: any = (cluster.isWorker) ? cluster.worker.process : process
 
       if (currentProcess._getActiveHandles().length === 3) {
-        let handlers: any = currentProcess._getActiveHandles().map(h => h.constructor.name)
+        const handlers: any = currentProcess._getActiveHandles().map(h => h.constructor.name)
 
         if (handlers.includes('Pipe') === true &&
             handlers.includes('Socket') === true) {
           process.removeListener('message', this.onMessage)
-          let tmp = setTimeout(_ => {
+          const tmp = setTimeout(_ => {
             this.logger(`Still alive, listen back to IPC`)
             process.on('message', this.onMessage)
           }, 200)
@@ -95,6 +95,10 @@ export class IPCTransport extends EventEmitter2 implements Transport {
     }
 
     try {
+      // TODO: remove this log
+      if (channel.match(/trace/)) {
+        console.log('PMX send', channel, payload)
+      }
       process.send({ type: channel, data: payload })
     } catch (err) {
       this.logger('Process disconnected from parent !')
