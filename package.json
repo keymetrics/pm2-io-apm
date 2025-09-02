@@ -23,9 +23,9 @@
     "build": "tsc -p tsconfig.json",
     "build:module": "tsc -p config/exports/tsconfig.module.json",
     "lint": "tslint --project . src/**/*.ts",
-    "unit": "npm run build && bash test.sh",
+    "unit": "tsc -p tsconfig.json && bash test.sh",
     "mono": "mocha  --exit --require ts-node/register",
-    "test": "npm run unit",
+    "test": "if command -v bun >/dev/null 2>&1; then bun run unit; else npm run unit; fi",
     "watch": "tsc -w",
     "prepublishOnly": "npm run build"
   },
