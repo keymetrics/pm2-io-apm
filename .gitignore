@@ -2,7 +2,6 @@
 node_modules
 build
 src/**.js
-package-lock.json
 coverage
 .nyc_output
 *.log
