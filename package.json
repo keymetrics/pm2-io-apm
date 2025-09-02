@@ -3,6 +3,7 @@
   "version": "6.1.0",
   "description": "PM2.io NodeJS APM",
   "main": "build/main/index.js",
+  "type": "module",
   "typings": "build/main/index.d.ts",
   "types": "build/main/index.d.ts",
   "module": "build/module/index.js",
