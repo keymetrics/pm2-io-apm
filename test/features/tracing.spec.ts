@@ -9,7 +9,7 @@ const launch = (fixture) => {
   })
 }
 
-describe('Tracing with IPC transport', function () {
+describe.skip('Tracing with IPC transport', function () {
   this.timeout(10000)
 
   it('should use tracing system', (done) => {

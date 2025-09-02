@@ -9,4 +9,4 @@ setTimeout(function () {
   let toto
 
   console.log(toto.titi)
-}, 500)
+}, 1100)

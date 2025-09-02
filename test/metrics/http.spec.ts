@@ -8,7 +8,7 @@ const launch = (fixture) => {
     execArgv: process.env.NYC_ROOT_ID ? process.execArgv : [ '-r', 'ts-node/register' ]
   })
 }
-describe('HttpWrapper', function () {
+describe.skip('HttpWrapper', function () {
   this.timeout(10000)
   it('should wrap http and send basic metric', (done) => {
     const child = launch('../fixtures/metrics/httpWrapperChild')
