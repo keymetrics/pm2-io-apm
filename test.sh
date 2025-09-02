@@ -5,7 +5,11 @@ MOCHA='npx mocha'
 
 trap "exit" INT
 set -e
-npm run build
+if command -v bun &> /dev/null; then
+  bun run build
+else
+  npm run build
+fi
 
 #### Unit tests
 
