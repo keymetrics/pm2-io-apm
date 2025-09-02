@@ -1,7 +1,7 @@
 
 
 NODE_ENV='test'
-MOCHA='npx mocha'
+MOCHA='npx mocha --config .mocharc.js'
 
 trap "exit" INT
 set -e
